@@ -1,0 +1,9 @@
+<mvc:View
+    controllerName="com.ui5.journeyrecorder.controller.App"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:mvc="sap.ui.core.mvc"
+>
+    <App id="app" />
+</mvc:View>

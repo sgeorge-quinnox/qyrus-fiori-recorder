@@ -1,0 +1,15 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+>
+    <Menu itemSelected="onFrameworkChange">
+        <MenuItem
+            text="OPA5"
+            enabled="{= ${stepSetup>/framework} !== 'OPA5' || ${journeyControl>/framework} !== 'OPA5'}"
+        />
+        <MenuItem
+            text="wdi5"
+            enabled="{= ${stepSetup>/framework} !== 'wdi5' || ${journeyControl>/framework} !== 'wdi5'}"
+        />
+    </Menu>
+</core:FragmentDefinition>

@@ -1,0 +1,379 @@
+<mvc:View
+    controllerName="com.ui5.journeyrecorder.controller.StepPage"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:uxap="sap.uxap"
+    xmlns:core="sap.ui.core"
+    xmlns:recorder="com.ui5.journeyrecorder.control"
+    xmlns:mvc="sap.ui.core.mvc"
+    core:require="{
+		formatter: 'com/ui5/journeyrecorder/model/formatter'
+	}"
+>
+    <Page>
+        <customHeader>
+            <Bar>
+                <contentLeft>
+                    <Button
+                        type="Back"
+                        press=".onNavBack"
+                    />
+                    <Image
+                        src="assets/icons/ui5_journey_recorder.png"
+                        height="2.5rem"
+                    />
+                    <Title text="{i18n>appTitle}" />
+                </contentLeft>
+                <contentRight>
+                    <Button
+                        icon="sap-icon://action-settings"
+                        press=".onOpenSettingsDialog"
+                    />
+                    <Button
+                        icon="sap-icon://hide"
+                        tooltip="Advanced Controls"
+                        press=".onToggleVisibility"
+                    />
+                </contentRight>
+            </Bar>
+        </customHeader>
+        <content>
+            <uxap:ObjectPageLayout>
+                <uxap:headerTitle>
+                    <uxap:ObjectPageDynamicHeaderTitle class="step-page-header">
+                        <uxap:heading>
+                            <Title
+                                level="H2"
+                                text="Step: {step>/control/controlId/id}"
+                            />
+                        </uxap:heading>
+                        <uxap:expandedContent>
+                            <VBox>
+                                <ObjectStatus
+                                    title="Step action"
+                                    text="{path: 'step>/actionType', formatter: 'formatter.actionText'}"
+                                    icon="{
+                                        path: 'step>/actionType',
+                                        formatter: 'formatter.actionIcon'
+                                    }"
+                                />
+                                <recorder:EditableText
+                                    prefix="{i18n>comment}:"
+                                    text="{step>/comment}"
+                                />
+                            </VBox>
+                        </uxap:expandedContent>
+                        <uxap:snappedContent>
+                            <VBox>
+                                <ObjectStatus
+                                    title="Step action"
+                                    text="{path: 'step>/actionType', formatter: 'formatter.actionText'}"
+                                    icon="{
+                                path: 'step>/actionType',
+                                formatter: 'formatter.actionIcon'
+                            }"
+                                />
+                            </VBox>
+                        </uxap:snappedContent>
+                        <uxap:actions>
+                            <Button
+                                icon="sap-icon://thing-type"
+                                text="Change step type"
+                                tooltip="Change step type"
+                                press="typeChange"
+                            />
+                        </uxap:actions>
+                    </uxap:ObjectPageDynamicHeaderTitle>
+                </uxap:headerTitle>
+                <uxap:sections>
+                    <uxap:ObjectPageSection
+                        titleUppercase="false"
+                        title="Control"
+                    >
+                        <uxap:subSections>
+                            <uxap:ObjectPageSubSection titleUppercase="false">
+                                <uxap:blocks>
+                                    <VBox>
+                                        <HBox
+                                            justifyContent="SpaceBetween"
+                                            alignItems="Center"
+                                        >
+                                            <ObjectStatus
+                                                title="Control ID"
+                                                text="{step>/control/controlId/id}"
+                                            />
+                                            <CheckBox
+                                                text="Use ID for identification"
+                                                selected="{step>/control/controlId/use}"
+                                            />
+                                        </HBox>
+                                        <ObjectStatus
+                                            title="Control Type"
+                                            text="{step>/control/type}"
+                                        />
+                                    </VBox>
+                                </uxap:blocks>
+                            </uxap:ObjectPageSubSection>
+                        </uxap:subSections>
+                    </uxap:ObjectPageSection>
+                    <uxap:ObjectPageSection
+                        titleUppercase="false"
+                        title="Control Attributes"
+                    >
+                        <uxap:subSections>
+                            <uxap:ObjectPageSubSection titleUppercase="false">
+                                <uxap:blocks>
+                                    <IconTabBar expanded="{device>/isNoPhone}">
+                                        <items>
+                                            <IconTabFilter
+                                                text="Properties"
+                                                key="probs"
+                                                count="{ path: 'step>/control/properties', formatter: '.getAttributeCount' }"
+                                                visible="{  path: 'step>/control/properties', formatter: '.getAttributeVisibility' }"
+                                            >
+                                                <Table
+                                                    items="{ path: 'step>/control/properties', sorter: { path: 'name' } }"
+                                                >
+                                                    <columns>
+                                                        <Column>
+                                                            <Text text="Name" />
+                                                        </Column>
+                                                        <Column>
+                                                            <Text
+                                                                text="Value"
+                                                            />
+                                                        </Column>
+                                                        <Column>
+                                                            <Text text="Use" />
+                                                        </Column>
+                                                    </columns>
+                                                    <items>
+                                                        <ColumnListItem>
+                                                            <cells>
+                                                                <Text
+                                                                    text="{step>name}"
+                                                                />
+                                                                <Text
+                                                                    text="{step>value}"
+                                                                />
+                                                                <CheckBox
+                                                                    selected="{step>use}"
+                                                                />
+                                                            </cells>
+                                                        </ColumnListItem>
+                                                    </items>
+                                                </Table>
+                                            </IconTabFilter>
+                                            <IconTabFilter
+                                                text="Bindings"
+                                                key="binds"
+                                                count="{  path:'step>/control/bindings', formatter: '.getAttributeCount' }"
+                                                visible="{  path: 'step>/control/bindings', formatter: '.getAttributeVisibility' }"
+                                            >
+                                                <Table
+                                                    items="{ path: 'step>/control/bindings', sorter: { path: 'propertyName' } }"
+                                                >
+                                                    <columns>
+                                                        <Column>
+                                                            <Text
+                                                                text="Property Name"
+                                                            />
+                                                        </Column>
+                                                        <Column>
+                                                            <Text
+                                                                text="Model Name"
+                                                            />
+                                                        </Column>
+                                                        <Column>
+                                                            <Text
+                                                                text="Binding Path"
+                                                            />
+                                                        </Column>
+                                                        <Column>
+                                                            <Text
+                                                                text="Binding Value"
+                                                            />
+                                                        </Column>
+                                                        <Column>
+                                                            <Text text="Use" />
+                                                        </Column>
+                                                    </columns>
+                                                    <items>
+                                                        <ColumnListItem>
+                                                            <cells>
+                                                                <Text
+                                                                    text="{step>propertyName}"
+                                                                />
+                                                                <Text
+                                                                    text="{step>modelName}"
+                                                                />
+                                                                <HBox>
+                                                                    <Text
+                                                                        text="{step>propertyPath}"
+                                                                        visible="{= !!${step>propertyPath}}"
+                                                                    />
+                                                                    <Text
+                                                                        text="{step>contextPath}"
+                                                                        visible="{= !!${step>contextPath}}"
+                                                                    />
+                                                                </HBox>
+                                                                <Text
+                                                                    text="{step>bindingValue}"
+                                                                />
+                                                                <CheckBox
+                                                                    selected="{step>use}"
+                                                                />
+                                                            </cells>
+                                                        </ColumnListItem>
+                                                    </items>
+                                                </Table>
+                                            </IconTabFilter>
+                                            <IconTabFilter
+                                                text="i18n Texts"
+                                                key="texts"
+                                                count="{ path: 'step>/control/i18nTexts', formatter: '.getAttributeCount' }"
+                                                visible="{ path: 'step>/control/i18nTexts', formatter: '.getAttributeVisibility' }"
+                                            >
+                                                <Table
+                                                    items="{path: 'step>/control/i18nTexts', sorter: { path: 'propertyName' } }"
+                                                >
+                                                    <columns>
+                                                        <Column>
+                                                            <Text
+                                                                text="Property Name"
+                                                            />
+                                                        </Column>
+                                                        <Column>
+                                                            <Text
+                                                                text="Binding Path"
+                                                            />
+                                                        </Column>
+                                                        <Column>
+                                                            <Text
+                                                                text="Binding Value"
+                                                            />
+                                                        </Column>
+                                                        <Column>
+                                                            <Text text="Use" />
+                                                        </Column>
+                                                    </columns>
+                                                    <items>
+                                                        <ColumnListItem>
+                                                            <cells>
+                                                                <Text
+                                                                    text="{step>propertyName}"
+                                                                />
+                                                                <Text
+                                                                    text="{step>propertyPath}"
+                                                                />
+                                                                <Text
+                                                                    text="{step>bindingValue}"
+                                                                />
+                                                                <CheckBox
+                                                                    selected="{step>use}"
+                                                                />
+                                                            </cells>
+                                                        </ColumnListItem>
+                                                    </items>
+                                                </Table>
+                                            </IconTabFilter>
+                                        </items>
+                                    </IconTabBar>
+                                </uxap:blocks>
+                            </uxap:ObjectPageSubSection>
+                        </uxap:subSections>
+                    </uxap:ObjectPageSection>
+                    <uxap:ObjectPageSection
+                        titleUppercase="false"
+                        title="Code Preview"
+                    >
+                        <uxap:subSections>
+                            <uxap:ObjectPageSubSection titleUppercase="false">
+                                <uxap:blocks>
+                                    <VBox>
+                                        <Panel
+                                            width="auto"
+                                            expanded="true"
+                                            height="20rem"
+                                        >
+                                            <headerToolbar>
+                                                <Toolbar>
+                                                    <ToolbarSpacer />
+                                                    <SegmentedButton selectedKey="{stepSetup>/framework}"
+                                                        selectionChange="onCodeCriteriaChanged">
+                                                        <items>
+                                                            <SegmentedButtonItem key="OPA5" text="OPA5"></SegmentedButtonItem>
+                                                            <SegmentedButtonItem key="wdi5" text="wdi5"></SegmentedButtonItem>
+                                                        </items>
+                                                    </SegmentedButton>
+                                                    <SegmentedButton selectedKey="{stepSetup>/style}"
+                                                        selectionChange="onCodeCriteriaChanged"
+                                                        class="sapUiSmallMarginBegin">
+                                                        <items>
+                                                            <SegmentedButtonItem key="JS" text="JavaScript"></SegmentedButtonItem>
+                                                            <SegmentedButtonItem key="TS" text="TypeScript"></SegmentedButtonItem>
+                                                        </items>
+                                                    </SegmentedButton>
+                                                </Toolbar>
+                                            </headerToolbar>
+                                            <content>
+                                                <recorder:CodeViewer
+                                                    id="stepCode"
+                                                    language="{stepSetup>/codeStyle}"
+                                                    code="{stepSetup>/code}"
+                                                />
+                                            </content>
+                                        </Panel>
+                                        <Toolbar>
+                                            <Label
+                                                text="Current Framework: {stepSetup>/framework}"
+                                            />
+                                            <ToolbarSpacer />
+                                            <Button
+                                                icon="sap-icon://copy"
+                                                press="onCopyCode"
+                                                tooltip="Copy current editor content"
+                                            />
+                                        </Toolbar>
+                                    </VBox>
+                                </uxap:blocks>
+                            </uxap:ObjectPageSubSection>
+                        </uxap:subSections>
+                    </uxap:ObjectPageSection>
+                </uxap:sections>
+            </uxap:ObjectPageLayout>
+        </content>
+        <footer>
+            <Bar>
+                <contentLeft>
+                    <core:Icon
+                        src="{ path: '/connectionStatus', formatter: '.connectionIcon'}"
+                        color="{ path: '/connectionStatus', formatter: '.connectionColor'}"
+                    />
+                </contentLeft>
+                <contentRight>
+                    <Button
+                        icon="sap-icon://target-group"
+                        text="Reselect Step"
+                        press=".onReselect"
+                        tooltip="Reopens the page to test and enables the reselection of this step"
+                    />
+                    <Button
+                        icon="sap-icon://delete"
+                        tooltip="Remove this step from the whole journey and nav back"
+                        text="Remove this step"
+                        press=".onStepRemove"
+                        type="Attention"
+                    />
+                    <Button
+                        id="saveBtn"
+                        icon="sap-icon://save"
+                        text="Save"
+                        press=".onSave"
+                        type="Emphasized"
+                    />
+                </contentRight>
+            </Bar>
+        </footer>
+    </Page>
+</mvc:View>

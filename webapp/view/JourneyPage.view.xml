@@ -1,0 +1,328 @@
+<mvc:View
+    controllerName="com.ui5.journeyrecorder.controller.JourneyPage"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:uxap="sap.uxap"
+    xmlns:recorder="com.ui5.journeyrecorder.control"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:dnd="sap.ui.core.dnd"
+    core:require="{
+		formatter: 'com/ui5/journeyrecorder/model/formatter'
+	}"
+>
+    <Page>
+        <customHeader>
+            <Bar class="appNavbar" design="Header">
+                <contentLeft>
+                    <Button
+                        type="Back"
+                        press=".onNavBack"
+                    />
+                    <Image
+                        src="assets/icons/qyrus-logo-white.svg"
+                        height="1.2rem"
+                    />
+                    <Title text="{i18n>appTitle}" />
+                </contentLeft>
+                <contentRight>
+                    <Button
+                        icon="sap-icon://action-settings"
+                        press=".onOpenSettingsDialog"
+                    />
+					<Button
+                        icon="sap-icon://hide"
+                        tooltip="Advanced Controls"
+                        press=".onToggleVisibility"
+                    />
+                </contentRight>
+            </Bar>
+        </customHeader>
+        <content>
+            <uxap:ObjectPageLayout>
+                <uxap:headerTitle>
+                    <uxap:ObjectPageDynamicHeaderTitle
+                        class="journey-page-header"
+                    >
+                        <uxap:heading>
+                            <recorder:EditableText
+                                prefix="{i18n>journey}:"
+                                text="{journey>/name}"
+                                useAsTitle="true"
+                            />
+                        </uxap:heading>
+                        <uxap:expandedContent>
+                            <HBox
+                                justifyContent="SpaceBetween"
+                                width="100%"
+                            >
+                                <VBox>
+                                    <ObjectStatus
+                                        title="Site-Url"
+                                        text="{journey>/startUrl}"
+                                    />
+                                    <ObjectStatus
+                                        title="UI5 Version"
+                                        text="{journey>/ui5Version}"
+                                    />
+                                </VBox>
+                                <VBox>
+                                    <ObjectStatus
+                                        title="Created"
+                                        text="{
+                                    path: 'journey>/created',
+                                    formatter: '.dateTimeFormatter'
+                                }"
+                                    />
+                                    <ObjectStatus
+                                        title="Latest Edit"
+                                        text="{
+                                    path: 'journey>/edited',
+                                    formatter: '.dateTimeFormatter'
+                                }"
+                                    />
+                                </VBox>
+                            </HBox>
+                        </uxap:expandedContent>
+                        <uxap:actions>
+                            <Button
+                                icon="sap-icon://connected"
+                                press="onConnect"
+                                text="Connect"
+                                visible="{= ${path: '/connectionStatus'} !== 'connected' &amp;&amp; ${path: '/connectionStatus'} !== 'connecting'}"
+                            />
+                            <Button
+                                icon="sap-icon://disconnected"
+                                press="onDisconnect"
+                                text="Disconnect"
+                                visible="{= ${path: '/connectionStatus'} === 'connected'}"
+                            />
+                        </uxap:actions>
+                    </uxap:ObjectPageDynamicHeaderTitle>
+                </uxap:headerTitle>
+                <uxap:sections>
+                    <uxap:ObjectPageSection
+                        titleUppercase="false"
+                        title="Steps"
+                    >
+                        <uxap:subSections>
+                            <uxap:ObjectPageSubSection titleUppercase="false">
+                                <uxap:blocks>
+                                    <List
+                                        id="stepList"
+                                        items="{journey>/steps}"
+                                        class="step-list"
+                                    >
+                                        <dragDropConfig>
+                                            <dnd:DragDropInfo
+                                                sourceAggregation="items"
+                                                targetAggregation="items"
+                                                dropPosition="Between"
+                                                drop="onReorderItems"
+                                            />
+                                        </dragDropConfig>
+                                        <headerToolbar>
+                                            <Toolbar>
+                                                <ToolbarSpacer />
+                                                <Button
+                                                    icon="sap-icon://add"
+                                                    tooltip="Add Step"
+                                                    press="onAddStep"
+                                                />
+                                                <ToolbarSeparator />
+                                                <Button
+                                                    icon="sap-icon://restart"
+                                                    press="onReplay"
+                                                    text="Replay"
+                                                    tooltip="Execute all teststep on the page"
+                                                    visible="{= !${path: 'journeyControl>/replayEnabled'}}"
+                                                />
+                                                <Button
+                                                    icon="sap-icon://stop"
+                                                    press="onStopReplay"
+                                                    text="Stop Replay"
+                                                    tooltip="Stop execution"
+                                                    visible="{= ${path: 'journeyControl>/replayEnabled'}}"
+                                                />
+                                            </Toolbar>
+                                        </headerToolbar>
+                                        <items>
+                                            <CustomListItem
+                                                type="Navigation"
+                                                class="step-item"
+                                                press=".navigateToStep"
+                                            >
+                                                <HBox>
+                                                    <VBox
+                                                        justifyContent="Center"
+                                                    >
+                                                        <Button
+                                                            icon="sap-icon://media-play"
+                                                            press=".executeTestStep"
+                                                            class="sapUiTinyMarginEnd"
+                                                            visible="{= !!${ path: 'journey>executable'} &amp;&amp; !!${ path: 'journeyControl>/manualReplay'}}"
+                                                        />
+                                                        <core:Icon
+                                                            class="sapUiTinyMarginEnd"
+                                                            src="{
+                                                                path: 'journey>state',
+                                                                formatter: 'formatter.stateIcon'
+                                                            }"
+                                                            color="{
+                                                                path: 'journey>state',
+                                                                formatter: 'formatter.stateIconColor'
+                                                            }"
+                                                            visible="{= !${ path: 'journey>executable'}}"
+                                                        />
+                                                    </VBox>
+                                                    <HBox
+                                                        alignItems="Center"
+                                                        width="100%"
+                                                    >
+                                                        <core:Icon
+                                                            src="{
+                                                                path: 'journey>actionType',
+                                                                formatter: 'formatter.actionIcon'
+                                                            }"
+                                                            tooltip="{
+                                                                path: 'journey>actionType',
+                                                                formatter: 'formatter.actionText'
+                                                            }"
+                                                        />
+                                                        <HBox
+                                                            justifyContent="SpaceBetween"
+                                                            alignItems="Center"
+                                                            width="100%"
+                                                            class="sapUiSmallMarginBegin"
+                                                        >
+                                                            <VBox>
+                                                                <Title
+                                                                    text="{journey>control/controlId/id}"
+                                                                />
+                                                                <Text
+                                                                    text="{journey>actionLocation}"
+                                                                />
+                                                            </VBox>
+                                                            <Button
+                                                                icon="sap-icon://delete"
+                                                                tooltip="Remove this step"
+                                                                press=".onStepDelete"
+                                                            />
+                                                        </HBox>
+                                                    </HBox>
+                                                </HBox>
+                                            </CustomListItem>
+                                        </items>
+                                    </List>
+                                </uxap:blocks>
+                                <uxap:actions />
+                            </uxap:ObjectPageSubSection>
+                        </uxap:subSections>
+                    </uxap:ObjectPageSection>
+
+                    <uxap:ObjectPageSection
+                        titleUppercase="false"
+                        title="Code"
+                    >
+                        <uxap:subSections>
+                            <uxap:ObjectPageSubSection titleUppercase="false">
+                                <uxap:actions>
+                                    <SegmentedButton selectedKey="{journeyControl>/framework}"
+                                        selectionChange="onFrameworkChange">
+                                        <items>
+                                            <SegmentedButtonItem key="OPA5" text="OPA5"></SegmentedButtonItem>
+                                            <SegmentedButtonItem key="wdi5" text="wdi5"></SegmentedButtonItem>
+                                        </items>
+                                    </SegmentedButton>
+                                    <SegmentedButton selectedKey="{journeyControl>/style}"
+                                        selectionChange="onStyleChange"
+                                        class="sapUiSmallMarginBegin">
+                                        <items>
+                                            <SegmentedButtonItem key="JS" text="JavaScript"></SegmentedButtonItem>
+                                            <SegmentedButtonItem key="TS" text="TypeScript"></SegmentedButtonItem>
+                                        </items>
+                                    </SegmentedButton>
+                                </uxap:actions>
+                                <uxap:blocks>
+                                    <Panel
+                                        width="auto"
+                                        expanded="true"
+                                        height="40rem"
+                                    >
+                                        <IconTabBar
+                                            id="codePreviewTabs"
+                                            select=".onSelectCodeTab"
+                                            expanded="true"
+                                            expandable="false"
+                                            class="sapUiResponsiveContentPadding"
+                                            items="{journeyControl>/codes}"
+                                        >
+                                            <items>
+                                                <IconTabFilter
+                                                    text="{journeyControl>title}"
+                                                    key="{journeyControl>title}"
+                                                >
+                                                    <recorder:CodeViewer
+                                                        id="journeyCode"
+                                                        language="javascript"
+                                                        height="30rem"
+                                                        code="{journeyControl>code}"
+                                                    />
+                                                </IconTabFilter>
+                                            </items>
+                                        </IconTabBar>
+                                        <Toolbar design="Solid">
+                                            <Label
+                                                text="Current Framework: {journeyControl>/framework}"
+                                            />
+                                            <ToolbarSpacer />
+                                            <Button
+                                                icon="sap-icon://copy"
+                                                press="onCopyCode"
+                                                tooltip="Copy current editor content"
+                                            />
+                                            <Button
+                                                icon="sap-icon://download"
+                                                tooltip="Download TestCode"
+                                                press="onCodeDownload"
+                                            />
+                                        </Toolbar>
+                                    </Panel>
+                                </uxap:blocks>
+                            </uxap:ObjectPageSubSection>
+                        </uxap:subSections>
+                    </uxap:ObjectPageSection>
+                </uxap:sections>
+            </uxap:ObjectPageLayout>
+        </content>
+        <footer>
+            <Bar>
+                <contentLeft>
+                    <core:Icon
+                        src="{ path: '/connectionStatus', formatter: '.connectionIcon'}"
+                        color="{ path: '/connectionStatus', formatter: '.connectionColor'}"
+                    />
+                </contentLeft>
+                <contentRight>
+                    <Button
+                        icon="sap-icon://download"
+                        text="Export"
+                        press=".onExport"
+                    />
+                    <Button
+                        id="saveBtn"
+                        icon="sap-icon://save"
+                        text="Save"
+                        press=".onSave"
+                    />
+                    <Button
+                    id="idCreateQyrus"
+                    text="Create Test in Qyrus"
+                    type="Transparent"
+                    tooltip="Create a test in Qyrus"
+                    press=".onCreateQyrus"/>
+                </contentRight>
+            </Bar>
+        </footer>
+    </Page>
+</mvc:View>

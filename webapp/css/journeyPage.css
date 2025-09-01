@@ -1,0 +1,71 @@
+.step-list .step-item {
+    padding: 0.5rem;
+}
+
+.space-even {
+    justify-content: space-evenly;
+}
+
+.journey-page-header .sapFDynamicPageTitleMain>.sapFDynamicPageTitleMainInner .sapFDynamicPageTitleMainHeading .sapFDynamicPageTitleMainHeadingInner .sapMTitle:not(.sapUICompVarMngmtTitle){
+    font-size: 1rem;
+}
+
+pre code.hljs.internal, pre.dark code.hljs.internal {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+pre code.hljs div.row, pre.dark code.hljs div.row {
+    display: flex;
+    flex-direction: row;
+}
+
+pre code.hljs div.row .line-indicator, pre.dark code.hljs div.row .line-indicator {
+    min-width: 1rem;
+    padding: 0 0.5rem;
+    text-align: end;
+    border-right: 1px solid;
+}
+
+pre code.hljs div.row .code, pre.dark code.hljs div.row .code {
+    margin-left: 0.5rem;
+}
+/* App navbar theme */
+.appNavbar,
+.appNavbar.sapMBar {
+  background-color: #130F33 !important; /* nav background */
+}
+
+/* Make all text in the bar white (titles, labels, etc.) */
+.appNavbar .sapMTitle,
+.appNavbar .sapMText,
+.appNavbar .sapMLabel,
+.appNavbar .sapMObjStatusTitle,
+.appNavbar .sapMObjStatusText {
+  color: #ffffff !important;
+}
+
+/* Make icons in the bar white */
+.appNavbar .sapUiIcon,
+.appNavbar .sapMBtnIcon {
+  color: #ffffff !important;
+  fill: #ffffff !important; /* for SVG-based icons */
+}
+
+/* Keep bar buttons transparent, no borders, and white content */
+.appNavbar .sapMBtnInner,
+.appNavbar .sapMBtnInner:hover,
+.appNavbar .sapMBtnInner:active,
+.appNavbar .sapMBtnActive {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+/* If you have Inputs in the header (unlikely), make their text/placeholder legible */
+.appNavbar .sapMInputBaseInner,
+.appNavbar .sapMInputBasePlaceholder {
+  color: #ffffff !important;
+}

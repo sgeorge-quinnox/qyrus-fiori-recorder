@@ -1,0 +1,11 @@
+.sapUxAPObjectPageHeaderTitle .step-page-header h2.sapUxAPObjectPageHeaderIdentifierTitle,  .sapUxAPObjectPageHeaderTitle.sapUxAPObjectPageHeaderStickied .step-page-header h2.sapUxAPObjectPageHeaderIdentifierTitle{
+    font-size: 1rem;
+}
+
+
+
+.step-page-header .sapFDynamicPageTitleMain>.sapFDynamicPageTitleMainInner .sapFDynamicPageTitleMainHeading .sapFDynamicPageTitleMainHeadingInner .sapMTitle:not(.sapUICompVarMngmtTitle){
+    font-size: 1rem;
+}
+
+/*for code styling look at the journey css*/

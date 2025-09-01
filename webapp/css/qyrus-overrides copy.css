@@ -1,0 +1,46 @@
+Minimal “Qyrus-like” refinements, keeping Horizon look & spacing
+
+:root {
+    /* If you want a slightly different font tone, this keeps 72 as fallback */
+    --sapFontFamily: "Inter", "72", "72full", Arial, Helvetica, sans-serif;
+
+    /* Softer corners and subtle shadow like the screenshot cards */
+    --sapContent_BorderRadius: .75rem;
+  }
+
+  /* Headers feel lighter without the drop shadow */
+  .sapMPageHeader, .sapMPageSubHeader, .sapMPageFooter, .sapMIBar-CTX {
+    box-shadow: none;
+    background: transparent;
+  }
+
+  /* Titles a touch stronger and tighter letter-spacing */
+  .sapMIBar-CTX .sapMTitle, .sapMTitle {
+    font-weight: 200;
+    letter-spacing: .15px;
+  }
+
+  /* Slightly rounder buttons for a modern look */
+  .sapMBtnInner {
+    border-radius: .6rem;
+  }
+
+  /* Generic "card" look you can apply via class="qr-card" */
+  .qr-card {
+    border-radius: var(--sapContent_BorderRadius);
+    background: var(--sapGroup_ContentBackground);
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    padding: 1rem;
+  }
+
+  /* IconTabBar header stays clean like the screenshot */
+  .sapMITH, .sapMITBHead { box-shadow: none; }
+
+  /* Optional: brand tint (keep it subtle to avoid fighting Horizon) */
+  :root {
+    --sapBrandColor: #2563eb;               /* Qyrus-ish blue */
+    --sapHighlightColor: var(--sapBrandColor);
+  }
+  .sapMBtnEmphasized.sapMBtnInner {
+    background: var(--sapBrandColor);
+  }

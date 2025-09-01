@@ -1,0 +1,178 @@
+{
+  "manifest_version": 3,
+  "name": "Qyrus Fiori Recorder",
+  "short_name": "Qyrus Fiori Recorder",
+  "description": "Qyrus Fiori Recorder",
+  "version": "${version}",
+  "minimum_chrome_version": "88",
+  "background": {
+    "service_worker": "/assets/scripts/starter.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "/assets/scripts/page_inject.js",
+        "/assets/scripts/communication_inject.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ],
+      "use_dynamic_url": false
+    }
+  ],
+  "host_permissions": [
+    "http://*/*","https://*/*","<all_urls>"
+  ],
+  "permissions": [
+    "storage",
+    "scripting"
+  ],
+  "optional_permissions": [
+    "tabs"
+  ],
+  "action": {},
+  "icons": {
+    "16": "/assets/icons/icon/Qyrus-Fav-icon-Transparent.png",
+    "32": "/assets/icons/icon/Qyrus-Fav-icon-Transparent.png",
+    "48": "/assets/icons/icon/Qyrus-Fav-icon-Transparent.png",
+    "64": "/assets/icons/icon/Qyrus-Fav-icon-Transparent.png",
+    "80": "/assets/icons/icon/Qyrus-Fav-icon-Transparent.png",
+    "96": "/assets/icons/icon/Qyrus-Fav-icon-Transparent.png",
+    "128": "/assets/icons/icon/Qyrus-Fav-icon-Transparent.png"
+  },
+  "//ui5 part": "/--/",
+  "_version": "1.12.0",
+  "sap.app": {
+    "id": "com.ui5.journeyrecorder",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "applicationVersion": {
+      "version": "${version}"
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {},
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "rootView": {
+      "viewName": "com.ui5.journeyrecorder.view.App",
+      "type": "XML",
+      "async": true,
+      "id": "app"
+    },
+    "dependencies": {
+      "minUI5Version": "1.120.6",
+      "libs": {
+        "sap.ui.core": {},
+        "sap.m": {},
+        "sap.uxap": {}
+      }
+    },
+    "handleValidation": true,
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "com.ui5.journeyrecorder.i18n.i18n",
+          "supportedLocales": [
+            "",
+            "en",
+            "de"
+          ]
+        }
+      }
+    },
+    "resources": {
+      "css": [
+        {
+          "uri": "css/main.css"
+        },
+        {
+          "uri": "css/control/editableText.css"
+        },
+        {
+          "uri": "css/journeyPage.css"
+        },
+        {
+          "uri": "css/stepPage.css"
+        },
+        {
+          "uri": "css/hljs-github-theme.css"
+        },
+        {
+          "uri": "css/qyrus.css"
+        },
+        {
+          "uri": "css/qyrus-overrides.css"
+        }
+      ]
+    },
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "viewType": "XML",
+        "viewPath": "com.ui5.journeyrecorder.view",
+        "controlId": "app",
+        "controlAggregation": "pages",
+        "proxyBase": "/qyrus",
+        "async": true
+      },
+      "routes": [
+        {
+          "pattern": "",
+          "name": "main",
+          "target": "main"
+        },
+        {
+          "pattern": "journey/{id}",
+          "name": "journey",
+          "target": "journey"
+        },
+        {
+          "pattern": "journey/recording/{tabId}",
+          "name": "recording",
+          "target": "journey"
+        },
+        {
+          "pattern": "journey/{id}/step/{stepId}",
+          "name": "step",
+          "target": "step"
+        },
+        {
+          "pattern": "journey/{id}/define/{stepId}",
+          "name": "step-define",
+          "target": "step"
+        }
+      ],
+      "targets": {
+        "main": {
+          "viewId": "main",
+          "viewName": "Main",
+          "viewLevel": 0
+        },
+        "journey": {
+          "viewId": "journeyPage",
+          "viewName": "JourneyPage",
+          "viewLevel": 1
+        },
+        "step": {
+          "viewId": "stepPage",
+          "viewName": "StepPage",
+          "viewLevel": 2
+        }
+      }
+    }
+  }
+}

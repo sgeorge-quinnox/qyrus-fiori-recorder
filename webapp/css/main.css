@@ -1,0 +1,49 @@
+.journey-line {
+    margin-left: auto;
+}
+.headerBar{
+    height: 50px;
+}
+.appTitleLogo{
+    width: 30px;
+    height: 30px;
+    background-color: #F8F7FA;
+}
+
+/* App navbar theme */
+.appNavbar,
+.appNavbar.sapMBar {
+  background-color: #130F33 !important; /* nav background */
+}
+
+/* Make all text in the bar white (titles, labels, etc.) */
+.appNavbar .sapMTitle,
+.appNavbar .sapMText,
+.appNavbar .sapMLabel,
+.appNavbar .sapMObjStatusTitle,
+.appNavbar .sapMObjStatusText {
+  color: #ffffff !important;
+}
+
+/* Make icons in the bar white */
+.appNavbar .sapUiIcon,
+.appNavbar .sapMBtnIcon {
+  color: #ffffff !important;
+  fill: #ffffff !important; /* for SVG-based icons */
+}
+
+/* Keep bar buttons transparent, no borders, and white content */
+.appNavbar .sapMBtnInner,
+.appNavbar .sapMBtnInner:hover,
+.appNavbar .sapMBtnInner:active,
+.appNavbar .sapMBtnActive {
+  background: transparent !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+/* If you have Inputs in the header (unlikely), make their text/placeholder legible */
+.appNavbar .sapMInputBaseInner,
+.appNavbar .sapMInputBasePlaceholder {
+  color: #ffffff !important;
+}

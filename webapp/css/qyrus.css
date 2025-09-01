@@ -1,0 +1,4957 @@
+/* Functions of Top /Side Nav Bar,  Bread Crumbs & Back Button */
+
+position: relative;
+width: 1366px;
+height: 1452px;
+
+background: #F0F0F5;
+border-radius: 16px;
+
+
+/* Frame 427320255 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+position: absolute;
+width: 1318px;
+height: 1388px;
+left: 24px;
+top: 32px;
+
+
+
+/* Functions of Top /Side Nav Bar, Bread Crumbs & Back Button */
+
+width: 733px;
+height: 112px;
+
+/* Hero text */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 48px;
+line-height: 56px;
+/* or 117% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Frame 427320251 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 16px;
+gap: 16px;
+
+width: 1318px;
+height: 256px;
+
+background: #FFFFFF;
+/* Section-Shadow */
+box-shadow: 1px 1px 4px rgba(19, 15, 51, 0.08);
+border-radius: 16px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Navigation Bar */
+
+width: 170px;
+height: 32px;
+
+/* Header-semibold */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 24px;
+line-height: 32px;
+/* identical to box height, or 133% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Header Navbar without links */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 10px;
+
+width: 1286px;
+height: 48px;
+
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Header navbar */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+align-items: flex-start;
+padding: 0px;
+
+width: 1286px;
+height: 48px;
+
+background: #130F33;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Header area */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px 16px;
+gap: 261px;
+
+margin: 0 auto;
+width: 1286px;
+height: 48px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 427319657 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 8px 0px;
+gap: 16px;
+
+margin: 0 auto;
+width: 322px;
+height: 48px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Frame 427320250 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 148px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Grid-Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 44px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #E4E5E5;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* grid-round */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #E4E5E5;
+
+
+/* Qyrus-logo */
+
+width: 100px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 89.7%;
+right: 8.19%;
+top: 42.44%;
+bottom: 48.88%;
+
+background: #E4E5E5;
+
+
+/* Vector */
+
+position: absolute;
+left: 43.09%;
+right: 39.9%;
+top: 0.53%;
+bottom: 0.21%;
+
+background: #E4E5E5;
+
+
+/* Vector */
+
+position: absolute;
+left: 68.52%;
+right: 20.41%;
+top: 0.51%;
+bottom: 0.24%;
+
+background: #E4E5E5;
+
+
+/* Vector */
+
+position: absolute;
+left: 20.01%;
+right: 68.27%;
+top: 0.49%;
+bottom: 0.25%;
+
+background: #E4E5E5;
+
+
+/* Vector */
+
+position: absolute;
+left: 61.33%;
+right: 30.94%;
+top: 0.52%;
+bottom: 2.84%;
+
+background: #E4E5E5;
+
+
+/* Vector */
+
+position: absolute;
+left: 31.6%;
+right: 58.87%;
+top: 0.5%;
+bottom: 47.3%;
+
+background: #E4E5E5;
+
+
+/* Vector */
+
+position: absolute;
+left: 0%;
+right: 79.22%;
+top: 0%;
+bottom: 0%;
+
+background: #E4E5E5;
+
+
+/* Vector */
+
+position: absolute;
+left: 14.17%;
+right: 83.71%;
+top: 70.34%;
+bottom: 20.98%;
+
+background: #E4E5E5;
+
+
+/* Vector */
+
+position: absolute;
+left: 0.03%;
+right: 91.04%;
+top: 47.36%;
+bottom: 14.63%;
+
+background: linear-gradient(94.41deg, #46DF93 -0.08%, #CFF242 99.92%);
+
+
+/* Vector */
+
+position: absolute;
+left: 82.94%;
+right: 0.27%;
+top: 0.52%;
+bottom: 49.06%;
+
+background: #E4E5E5;
+
+
+/* Vector */
+
+position: absolute;
+left: 81.52%;
+right: 0%;
+top: 42.58%;
+bottom: 0.24%;
+
+background: #E4E5E5;
+
+
+/* Line 40 */
+
+width: 32px;
+height: 0px;
+
+opacity: 0.2;
+border: 1px solid #FFFFFF;
+transform: rotate(90deg);
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 427319656 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 8px;
+
+width: 142px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* drop-down-1 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 142px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Web testing Service Icon */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Group */
+
+position: absolute;
+left: 6.25%;
+right: 6.25%;
+top: 6.25%;
+bottom: 6.25%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 6.25%;
+right: 6.25%;
+top: 6.25%;
+bottom: 6.25%;
+
+background: #363D47;
+
+
+/* Vector */
+
+position: absolute;
+left: 11.11%;
+right: 11.11%;
+top: 11.11%;
+bottom: 11.1%;
+
+background: #00508E;
+
+
+/* Vector */
+
+position: absolute;
+left: 15.97%;
+right: 15.97%;
+top: 15.96%;
+bottom: 15.97%;
+
+background: #0962AC;
+
+
+/* Vector */
+
+position: absolute;
+left: 20.83%;
+right: 20.83%;
+top: 20.83%;
+bottom: 20.83%;
+
+background: #307BBF;
+
+
+/* Vector */
+
+position: absolute;
+left: 28.13%;
+right: 28.12%;
+top: 28.12%;
+bottom: 28.12%;
+
+background: #FCF8F6;
+
+
+/* Vector */
+
+position: absolute;
+left: 15.98%;
+right: 74.07%;
+top: 37.13%;
+bottom: 37.11%;
+
+background: #0962AC;
+
+
+/* Vector */
+
+position: absolute;
+left: 11.11%;
+right: 80.69%;
+top: 38.7%;
+bottom: 38.69%;
+
+background: #FECF07;
+
+
+/* Vector */
+
+position: absolute;
+left: 6.26%;
+right: 86.81%;
+top: 39.98%;
+bottom: 39.98%;
+
+background: #363D47;
+
+
+/* Vector */
+
+position: absolute;
+left: 74.07%;
+right: 15.97%;
+top: 37.12%;
+bottom: 37.13%;
+
+background: #0962AC;
+
+
+/* Vector */
+
+position: absolute;
+left: 80.7%;
+right: 11.11%;
+top: 38.69%;
+bottom: 38.7%;
+
+background: #FECF07;
+
+
+/* Vector */
+
+position: absolute;
+left: 86.82%;
+right: 6.25%;
+top: 39.98%;
+bottom: 39.98%;
+
+background: #363D47;
+
+
+/* Vector */
+
+position: absolute;
+left: 33.84%;
+right: 33.82%;
+top: 43.66%;
+bottom: 43.64%;
+
+background: #363D47;
+
+
+/* Button */
+
+width: 82px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #E4E5E5;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* caret-down */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 33.33%;
+right: 33.33%;
+top: 40%;
+bottom: 40%;
+
+background: #E4E5E5;
+
+
+/* drop-down-2 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+padding: 6px;
+gap: 4px;
+
+display: none;
+width: 93px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* drop-down-3 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+padding: 6px;
+gap: 4px;
+
+display: none;
+width: 83px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Frame 427320248 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+margin: 0 auto;
+width: 256px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Frame 427320052 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+display: none;
+width: 420px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Frame 427320053 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+width: 256px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+background: #FFFFFF;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 45px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #34363B;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* plus */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #34363B;
+
+
+/* Search Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 44px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #E4E5E5;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* magnifying-glass */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #E4E5E5;
+
+
+/* Team Configuration Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+display: none;
+width: 32px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Notification Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 44px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #E4E5E5;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* bell */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 20.83%;
+right: 20.83%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #E4E5E5;
+
+
+/* Execution Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 44px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #E4E5E5;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* bolt */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 25%;
+right: 25%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #E4E5E5;
+
+
+/* Others Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 5;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 44px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #E4E5E5;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* ellipsis */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 44.44%;
+bottom: 44.44%;
+
+background: #E4E5E5;
+
+
+/* Profile Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 56px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 6;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 56px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* pp-ameet */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* pp-amit */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 0%;
+bottom: 0%;
+
+background: url(ameet-deshpande.png);
+
+
+/* Button */
+
+display: none;
+width: 76px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #E4E5E5;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* caret-down */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 33.33%;
+right: 33.33%;
+top: 40%;
+bottom: 40%;
+
+background: #E4E5E5;
+
+
+/* Header Navbar with links */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 10px;
+
+width: 1286px;
+height: 48px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Header navbar */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: space-between;
+align-items: flex-start;
+padding: 0px;
+
+width: 1286px;
+height: 48px;
+
+background: #F8F7FA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Header area */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px 16px;
+gap: 261px;
+
+margin: 0 auto;
+width: 1286px;
+height: 48px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 427319657 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 8px 0px;
+gap: 16px;
+
+margin: 0 auto;
+width: 358px;
+height: 48px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Frame 427320250 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 148px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Grid-Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 44px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* grid-round */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Qyrus-logo */
+
+width: 100px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 89.7%;
+right: 8.19%;
+top: 42.44%;
+bottom: 48.88%;
+
+background: #130F33;
+
+
+/* Vector */
+
+position: absolute;
+left: 43.09%;
+right: 39.9%;
+top: 0.53%;
+bottom: 0.21%;
+
+background: #130F33;
+
+
+/* Vector */
+
+position: absolute;
+left: 68.52%;
+right: 20.41%;
+top: 0.51%;
+bottom: 0.24%;
+
+background: #130F33;
+
+
+/* Vector */
+
+position: absolute;
+left: 20.01%;
+right: 68.27%;
+top: 0.49%;
+bottom: 0.25%;
+
+background: #130F33;
+
+
+/* Vector */
+
+position: absolute;
+left: 61.33%;
+right: 30.94%;
+top: 0.52%;
+bottom: 2.84%;
+
+background: #130F33;
+
+
+/* Vector */
+
+position: absolute;
+left: 31.6%;
+right: 58.87%;
+top: 0.5%;
+bottom: 47.3%;
+
+background: #130F33;
+
+
+/* Group 18331 */
+
+position: absolute;
+width: 20.78px;
+height: 24px;
+left: 0px;
+top: 0px;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 0%;
+right: 79.22%;
+top: 0%;
+bottom: 0%;
+
+background: #130F33;
+
+
+/* Vector */
+
+position: absolute;
+left: 14.17%;
+right: 83.71%;
+top: 70.34%;
+bottom: 20.98%;
+
+background: #130F33;
+
+
+/* Vector */
+
+position: absolute;
+left: 0.03%;
+right: 91.04%;
+top: 47.36%;
+bottom: 14.63%;
+
+background: linear-gradient(94.41deg, #46DF93 -0.08%, #CFF242 99.92%);
+
+
+/* Vector */
+
+position: absolute;
+left: 82.94%;
+right: 0.27%;
+top: 0.52%;
+bottom: 49.06%;
+
+background: #130F33;
+
+
+/* Vector */
+
+position: absolute;
+left: 81.52%;
+right: 0%;
+top: 42.58%;
+bottom: 0.24%;
+
+background: #130F33;
+
+
+/* Line 40 */
+
+width: 32px;
+height: 0px;
+
+border: 1px solid rgba(19, 15, 51, 0.06);
+transform: rotate(90deg);
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 427319656 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 8px;
+
+width: 178px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* drop-down-1 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 178px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Component service icon */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Group */
+
+position: absolute;
+width: 17.5px;
+height: 17.5px;
+left: 1.25px;
+top: 1.25px;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 6.25%;
+right: 6.25%;
+top: 6.25%;
+bottom: 6.25%;
+
+background: #363D47;
+
+
+/* Vector */
+
+position: absolute;
+left: 11.12%;
+right: 11.11%;
+top: 11.11%;
+bottom: 11.12%;
+
+background: #9F312A;
+transform: rotate(90deg);
+
+
+/* Vector */
+
+position: absolute;
+left: 15.9%;
+right: 15.89%;
+top: 15.89%;
+bottom: 15.9%;
+
+background: #C23C32;
+transform: rotate(90deg);
+
+
+/* Vector */
+
+position: absolute;
+left: 20.28%;
+right: 20.27%;
+top: 20.27%;
+bottom: 20.28%;
+
+background: #E3463B;
+transform: rotate(90deg);
+
+
+/* Group */
+
+position: absolute;
+left: 30.43%;
+right: 46.7%;
+top: 38.56%;
+bottom: 22.3%;
+
+transform: rotate(90deg);
+
+
+/* Vector */
+
+position: absolute;
+left: 48.95%;
+right: 30.4%;
+top: 40.79%;
+bottom: 38.6%;
+
+background: #F2F1F1;
+transform: rotate(90deg);
+
+
+/* Vector */
+
+position: absolute;
+left: 30.43%;
+right: 48.93%;
+top: 38.56%;
+bottom: 40.82%;
+
+background: #F2F1F1;
+transform: rotate(90deg);
+
+
+/* Vector */
+
+position: absolute;
+left: 37.36%;
+right: 55.7%;
+top: 45.51%;
+bottom: 47.56%;
+
+background: #F2F1F1;
+transform: rotate(90deg);
+
+
+/* Vector */
+
+position: absolute;
+left: 55.7%;
+right: 37.37%;
+top: 47.54%;
+bottom: 45.52%;
+
+background: #F2F1F1;
+transform: rotate(90deg);
+
+
+/* Group */
+
+position: absolute;
+left: 38.59%;
+right: 38.57%;
+top: 6.62%;
+bottom: 75.56%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 38.59%;
+right: 52.59%;
+top: 15.61%;
+bottom: 61.54%;
+
+background: #C23C32;
+transform: rotate(90deg);
+
+
+/* Vector */
+
+position: absolute;
+left: 39.98%;
+right: 52.75%;
+top: 10.94%;
+bottom: 69.01%;
+
+background: #FECF07;
+transform: rotate(90deg);
+
+
+/* Vector */
+
+position: absolute;
+left: 41.11%;
+right: 52.73%;
+top: 6.62%;
+bottom: 75.6%;
+
+background: #363D47;
+transform: rotate(90deg);
+
+
+/* Group */
+
+position: absolute;
+left: 38.59%;
+right: 38.57%;
+top: 75.56%;
+bottom: 6.62%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 38.59%;
+right: 52.59%;
+top: 75.56%;
+bottom: 1.6%;
+
+background: #C23C32;
+transform: rotate(90deg);
+
+
+/* Vector */
+
+position: absolute;
+left: 39.98%;
+right: 52.75%;
+top: 81.79%;
+bottom: -1.84%;
+
+background: #FECF07;
+transform: rotate(90deg);
+
+
+/* Vector */
+
+position: absolute;
+left: 41.11%;
+right: 52.73%;
+top: 87.22%;
+bottom: -4.99%;
+
+background: #363D47;
+transform: rotate(90deg);
+
+
+/* Button */
+
+width: 118px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* caret-down */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 33.33%;
+right: 33.33%;
+top: 40%;
+bottom: 40%;
+
+background: #130F33;
+
+
+/* drop-down-2 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+padding: 6px;
+gap: 4px;
+
+display: none;
+width: 93px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* drop-down-3 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+padding: 6px;
+gap: 4px;
+
+display: none;
+width: 83px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Frame 427319658 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+margin: 0 auto;
+width: 256px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+background: #FFFFFF;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 45px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* plus */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Search Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 44px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* magnifying-glass */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Team Configuration Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+display: none;
+width: 32px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Notification Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 44px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* bell */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 20.83%;
+right: 20.83%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Execution Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 44px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* bolt */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 25%;
+right: 25%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Others Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 5;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 32px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* play */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Button */
+
+display: none;
+width: 44px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* ellipsis */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 44.44%;
+bottom: 44.44%;
+
+background: #130F33;
+
+
+/* Profile Hover */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 16px;
+
+width: 56px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 6;
+flex-grow: 0;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 56px;
+height: 32px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* pp-ameet */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* pp-amit */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 0%;
+bottom: 0%;
+
+background: url(ameet-deshpande.png);
+
+
+/* Button */
+
+display: none;
+width: 76px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* caret-down */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 33.33%;
+right: 33.33%;
+top: 40%;
+bottom: 40%;
+
+background: #130F33;
+
+
+/* A navbar, short for navigation bar, is a user interface element typically found at the top of a webpage or application. It serves as a menu to navigate through different services of the app, to create test-script, notifications, executions User Profile and settings of App controls to enhance the user experience. */
+
+width: 1286px;
+height: 48px;
+
+/* Body-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* or 150% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 427320253 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 16px;
+
+width: 1318px;
+height: 348px;
+
+background: #FFFFFF;
+/* Section-Shadow */
+box-shadow: 1px 1px 4px rgba(19, 15, 51, 0.08);
+border-radius: 16px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 427320252 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+width: 1286px;
+height: 316px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Bread Crumbs */
+
+width: 166px;
+height: 32px;
+
+/* Header-semibold */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 24px;
+line-height: 32px;
+/* identical to box height, or 133% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Breadcrumbs */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 4px;
+
+width: 216px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* House - breadcrumbs */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* house */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 0%;
+bottom: 0%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 20.37%;
+bottom: 20.37%;
+
+background: #130F33;
+
+
+/* slash-forward - breadcrumbs */
+
+width: 16px;
+height: 16px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* slash-forward */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 0%;
+bottom: 0%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 29.17%;
+right: 29.17%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #68657C;
+
+
+/* 3 dots - breadcrumbs */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 10px;
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* ellipsis */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 44.44%;
+bottom: 44.44%;
+
+background: #130F33;
+
+
+/* slash-forward - breadcrumbs */
+
+width: 16px;
+height: 16px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+
+
+/* slash-forward */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 0%;
+bottom: 0%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 29.17%;
+right: 29.17%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #68657C;
+
+
+/* pages - breadcrumbs */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 10px;
+
+width: 48px;
+height: 24px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+flex-grow: 0;
+
+
+/* Page 2 */
+
+width: 40px;
+height: 16px;
+
+/* Small-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 16px;
+/* identical to box height, or 133% */
+display: flex;
+align-items: center;
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* slash-forward - breadcrumbs */
+
+width: 16px;
+height: 16px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 5;
+flex-grow: 0;
+
+
+/* slash-forward */
+
+position: absolute;
+left: 0%;
+right: 0%;
+top: 0%;
+bottom: 0%;
+
+
+
+/* Vector */
+
+position: absolute;
+left: 29.17%;
+right: 29.17%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #68657C;
+
+
+/* last page - breadcrumbs */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 10px;
+
+width: 48px;
+height: 24px;
+
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 6;
+flex-grow: 0;
+
+
+/* Page 3 */
+
+width: 40px;
+height: 16px;
+
+/* Small-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 16px;
+/* identical to box height, or 133% */
+display: flex;
+align-items: center;
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* A breadcrumb, is a navigational aid used in user interfaces to enhance the user experience. It provides a trail for the user to follow back to the starting or entry point hierarchical structure of a website or application. This type of navigation is particularly useful in websites or applications with a hierarchical structure, allowing users to understand their current position in relation to the rest of the site and to navigate easily back to previous sections. */
+
+width: 1286px;
+height: 72px;
+
+/* Body-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* or 150% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Key Characteristics of Breadcrumbs: */
+
+width: 319px;
+height: 28px;
+
+/* Title-semibold */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 18px;
+line-height: 28px;
+/* identical to box height, or 156% */
+
+color: #4A9BC1;
+
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+
+
+/* Location: Breadcrumbs are typically placed at the top of a webpage, just below the primary navigation bar. Structure: Breadcrumbs usually display a sequence of links separated by a delimiter (e.g., >, /, »). Each link represents a higher level in the hierarchy of the site. Hierarchy: They reflect the path from the home page (or main entry point) to the current page, illustrating the user's journey through the site's structure. Clickable Links: Each part of the breadcrumb (except for the current page) is clickable, allowing users to navigate back to any previous page in the hierarchy. */
+
+width: 1286px;
+height: 96px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 14px;
+line-height: 24px;
+/* or 171% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 427320254 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 16px;
+
+width: 1318px;
+height: 624px;
+
+background: #FFFFFF;
+/* Section-Shadow */
+box-shadow: 1px 1px 4px rgba(19, 15, 51, 0.08);
+border-radius: 16px;
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Frame 427320252 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 16px;
+
+width: 1286px;
+height: 592px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Back button in Application */
+
+width: 305px;
+height: 32px;
+
+/* Header-semibold */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 24px;
+line-height: 32px;
+/* identical to box height, or 133% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* API Process Header &icons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px 16px;
+gap: 191px;
+isolation: isolate;
+
+width: 1286px;
+height: 40px;
+
+background: #F8F7FA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Payment-flow-back-more-icon */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 8px 0px;
+gap: 8px;
+
+margin: 0 auto;
+width: 175px;
+height: 40px;
+
+border-radius: 4px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+z-index: 0;
+
+
+/* Frame 313130 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+gap: 4px;
+
+width: 143px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* angle-left */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 32.2%;
+right: 40.53%;
+top: 25%;
+bottom: 25%;
+
+background: #130F33;
+
+
+/* Place Order Flow */
+
+width: 115px;
+height: 20px;
+
+/* Caption-semibol */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* ellipsis-vertical */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 44.44%;
+right: 44.44%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Icons-collapse-header */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: flex-end;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+margin: 0 auto;
+width: 266px;
+height: 32px;
+
+opacity: 0;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
+
+
+/* Collapse-angle-right-left */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+background: #FFFFFF;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* angle-right */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 40.54%;
+right: 32.2%;
+top: 25%;
+bottom: 25%;
+
+background: #130F33;
+
+
+/* utilities */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+
+display: none;
+width: 32px;
+height: 32px;
+
+background: #FDF6E2;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* utilities */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+background: #FCECEC;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* wrench-simple */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 25%;
+right: 25%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* test-script-sidebar */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+
+display: none;
+width: 32px;
+height: 32px;
+
+background: #E5F4FB;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+
+
+/* Environment */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+background: #E8F9EB;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+flex-grow: 0;
+
+
+/* globe */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Buttons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: center;
+align-items: center;
+align-content: center;
+padding: 6px;
+gap: 4px;
+
+width: 146px;
+height: 32px;
+
+background: #CFF242;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 5;
+flex-grow: 0;
+
+
+/* play */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 21.43%;
+right: 21.43%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Button */
+
+width: 110px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* caret-down */
+
+display: none;
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Canvas-tabs-logs */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px 8px;
+gap: 24px;
+
+position: absolute;
+width: 330px;
+height: 32px;
+left: calc(50% - 330px/2);
+top: 8px;
+
+border-radius: 4px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+z-index: 2;
+
+
+/* Tabs */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 9px;
+
+width: 78px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Frame 427319605 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 78px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* pen */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #68657C;
+
+
+/* Nav tabs */
+
+width: 54px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #68657C;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Frame 427319604 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 5px 7px;
+gap: 10px;
+
+display: none;
+width: 22px;
+height: 20px;
+
+background: #68657C;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* underline */
+
+width: 78px;
+height: 3px;
+
+border-radius: 60px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Tabs */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 9px;
+
+width: 86px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Frame 427319605 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 86px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* diagram-project */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 24.07%;
+bottom: 24.07%;
+
+background: #68657C;
+
+
+/* Nav tabs */
+
+width: 62px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #68657C;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Frame 427319604 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 5px 7px;
+gap: 10px;
+
+display: none;
+width: 22px;
+height: 20px;
+
+background: #68657C;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* underline */
+
+width: 86px;
+height: 3px;
+
+border-radius: 60px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Tabs */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 9px;
+
+width: 102px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Frame 427319605 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 102px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* chart-line */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 20.83%;
+bottom: 20.83%;
+
+background: #130F33;
+
+
+/* Nav tabs */
+
+width: 52px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Frame 427319604 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 5px 7px;
+gap: 10px;
+
+width: 22px;
+height: 20px;
+
+background: #130F33;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* 4 */
+
+width: 8px;
+height: 16px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 16px;
+/* identical to box height, or 133% */
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* underline */
+
+width: 102px;
+height: 3px;
+
+background: #CFF242;
+border-radius: 60px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* TO-Header-icons */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px 16px;
+gap: 191px;
+isolation: isolate;
+
+width: 1286px;
+height: 40px;
+
+background: #F8F7FA;
+border-radius: 8px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Payment-flow-back-more-icon */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 8px 0px;
+gap: 8px;
+
+margin: 0 auto;
+width: 183px;
+height: 40px;
+
+border-radius: 4px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+z-index: 0;
+
+
+/* Frame 313130 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+gap: 4px;
+
+width: 151px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* angle-left */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 32.2%;
+right: 40.53%;
+top: 25%;
+bottom: 25%;
+
+background: #130F33;
+
+
+/* Payment flow */
+
+width: 123px;
+height: 20px;
+
+/* Caption-semibol */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* ellipsis-vertical */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 44.44%;
+right: 44.44%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Icons-collapse-header */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: flex-end;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+margin: 0 auto;
+width: 232px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
+
+
+/* Collapse-angle-right-left */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+background: #FFFFFF;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* angle-right */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 40.54%;
+right: 32.2%;
+top: 25%;
+bottom: 25%;
+
+background: #130F33;
+
+
+/* actions */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+background: #F5F2FA;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* gear */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 18.81%;
+right: 18.81%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* utilities */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+background: #FCECEC;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* wrench-simple */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 25%;
+right: 25%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* test-script-sidebar */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+isolation: isolate;
+
+width: 32px;
+height: 32px;
+
+background: #E5F4FB;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+
+
+/* timer */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+z-index: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Ellipse 133 */
+
+position: absolute;
+width: 8px;
+height: 8px;
+left: 24px;
+top: 0px;
+
+background: #E76161;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
+
+
+/* Environment */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+
+width: 32px;
+height: 32px;
+
+background: #E8F9EB;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+flex-grow: 0;
+
+
+/* globe */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Run Configuration */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 4px;
+gap: 16px;
+isolation: isolate;
+
+width: 32px;
+height: 32px;
+
+background: #FDF6E2;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 5;
+flex-grow: 0;
+
+
+/* Run-configuration */
+
+width: 24px;
+height: 24px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+z-index: 0;
+
+
+/* Union */
+
+position: absolute;
+width: 14.97px;
+height: 16px;
+left: 4.51px;
+top: 4px;
+
+background: #130F33;
+
+
+/* Vector */
+
+position: absolute;
+left: 18.81%;
+right: 18.81%;
+top: 16.67%;
+bottom: 16.67%;
+
+background: #130F33;
+
+
+/* Vector */
+
+position: absolute;
+left: 39.64%;
+right: 35.34%;
+top: 35.42%;
+bottom: 35.42%;
+
+background: #130F33;
+
+
+/* Ellipse 133 */
+
+position: absolute;
+width: 8px;
+height: 8px;
+left: 24px;
+top: 0px;
+
+background: #E76161;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
+
+
+/* Canvas-tabs-logs */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px 8px;
+gap: 24px;
+
+position: absolute;
+width: 228px;
+height: 32px;
+left: calc(50% - 228px/2);
+top: 8px;
+
+border-radius: 4px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+z-index: 2;
+
+
+/* Tabs */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 9px;
+
+width: 86px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Frame 427319605 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 86px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* diagram-project */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 24.07%;
+bottom: 24.07%;
+
+background: #130F33;
+
+
+/* Nav tabs */
+
+width: 62px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Frame 427319604 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 5px 7px;
+gap: 10px;
+
+display: none;
+width: 22px;
+height: 20px;
+
+background: #130F33;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* underline */
+
+width: 86px;
+height: 3px;
+
+background: #46DF93;
+border-radius: 60px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Steps */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 9px;
+
+display: none;
+width: 109px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Tabs */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 9px;
+
+width: 102px;
+height: 32px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* Frame 427319605 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 102px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* chart-line */
+
+width: 20px;
+height: 20px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* Vector */
+
+position: absolute;
+left: 16.67%;
+right: 16.67%;
+top: 20.83%;
+bottom: 20.83%;
+
+background: #68657C;
+
+
+/* Nav tabs */
+
+width: 52px;
+height: 20px;
+
+/* Caption-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+
+color: #68657C;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+
+/* Frame 427319604 */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 5px 7px;
+gap: 10px;
+
+width: 22px;
+height: 20px;
+
+background: #68657C;
+border-radius: 100px;
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+/* 4 */
+
+width: 8px;
+height: 16px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 16px;
+/* identical to box height, or 133% */
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+
+/* underline */
+
+width: 102px;
+height: 3px;
+
+border-radius: 60px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* The back button in an application is a navigational feature that allows users to return to the previous screen or state they were in before their current one. This feature is crucial for enhancing user experience by providing an intuitive way to navigate through the application without getting lost or feeling trapped. */
+
+width: 1286px;
+height: 48px;
+
+/* Body-regular */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* or 150% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Key Characteristics of a Back Button: */
+
+width: 323px;
+height: 28px;
+
+/* Title-semibold */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 18px;
+line-height: 28px;
+/* identical to box height, or 156% */
+
+color: #4A9BC1;
+
+
+/* Inside auto layout */
+flex: none;
+order: 4;
+flex-grow: 0;
+
+
+/* Location: The back button is typically found in the top left corner of the application's user interface, especially in mobile applications. In desktop applications and web browsers, it is usually located in the top left corner of the Application. Functionality: Navigation History: It keeps track of the user's navigation history, allowing them to go back to the previous screen or page they were on. Context-Aware: The back button's behaviour is often context-aware, meaning it understands the application's navigation stack and returns the user to the appropriate previous state. User Interface: Icon: Commonly represented by a left-facing arrow (←). Text Label: Sometimes accompanied by the word "Back" or the name of the previous screen. */
+
+width: 1286px;
+height: 192px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 14px;
+line-height: 24px;
+/* or 171% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 5;
+align-self: stretch;
+flex-grow: 0;
+
+
+/* Implementation Considerations */
+
+width: 274px;
+height: 28px;
+
+/* Title-semibold */
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 18px;
+line-height: 28px;
+/* identical to box height, or 156% */
+
+color: #4A9BC1;
+
+
+/* Inside auto layout */
+flex: none;
+order: 6;
+flex-grow: 0;
+
+
+/* State Management: Proper management of the application's state and navigation stack is essential to ensure the back button behaves correctly. User Expectations: The back button should meet user expectations, providing predictable behaviour that aligns with common usage patterns. Usability: Ensure the back button is easily accessible and recognisable to avoid confusion and enhance overall usability. */
+
+width: 1286px;
+height: 72px;
+
+font-family: 'Inter';
+font-style: normal;
+font-weight: 600;
+font-size: 14px;
+line-height: 24px;
+/* or 171% */
+
+color: #130F33;
+
+
+/* Inside auto layout */
+flex: none;
+order: 7;
+align-self: stretch;
+flex-grow: 0;

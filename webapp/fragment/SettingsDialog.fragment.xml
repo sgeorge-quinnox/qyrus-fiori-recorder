@@ -1,0 +1,122 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core"
+    xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+>
+    <Dialog>
+        <customHeader>
+            <Bar>
+                <contentLeft>
+                    <Title text="Settings" />
+                </contentLeft>
+                <contentRight>
+                    <ObjectStatus
+                        title="App Version"
+                        text="{/appVersion}"
+                    />
+                </contentRight>
+            </Bar>
+        </customHeader>
+        <content>
+            <Panel headerText="General">
+                <VBox>
+                    <CheckBox
+                        text="Show only UI5 running Tabs"
+                        selected="{settings>/showUI5only}"
+                    />
+                    <CheckBox
+                        text="Page reload at inject"
+                        selected="{settings>/reloadPageDefault}"
+                    />
+                </VBox>
+                <VBox>
+                    <Label text="Theme:" />
+                    <RadioButtonGroup select="onThemeSelect">
+                        <RadioButton
+                            text="Morning Horizon"
+                            selected="{= ${path: 'settings>/theme'} === 'sap_horizon'}"
+                        />
+                        <RadioButton
+                            text="Evening Horizon"
+                            selected="{= ${path: 'settings>/theme'} === 'sap_horizon_dark'}"
+                        />
+                        <RadioButton
+                            text="Quartz Light"
+                            selected="{= ${path: 'settings>/theme'} === 'sap_fiori_3'}"
+                        />
+                        <RadioButton
+                            text="Quartz Dark"
+                            selected="{= ${path: 'settings>/theme'} === 'sap_fiori_3_dark'}"
+                        />
+                    </RadioButtonGroup>
+                </VBox>
+            </Panel>
+            <Panel headerText="Replay">
+                <VBox>
+                    <CheckBox
+                        text="Start in manual mode"
+                        selected="{settings>/manualReplayMode}"
+                    />
+                    <Label text="Automatic replay delay:" />
+                    <RadioButtonGroup
+                        select="onDelaySelect"
+                        editable="{= !${settings>/manualReplayMode}}"
+                    >
+                        <RadioButton
+                            text="0.5 sec"
+                            selected="{= ${path: 'settings>/replayDelay'} === 0.5}"
+                        />
+                        <RadioButton
+                            text="1.0 sec"
+                            selected="{= ${path: 'settings>/replayDelay'} === 1.0}"
+                        />
+                        <RadioButton
+                            text="2.0 sec"
+                            selected="{= ${path: 'settings>/replayDelay'} === 2.0}"
+                        />
+                    </RadioButtonGroup>
+
+                    <CheckBox
+                        text="Use Record Replay Selector"
+                        selected="{settings>/useRRSelector}"
+                    />
+                </VBox>
+            </Panel>
+            <Panel headerText="Code">
+                <VBox>
+                    <Label text="Framework:" />
+                    <SegmentedButton selectedKey="{settings>/framework}"
+                        selectionChange="onFrameworkChange">
+                        <items>
+                            <SegmentedButtonItem key="OPA5" text="OPA5"></SegmentedButtonItem>
+                            <SegmentedButtonItem key="wdi5" text="wdi5"></SegmentedButtonItem>
+                        </items>
+                    </SegmentedButton>
+                    <Label text="Code Style:" />
+                    <SegmentedButton selectedKey="{settings>/style}"
+                        selectionChange="onStyleChange">
+                        <items>
+                            <SegmentedButtonItem key="JS" text="JavaScript"></SegmentedButtonItem>
+                            <SegmentedButtonItem key="TS" text="TypeScript"></SegmentedButtonItem>
+                        </items>
+                    </SegmentedButton>
+                </VBox>
+            </Panel>
+        </content>
+        <beginButton>
+            <Button
+                text="Save"
+                press="onCloseDialog"
+                type="Emphasized"
+                app:settingsDialogClose="save"
+            />
+        </beginButton>
+        <endButton>
+            <Button
+                text="Close"
+                press="onCloseDialog"
+                app:settingsDialogClose="ignore"
+            />
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>
