@@ -718,7 +718,7 @@
   }
   const r = new e(document, window);
   r.enableRecording();
-  r.showToast("UI5 Journey Recorder successfully injected", {
+  r.showToast("Qyrus Fiori Recorder successfully injected", {
     duration: 2e3,
     autoClose: true,
   });

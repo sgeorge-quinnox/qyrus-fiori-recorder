@@ -77,3 +77,45 @@
 .sapMDialog .sapMDialogButtons .sapMBtn {
   margin: 0 0.25rem;
 }
+
+/* keep your height */
+.sapUiSizeCompact .sapMSLI.sapMSLIThumbnail,
+.sapUiSizeCompact .sapMSLI.sapMSLINoIconInset,
+.sapUiSizeCompact .sapMSLI.sapMSLIWithDescription,
+.sapUiSizeCompact .sapMSLI.sapMSLINoTitleAdapt {
+  height: 3.2rem;
+}
+/* font sizes */
+.sapUiSizeCompact .sapMSLI .sapMSLITitle,
+.sapUiSizeCompact .sapMSLI .sapMSLITitleOnly {
+  font-size: 0.875rem;   /* ~14px */
+  line-height: 1.2;
+}
+
+.sapUiSizeCompact .sapMSLI .sapMSLIDescription,
+.sapUiSizeCompact .sapMSLI .sapMSLIInfo {
+  font-size: 0.75rem;    /* ~12px */
+  line-height: 1.2;
+}
+
+/* sunil table css */
+/* Fixed table height */
+.fixedTableHeight {
+  top: -30px;
+  height: 20rem; /* adjust as needed */
+  overflow-y: auto; /* prevents table from expanding */
+}
+
+.sapMListTblRow {
+  height: 1rem !important;  /* adjust as needed */
+}
+
+/* Reduce padding inside each row */
+.compactRow .sapMListTblCell {
+  padding: 0.25rem 0.5rem !important;
+}
+
+/* Optional: reduce row height globally */
+.sapMListTblRow {
+  height: 2rem !important;
+}

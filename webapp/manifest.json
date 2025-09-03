@@ -119,6 +119,12 @@
         }
       ]
     },
+    "config": {
+      "gatewayBase": "https://stg-gateway.qyrus.com:8243",
+      "gatewayBaseFallback": "https://stg-gateway.qyrus.com:8243",
+      "gatewayToken": "90540897-748a-3ef2-b3a3-c6f8f42022da",
+      "gatewayFallbackToken": "90540897-748a-3ef2-b3a3-c6f8f42022da"
+    },
     "routing": {
       "config": {
         "routerClass": "sap.m.routing.Router",

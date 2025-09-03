@@ -47,3 +47,43 @@
 .appNavbar .sapMInputBasePlaceholder {
   color: #ffffff !important;
 }
+
+/* font sizes */
+.sapUiSizeCompact .sapMSLI .sapMSLITitle,
+.sapUiSizeCompact .sapMSLI .sapMSLITitleOnly {
+  font-size: 0.875rem;   /* ~14px */
+  line-height: 1.2;
+}
+
+.sapUiSizeCompact .sapMSLI .sapMSLIDescription,
+.sapUiSizeCompact .sapMSLI .sapMSLIInfo {
+  font-size: 0.75rem;    /* ~12px */
+  line-height: 1.2;
+}
+/* === Icon + text when NOT selected (ring + glyph) === */
+.sapMITBItem .sapMITBFilterIcon {
+  border-color: #0854a0 !important;
+  color:        #0854a0 !important;   /* glyph (SAP-icon font) */
+}
+.sapMITBItem .sapMITBText {
+  color: #0854a0 !important;
+}
+
+/* === Selected tab (filled circle + white glyph + text + arrow) === */
+.sapMITBSelected .sapMITBFilterIcon {
+  background-color: #0854a0 !important;  /* fill the circle */
+  border-color:     #0854a0 !important;  /* circle outline */
+  color:            #ffffff !important;  /* glyph color when selected */
+}
+.sapMITBSelected .sapMITBText {
+  color: #0854a0 !important;
+}
+.sapMITBSelected .sapMITBContentArrow::after {
+  background-color: #0854a0 !important;  /* the small triangle under the tab */
+}
+
+/* (Optional) keep your original class for completeness, but it's not enough alone */
+.sapMITBFilterDefault {
+  color:        #0854a0 !important;
+  border-color: #0854a0 !important;
+}

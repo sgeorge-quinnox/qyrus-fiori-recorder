@@ -103,7 +103,7 @@
                 <uxap:sections>
                     <uxap:ObjectPageSection
                         titleUppercase="false"
-                        title="Steps"
+                        title="Flows"
                     >
                         <uxap:subSections>
                             <uxap:ObjectPageSubSection titleUppercase="false">
@@ -318,7 +318,7 @@
                     <Button
                     id="idCreateQyrus"
                     text="Create Test in Qyrus"
-                    type="Transparent"
+                    type="Emphasized"
                     tooltip="Create a test in Qyrus"
                     press=".onCreateQyrus"/>
                 </contentRight>

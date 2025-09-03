@@ -1,17 +1,13 @@
-sap.ui.define([
-  "sap/base/Log",
-], function () {
-  "use strict";
+sap.ui.define([], function () { // ensures compatibility with UI5 system.
 
   let collectedLogs = [];
 
   function convertToTestSteps(receiveInput) {
       collectedLogs = [];
-      console.log("receivedInput:", receiveInput);
+      console.log("Input:", receiveInput);
       const input = buildRequestPayload(receiveInput);
-      console.log('Standalone Input: ', input);
       const output = doTransformation(input.opa5Input, input);
-      console.log('Standalone Output: ', output);
+      console.log('Output: ', output);
       return output;
   }
 
@@ -32,9 +28,7 @@ sap.ui.define([
   
   var converterConfig = {
       global: {
-        insertUi5HelperAtStart: true,
-        ui5HelperScriptPath: "assets/scripts/ui5Helper.js",
-        numbering: true
+        insertUi5HelperAtStart: true
       },
       initialSteps: [
         { type: "launch", enable: true, user_action: "Go to url", desc: "Launch Application", data: "{launchUrl}" },
@@ -708,19 +702,60 @@ sap.ui.define([
       }
     };
 
-  // document.getElementById("inputJson").innerText = JSON.stringify(OPA5Text, null, 2);
-  // document.getElementById("transformBtn").addEventListener("click", transformJson);
+    const RULES = {
+          rules: {
+            input: {
+              keys: "last",
+              fields: {
+                actionType: "'input'",
+                id: "recordReplaySelector.id",
+                controlType: "recordReplaySelector.controlType",
+                viewName: "recordReplaySelector.viewName",
+                viewId: "recordReplaySelector.viewId",
+                bindingPath: "recordReplaySelector.bindingPath.path",
+                propertyPath: "recordReplaySelector.bindingPath.propertyPath",
+                value: "recordReplaySelector.value",
+                text: "recordReplaySelector.text"
+              }
+            },
+            keypress: {
+              keys: "last",
+              fields: {
+                actionType: "'input'",
+                id: "recordReplaySelector.id",
+                controlType: "recordReplaySelector.controlType",
+                viewName: "recordReplaySelector.viewName",
+                viewId: "recordReplaySelector.viewId",
+                bindingPath: "recordReplaySelector.bindingPath.path",
+                propertyPath: "recordReplaySelector.bindingPath.propertyPath",
+                value: "recordReplaySelector.value",
+                text: "recordReplaySelector.text"
+              }
+            },
+            clicked: {
+              when: "recordReplaySelector.value != null",
+              fields: {
+                actionType: "'input'",
+                id: "recordReplaySelector.id",
+                value: "recordReplaySelector.value",
+                controlType: "recordReplaySelector.ancestor.controlType",
+                viewName: "recordReplaySelector.ancestor.viewName",
+                viewId: "recordReplaySelector.ancestor.viewId",
+                bindingPath: "recordReplaySelector.ancestor.bindingPath",
+                text: "recordReplaySelector.text"
+              },
+              elseFields: {
+                actionType: "'click'",
+                id: "recordReplaySelector.id",
+                value: "recordReplaySelector.value",
+                bindingPath: "recordReplaySelector.ancestor.bindingPath",
+                text: "recordReplaySelector.text"
+              }
+            }
+          }
+      };
 
-  // function transformJson() {   
-  //     collectedLogs = [];   
-  //   const input = buildRequestPayload();
-  //   const OPA5Input = JSON.parse(document.getElementById("inputJson").value);
-  //   console.log(OPA5Input)
-  //   const output = doTransformation(OPA5Input, input);      
-  //   console.log('output', output);
-  // }
-
-  
+ 
   function doTransformation(OPA5Text, input) {
     
     const rules = {
@@ -735,7 +770,8 @@ sap.ui.define([
               viewId: "recordReplaySelector.viewId",
               bindingPath: "recordReplaySelector.bindingPath.path",
               propertyPath: "recordReplaySelector.bindingPath.propertyPath",
-              value: "recordReplaySelector.value"
+              value: "recordReplaySelector.value",
+              text: "recordReplaySelector.text"
             }
           },
           keypress: {
@@ -783,13 +819,9 @@ sap.ui.define([
       throw new Error(errMsg);
     }
 
-    
+    // First Loop - Transform OPA5 steps to intermediate format
     OPA5Text.steps.forEach(step => {
       const rule = rules.rules[step.actionType];
-      if (!rule) {
-          log.warn(`No rule for actionType: ${step.actionType}, skipping`);
-          return;
-      };
 
       let obj = step;
       if (step.keys && rule.keys === "last") {
@@ -822,6 +854,9 @@ sap.ui.define([
       }
       result.push(transformed);
     });
+
+    console.log(`Intermediate transformation result:`, result);
+    
 
     // Second Loop
     let stepNum = 1;
@@ -914,7 +949,6 @@ sap.ui.define([
           });
 
           log.ok(`Transformation complete. Total steps: ${steps.length}`);
-          // document.getElementById("outputJson").textContent = JSON.stringify(result, null, 2);
           return renderOutput(steps);
       }
       catch(e){
@@ -948,31 +982,28 @@ sap.ui.define([
 
 
   function buildRequestPayload(input) {
-    console.log("Building request payload with input:", input);
+    
     const payload = {
-      injectHelpers: input.injectHelpers ? input.injectHelpers : true,
-      waitEach: input.waitEach ? input.waitEach : true,
-      timeout: input.timeout ? input.timeout : 30000,
-      poll: input.poll ? input.poll : 200,
-
-      launchEnabled: input.launchEnabled ? input.launchEnabled : true,
-      launchUrl: input.launchUrl ? input.launchUrl : '',
-      waitAfterLaunchEnabled: input.waitAfterLaunchEnabled ? input.waitAfterLaunchEnabled : true,
-      waitAfterLaunch: input.waitAfterLaunch ? input.waitAfterLaunch : 30,
-
-      loginEnabled: input.loginEnabled ? input.loginEnabled : true,
-      loginUser: input.loginUser ? input.loginUser : '',
-      loginPass: input.loginPass ? input.loginPass : '',
-      waitAfterLoginEnabled: input.waitAfterLoginEnabled ? input.waitAfterLoginEnabled : true,
-      waitAfterLogin: input.waitAfterLogin ? input.waitAfterLogin : 30,
-
-      opa5Input: input.opa5Text ? input.opa5Text : {}
-    }
+      injectHelpers: input.injectHelpers ?? true,
+      waitEach: input.waitEach ?? true,
+      timeout: input.timeout ?? 30000,
+      poll: input.poll ?? 200,
+      launchEnabled: input.launch ?? true,
+      launchUrl: input.launchUrl ?? '',
+      waitAfterLaunchEnabled: (input.launch ?? true) && !!input.waitAfterLaunch,
+      waitAfterLaunch: input.waitAfterLaunch ? 30 : null,
+      loginEnabled: input.login ?? true,
+      loginUser: input.loginUser ?? '',
+      loginPass: input.loginPass ?? '',
+      waitAfterLoginEnabled: (input.login ?? true) && !!input.waitAfterLogin,
+      waitAfterLogin: (input.login ?? true) && input.waitAfterLogin ? 60 : null,
+      opa5Input: input.opa5Text ?? {}
+    };
 
     return payload;
   }
 
-  function initialProcessStep(stepDef, input) {
+  function initialProcessStep(stepDef, input) { // Add Step data only if checkbox enabled
       let jsData = stepDef.data || "";
       let shouldAdd = true;
 
@@ -1003,8 +1034,57 @@ sap.ui.define([
     return path.split(".").reduce((acc, part) => acc?.[part], obj);
   }
 
+  function getTransformedOPA5Data(OPA5Text) { 
+
+    const result = [];
+    if (!OPA5Text.steps || !Array.isArray(OPA5Text.steps)) {
+      const errMsg = 'No steps found in input JSON';
+      log.err(errMsg);
+      throw new Error(errMsg);
+    }
+
+    // First Loop - Transform OPA5 steps to intermediate format
+    OPA5Text.steps.forEach(step => {
+      const rule = RULES.rules[step.actionType];
+
+      let obj = step;
+      if (step.keys && rule.keys === "last") {
+        obj = step.keys[step.keys.length - 1];
+      }
+
+      // choose fields or elseFields based on "when"
+      let fieldsToUse = rule.fields;
+      if (rule.when) {
+        const [path, operator, rawValue] = rule.when.split(" ");
+        const actualValue = getValueByPath(step, path);
+        const expectedValue = rawValue === "null" ? null : rawValue.replace(/'/g, "");
+
+        let conditionMet = false;
+        if (operator === "!=") conditionMet = actualValue != expectedValue;
+        if (operator === "==") conditionMet = actualValue == expectedValue;
+
+        if (!conditionMet && rule.elseFields) {
+          fieldsToUse = rule.elseFields;
+        }
+      }
+
+      const transformed = {};
+      for (let [key, path] of Object.entries(fieldsToUse)) {
+        if (path.startsWith("'") && path.endsWith("'")) {
+          transformed[key] = path.slice(1, -1); // literal value
+        } else {
+          transformed[key] = getValueByPath(obj, path);
+        }
+      }
+      result.push(transformed);
+    });
+
+    return result;
+  }
+
   return {
-      convertToTestSteps
+      convertToTestSteps,
+      getTransformedOPA5Data
   };
 
 });

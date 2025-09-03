@@ -15,7 +15,7 @@
                     />
                     <Title class="appTitle" text="{i18n>appTitle}" />
                 </contentLeft>
-                <contentRight>
+                <!-- <contentRight>
                     <Button
                         icon="sap-icon://action-settings"
                         press=".onOpenSettingsDialog"
@@ -25,7 +25,7 @@
                         tooltip="Advanced Controls"
                         press=".onToggleVisibility"
                     />
-                </contentRight>
+                </contentRight> -->
             </Bar>
         </customHeader>
 
@@ -39,7 +39,7 @@
                     <IconTabFilter
                         id="tabsTab"
                         text="{i18n>tabs}"
-                        icon="sap-icon://internet-browser"
+                        icon="sap-icon://popup-window"
                     >
                         <List
                             id="tabsList"
@@ -74,7 +74,7 @@
                     <IconTabFilter
                         id="journeysTab"
                         text="{i18n>journeys}"
-                        icon="sap-icon://journey-change"
+                        icon="sap-icon://combine"
                     >
                         <List id="journeysList" items="{main>/journeys}">
                             <headerToolbar>
