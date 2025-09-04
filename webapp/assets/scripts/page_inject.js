@@ -32,7 +32,7 @@
                 console.log("✅ ValueHelp on:", inp.getId())
                 this.#captureValueHelp = inp;
               });
-            }    
+            }
           }
         });
       });
@@ -335,26 +335,30 @@
           .findControlSelectorByDOMElement({ domElement: n.getDomRef() })
           .then((t) => {
             e.control.recordReplaySelector = t;
+            let record = e.control.recordReplaySelector;
             if (e.control?.type?.trim()?.toLowerCase()?.includes('button')) {
               let propertyField = this.getLabelDetails(e.control.recordReplaySelector?.id, true);
               e.control.recordReplaySelector.text = propertyField;
-              s.send_record_step(JSON.parse(JSON.stringify(e)));
-              if (e.control.recordReplaySelector.id) {
+              if (!e.control.recordReplaySelector.searchOpenDialogs) {
+                s.send_record_step(JSON.parse(JSON.stringify(e)));
+              }
+              if (record.id && !record.searchOpenDialogs) {
                 this.showToastDialog(null, propertyField);
               }
             } else {
               console.log('Base Field is this' + this.#captureValueHelp);
               this.#captureValueHelp.attachChange(evt => {
                 const id = evt.mParameters.id;
-                const fieldValue = evt.getParameter("value");
+                const fieldValue = evt.getParameter("value");                
                 this.#t.findControlSelectorByDOMElement({ domElement: n.getDomRef() })
                   .then((ev) => {
                     // console.log("✅ Changed:", inp.getId(), "→", e.getParameter("value"));
                     var inputId1 = id;
                     if (inputId1) {
-                      var inputttt = sap.ui.getCore().byId(inputId1);
+                      var inputttt = sap.ui.getCore().byId(inputId1);                           
+                      let recordDetails = e.control.recordReplaySelector;
                       if (inputttt && typeof inputttt.getValue === "function") {
-                        const finalVal = fieldValue;
+                        const finalVal = fieldValue;                   
                         console.log("✅ Final value in field:", finalVal);
                         e.value = finalVal; // overwrite whatever was captured during typing
                         e.control.id = inputId1;
@@ -365,18 +369,16 @@
                       e.control.recordReplaySelector.value = fieldValue;
                       let labelField = this.getLabelDetails(e.control.recordReplaySelector?.id);
                       e.control.recordReplaySelector.text = labelField;
-                      s.send_record_step(JSON.parse(JSON.stringify(e)));
-                      if (e.control.recordReplaySelector.value && e.control.recordReplaySelector.id) {
+                      if (!e.control.recordReplaySelector.searchOpenDialogs) {
+                        s.send_record_step(JSON.parse(JSON.stringify(e)));
+                      }
+                      if (recordDetails.value && recordDetails.id && !recordDetails.searchOpenDialogs) {
                         this.showToastDialog(e.control.recordReplaySelector.value, labelField);
                       }
                     }
                   });
               }
               );
-              // s.send_record_step(JSON.parse(JSON.stringify(e)));
-              // magic tells us if this an input click or not   
-
-              //s.send_record_step(JSON.parse(JSON.stringify(e.control.type)));
             }
           })
           .catch((e) => {
@@ -424,6 +426,7 @@
                         .then((e) => {
                           t.control.recordReplaySelector = e;
                           var inputId1 = t.control.id;
+                          let controlDetails = t.control.recordReplaySelector;
                           if (inputId1) {
                             var inputttt = sap.ui.getCore().byId(inputId1);
                             if (inputttt && typeof inputttt.getValue === "function") {
@@ -439,8 +442,10 @@
                             }
                             let labelFieldDetails = this.getLabelDetails(t.control.recordReplaySelector.id);
                             t.control.recordReplaySelector.text = labelFieldDetails;
-                            s.send_record_step(JSON.parse(JSON.stringify(t)));
-                            if (t.control.recordReplaySelector.value && t.control.recordReplaySelector.id) {
+                            if (!t.control.recordReplaySelector.searchOpenDialogs) {
+                              s.send_record_step(JSON.parse(JSON.stringify(t)));
+                            }
+                            if (controlDetails.value && controlDetails.id && !controlDetails.searchOpenDialogs) {
                               this.showToastDialog(t.control.recordReplaySelector.value, labelFieldDetails);
                             }
                           }
