@@ -120,10 +120,10 @@
       ]
     },
     "config": {
-      "gatewayBase": "https://stg-gateway.qyrus.com:8243",
-      "gatewayBaseFallback": "https://stg-gateway.qyrus.com:8243",
-      "gatewayToken": "90540897-748a-3ef2-b3a3-c6f8f42022da",
-      "gatewayFallbackToken": "90540897-748a-3ef2-b3a3-c6f8f42022da"
+      "gatewayBase": "https://gateway.qyrus.com",
+      "gatewayBaseFallback": "https://gateway-uk.qyrus.com",
+      "gatewayToken": "9ec3ad62-5885-320a-9e46-608c39f09a22",
+      "gatewayFallbackToken": "9ec3ad62-5885-320a-9e46-608c39f09a22"
     },
     "routing": {
       "config": {

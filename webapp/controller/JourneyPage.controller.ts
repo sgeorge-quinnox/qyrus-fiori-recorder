@@ -34,7 +34,7 @@ import type { Select$ChangeEvent } from "sap/m/Select";
 import type Item from "sap/ui/core/Item";
 import type { Input$LiveChangeEvent } from "sap/m/Input";
 import Converter from "../controller/converter/converter";
-declare const chrome: any;
+import Message from "sap/ui/core/message/Message";
 
 
 type ReplayEnabledStep = Step & {
@@ -61,8 +61,8 @@ export default class JourneyPage extends BaseController {
         this.getRouter().getRoute("recording").attachMatched(this._recordJourney, this);
         // Dialog form model (defaults)
         const qyrusForm = new JSONModel({
-            injectHelpers: false,
-            waitEach: false,
+            injectHelpers: true,
+            waitEach: true,
             launchUrl: this.getView().getModel("journey")?.getProperty("/startUrl") || "",
             timeout: 30,
             poll: 1000,
@@ -78,8 +78,8 @@ export default class JourneyPage extends BaseController {
             waitAfterLaunch: 30,   // seconds
 
             optLogin: true,
-            loginUser: "krtr.qyrus@gmail.com",
-            loginPass: "Qyrus@1314",
+            loginUser: "",
+            loginPass: "",
 
             optWaitAfterLogin: true,
             waitAfterLogin: 60,    // seconds
@@ -466,10 +466,8 @@ export default class JourneyPage extends BaseController {
                 controller: this
             }) as Dialog;
             view.addDependent(this._createQyrusDialog);
-            console.log("Create Qyrus Dialog initialized.");
             this._createQyrusDialog.attachAfterOpen(async () => {
                 try {
-                    console.log("Create Qyrus Dialog opened.");
                     const jour = await JourneyStorageService.getInstance().getById(
                         this.model.getProperty('/id') as string
                     );
@@ -508,17 +506,132 @@ export default class JourneyPage extends BaseController {
         // await this.onConvertOpa5();
     }
 
-    public onCancelCreateQyrus(): void {
-        this._createQyrusDialog?.close();
+    public async onCancelCreateQyrus(): Promise<void> {
+        const dlg: any = this._createQyrusDialog;
+        const form = this.getView().getModel("qyrusForm") as JSONModel;
+
+        // If there is no token, just close.
+        const hasToken = !!form.getProperty("/accessToken");
+
+        try {
+            dlg?.setBusy?.(true);               // optional: spinner on the dialog
+            if (hasToken) {
+                await this._autoLogout();         // <-- call your logout method here
+            } else {
+                this._cancelAutoLogout?.();       // clean any timers if you set them
+            }
+            this._createQyrusDialog?.close();
+        } catch (e) {
+            // Don’t block closing on an error
+            console.error("Logout error:", e);
+            MessageToast.show("Logout failed, closing the dialog.");
+        } finally {
+            dlg?.setBusy?.(false);
+            dlg?.close();
+        }
     }
 
     public onExit(): void {
         this._createQyrusDialog?.destroy();
+        this._removeObserver();       // disconnect MutationObserver
+        this._cancelAutoLogout();     // clear any pending timers
+
+    }
+    private async _importTestSteps(): Promise<void> {
+        const form = this.getView().getModel("qyrusForm") as JSONModel;
+
+        // --- config (proxy first, then gatewayBase)
+        const comp: any = this.getOwnerComponent();
+        const cfg = comp?.getManifestEntry?.("/sap.ui5/config") || {};
+        const proxyBase: string = (cfg.proxyBase || "").trim();                 // e.g. "/qyrus"
+        const gatewayBase: string = (cfg.gatewayBase || "https://gateway.qyrus.com").replace(/\/+$/, "");
+        const base: string = (proxyBase || gatewayBase).replace(/\/+$/, "");
+        const url = `${base}/webautomation-repo/v1/api/import-test-script`;
+
+        // --- tokens/ids
+        const gatewayToken: string = cfg.gatewayToken || "";
+        const accessToken: string = String(form.getProperty("/accessToken") || "");
+        const teamId: string = String(form.getProperty("/teams/selectedId") || "");       // UUID
+        const projectUUID: string = String(form.getProperty("/projects/selectedId") || "");    // UUID
+        const scriptUUID: string = String(
+            form.getProperty("/createdScriptUUID") ||
+            form.getProperty("/createScriptResponse/uuid") ||
+            form.getProperty("/createTest/uuid") || ""         // fallback
+        );
+
+        // --- steps JSON (already produced by onConvertOpa5 -> /outJson)
+        const outJsonStr = String(form.getProperty("/outJson") || "").trim();
+        let stepsObj: any = null;
+        try { stepsObj = outJsonStr ? JSON.parse(outJsonStr) : null; } catch { stepsObj = null; }
+
+        // --- sanity checks
+        const missing: string[] = [];
+        if (!gatewayToken) missing.push("gatewayToken");
+        if (!accessToken) missing.push("accessToken");
+        if (!teamId) missing.push("teamId");
+        if (!projectUUID) missing.push("projectUUID");
+        if (!scriptUUID) missing.push("scriptUUID (create script first)");
+        if (!stepsObj) missing.push("steps JSON (/outJson)");
+        if (missing.length) {
+            form.setProperty("/import/error", `Missing: ${missing.join(", ")}`);
+            MessageToast.show(`Import failed: missing ${missing.join(", ")}`);
+            return;
+        }
+
+        // --- headers (do NOT set Content-Type when using FormData)
+        const headers: Record<string, string> = {
+            "Authorization": `Bearer ${gatewayToken}`,
+            "Custom": `Bearer ${accessToken}`,
+            "Team-Id": teamId
+        };
+
+        // --- form-data + also pass params on query string (safe for this gateway)
+        const fd = new FormData();
+        const blob = new Blob([JSON.stringify(stepsObj)], { type: "application/json" });
+        fd.append("file", blob, "teststeps.json");
+        // Some gateways accept these in body too; include for compatibility.
+        fd.append("scriptUUID", scriptUUID);
+        fd.append("projectUUID", projectUUID);
+
+        const params = new URLSearchParams({ scriptUUID, projectUUID });
+
+        // --- reset state in model
+        form.setProperty("/import/error", "");
+        form.setProperty("/import/result", null);
+
+        // --- call
+        let res: Response; let text = "";
+        try {
+            res = await fetch(`${url}?${params.toString()}`, {
+                method: "POST",
+                headers,
+                body: fd,
+                credentials: "omit"
+            });
+            text = await res.text();
+        } catch (e) {
+            form.setProperty("/import/error", String(e));
+            MessageToast.show("Import steps failed (network).");
+            return;
+        }
+
+        // --- parse body
+        let data: any;
+        try { data = text ? JSON.parse(text) : {}; } catch { data = { _raw: text }; }
+
+        if (!res.ok) {
+            form.setProperty("/import/error", text || `HTTP ${res.status}`);
+            MessageToast.show(`Import steps failed (${res.status}).`);
+            return;
+        }
+
+        // --- success
+        form.setProperty("/import/result", data);
+        MessageToast.show("Test steps imported successfully.");
     }
 
     public async onCreateHeaders(): Promise<void> {
         const form = this.getView().getModel("qyrusForm") as JSONModel;
-
         // --- inputs
         let accessToken: string = String(form.getProperty("/accessToken") || "");
         let teamId: string = String(form.getProperty("/teams/selectedId") || "");
@@ -532,10 +645,14 @@ export default class JourneyPage extends BaseController {
             return;
         }
 
-        const comp: any = this.getOwnerComponent();
-        const cfg = comp?.getManifestEntry?.("/sap.ui5/config") || {};
-        const gatewayBase: string = (cfg.gatewayBase || "https://stg-gateway.qyrus.com:8243/").replace(/\/+$/, "");
-        const gatewayToken: string = cfg.gatewayToken || "90540897-748a-3ef2-b3a3-c6f8f42022da";
+        const cfg = this.getOwnerComponent()?.getManifestEntry("/sap.ui5/config") || {};
+        const gatewayBase: string = (cfg.gatewayBase || "").replace(/\/+$/, "");
+        const gatewayToken: string = cfg.gatewayToken || "";
+        console.log("GatewayBase:", gatewayBase, "GatewayToken:", gatewayToken);
+        if (!gatewayBase || !gatewayToken) {
+            MessageToast.show("Please configure gatewayBase and gatewayToken");
+            return;
+        }
 
         const params = new URLSearchParams({ moduleUUID });
         const url = `${gatewayBase}/webautomation-repo/v1/api/create-script?${params.toString()}`;
@@ -584,170 +701,26 @@ export default class JourneyPage extends BaseController {
         }
     }
 
-
-    public async onCreateHeadersTest(): Promise<void> {
-        const form = this.getView().getModel("qyrusForm") as JSONModel;
-
-        // --- config
-        const comp: any = this.getOwnerComponent();
-        const cfg = comp?.getManifestEntry?.("/sap.ui5/config") || {};
-        const proxyBase: string = (cfg.proxyBase || "").trim();   // e.g. "/qyrus"
-        const gatewayBase: string = (cfg.gatewayBase || "https://stg-gateway.qyrus.com:8243/").replace(/\/+$/, "");
-
-        // Prefer proxy when configured; warn if running as chrome-extension (CORS likely)
-        const isExt = typeof window !== "undefined" && window.location?.protocol === "chrome-extension:";
-        if (isExt && proxyBase) {
-            // Proxy won’t exist in extension context; you’re calling the gateway directly → 403 likely on POST.
-            form.setProperty("/createTest/warning",
-                "Running from chrome-extension origin. ProxyBase cannot be used; CORS/403 on POST may occur. " +
-                "Run via http://localhost:8080 to use the /qyrus proxy.");
-        }
-
-        const base: string = (proxyBase && !isExt ? proxyBase : gatewayBase).replace(/\/+$/, "");
-        const url = `${base}/webautomation-repo/v1/api/create-script`;
-
-        // --- inputs
-        let gatewayToken: string = cfg.gatewayToken || "90540897-748a-3ef2-b3a3-c6f8f42022da";
-        let accessToken: string = String(form.getProperty("/accessToken") || "");
-        let teamId: string = String(form.getProperty("/teams/selectedId") || "");
-        let moduleUUID: string = String(form.getProperty("/modules/selectedId") || "");
-        const testScriptName: string = String(form.getProperty("/testName") || "").trim() || "Untitled";
-        const objective: string = String(form.getProperty("/testObjective") || form.getProperty("/testDescription") || "");
-        const tagName: string | null = null;
-
-        // scrub hidden chars / CRLF (mirrors your Postman pre-request script)
-        const scrub = (s: string) =>
-            s.replace(/[\u200B-\u200D\uFEFF]/g, "").replace(/[\r\n]+/g, "").trim();
-        gatewayToken = scrub(gatewayToken);
-        accessToken = scrub(accessToken);
-        teamId = scrub(teamId);
-        moduleUUID = scrub(moduleUUID);
-
-        // --- preflight
-        const missing: string[] = [];
-        if (!gatewayToken) missing.push("gatewayToken");
-        if (!accessToken) missing.push("accessToken");
-        if (!teamId) missing.push("teamId");
-        if (!moduleUUID) missing.push("moduleUUID (select a Module)");
-        if (missing.length) {
-            form.setProperty("/createTest/error", `Missing: ${missing.join(", ")}`);
-            MessageToast.show(`Create test failed: missing ${missing.join(", ")}`);
-            return;
-        }
-
-        // --- headers (same as projects)
-        const headers: Record<string, string> = {
-            "Authorization": `Bearer ${gatewayToken}`,
-            "Custom": `Bearer ${accessToken}`,
-            "Team-Id": teamId,
-            "Content-Type": "application/json"
-        };
-
-        // --- params & body
-        const params = new URLSearchParams({ moduleUUID });
-        const body = JSON.stringify({ testScriptName, objective, tagName });
-
-        // --- timeout
-        const timeoutMs = Math.max(5, Number(form.getProperty("/timeout") || 30)) * 1000;
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs);
-
-        // --- reset & debug
-        form.setProperty("/createTest/error", "");
-        form.setProperty("/createTest/result", null);
-        form.setProperty("/createTest/uuid", "");
-        form.setProperty("/debug/lastCreateRequest", {
-            url: `${url}?${params.toString()}`,
-            headers: {
-                Authorization: `Bearer ${gatewayToken.slice(0, 8)}…`,
-                Custom: `Bearer ${accessToken.slice(0, 8)}…`,
-                "Team-Id": teamId,
-                "Content-Type": "application/json"
-            },
-            body: { testScriptName, objective, tagName }
-        });
-
-        // --- fetch (explicitly omit credentials to avoid cross-site cookies noise)
-        let res: Response; let text = "";
-        // const res = await fetch(url, { method: "POST", headers, body });
+    public async onCreateTest(): Promise<void> {
         try {
-            res = await fetch(`${url}?${params.toString()}`, {
-                method: "POST",
-                headers,
-                body
-            });
-            text = await res.text();
-        } catch (err) {
-            clearTimeout(timer);
-            form.setProperty("/createTest/error", String(err));
-            form.setProperty("/debug/lastCreateResponse", { status: "NETWORK", text: String(err) });
-            MessageToast.show("Network error while creating test.");
-            return;
-        } finally {
-            clearTimeout(timer);
+            // 1) Create script (stores /createdScriptUUID)
+            await this.onCreateHeaders();
+
+            // Guard: ensure UUID exists before importing
+            const form = this.getView().getModel("qyrusForm") as JSONModel;
+            const scriptUUID = form.getProperty("/createdScriptUUID");
+            // if (!scriptUUID) {
+            //     MessageToast.show("Script UUID missing after creation; import skipped.");
+            //     return;
+            // }
+
+            // 2) Import the steps (uses /outJson that you set elsewhere)
+            await this._importTestSteps();
+        } catch (e: any) {
+            MessageToast.show(String(e?.message || e));
         }
-
-        // --- parse: try JSON first (even if content-type is octet-stream), then WSO2 XML, else raw
-        let data: any = {};
-        let parsedJson = false;
-        try {
-            data = text ? JSON.parse(text) : {};
-            parsedJson = true;
-        } catch { /* not JSON */ }
-
-        if (!parsedJson) {
-            if (/^<\?xml|<ams:fault/i.test(text)) {
-                const code = (text.match(/<ams:code>([^<]+)<\/ams:code>/i) || [])[1];
-                const msg = (text.match(/<ams:message>([^<]+)<\/ams:message>/i) || [])[1];
-                const desc = (text.match(/<ams:description>([^<]+)<\/ams:description>/i) || [])[1];
-                data = { fault: { code, message: msg, description: desc }, _raw: text };
-            } else {
-                data = { _raw: text };
-            }
-        }
-
-        // persist response snapshot for debugging (status, headers summary, raw)
-        form.setProperty("/debug/lastCreateResponse", {
-            status: res.status,
-            ok: res.ok,
-            headers: {
-                "content-type": res.headers.get("content-type") || "",
-                "access-control-allow-origin": res.headers.get("access-control-allow-origin") || ""
-            },
-            raw: text.slice(0, 2000)
-        });
-
-        // --- error handling (401 hint for expired token)
-        if (!res.ok) {
-            let hint = "";
-            if (res.status === 401) {
-                try {
-                    const payload = JSON.parse(atob(accessToken.split(".")[1] || ""));
-                    if (payload?.exp && new Date(payload.exp * 1000) < new Date()) {
-                        hint = " (access token expired)";
-                    }
-                } catch { }
-            }
-            const errText = data?.fault?.description || data?.fault?.message || text || `HTTP ${res.status}`;
-            form.setProperty("/createTest/error", errText + hint);
-            // also surface something in outJson so you see it immediately
-            form.setProperty("/outJson", JSON.stringify({ error: errText, status: res.status }, null, 2));
-            MessageToast.show(`Create test failed (${res.status}).`);
-            return;
-        }
-
-        // --- success
-        const scriptUUID = String(data?.uuid || "");
-        form.setProperty("/createTest/result", data);
-        form.setProperty("/createTest/uuid", scriptUUID);
-        form.setProperty("/outJson", JSON.stringify(data, null, 2));
-        MessageToast.show(`Test created: ${testScriptName}${scriptUUID ? " (" + scriptUUID + ")" : ""}`);
     }
 
-
-    public onCreateTest(): void {
-        MessageToast.show("Create Test clicked (demo)");
-    }
 
     public async onConvertOpa5(): Promise<void> {
         const form = this.getView().getModel("qyrusForm") as JSONModel;
@@ -786,9 +759,14 @@ export default class JourneyPage extends BaseController {
 
 
         // 1) read inputs (from the model — no byId helpers)
-        const appUrl = "https://stg.qyrus.com"
-        const email = "apurohit@quinnox.com"
-        const pass = "Password@123"
+        // const appUrl = "https://stg.qyrus.com"
+        // const email = "apurohit@quinnox.com"
+        // const pass = "Password@123"
+
+        // production 
+        const appUrl = "https://app.qyrus.com"
+        const email = "krtr.qyrus@gmail.com"
+        const pass = "Qyrus@1314"
 
         if (!appUrl || !email || !pass) {
             MessageToast.show("Please provide Launch URL, Login User, and Login Pass.");
@@ -806,9 +784,7 @@ export default class JourneyPage extends BaseController {
             return;
         }
         const authPaths: string[] = cfg.authPaths || [
-            "authentication/v1/api/get-access-token",
-            "authentication/api/get-access-token",
-            "auth/v1/api/get-access-token"
+            "authentication/v1/api/get-access-token"
         ];
 
         // 3) build login request
@@ -832,7 +808,6 @@ export default class JourneyPage extends BaseController {
                     if (res.status === 404) continue; // try next path
                     throw new Error(`HTTP ${res.status} on ${url}\n${text.slice(0, 1000)}`);
                 }
-
                 loginData = data;
                 break;
             } catch (e) {
@@ -907,7 +882,7 @@ export default class JourneyPage extends BaseController {
     private async _tryLoadProjectsFromModel(): Promise<void> {
         const form = this.getView().getModel("qyrusForm") as JSONModel;
         const cfg = this.getOwnerComponent()?.getManifestEntry("/sap.ui5/config") || {};
-        const gatewayBase: string = (cfg.gatewayBaseFallback || "").replace(/\/+$/, "");
+        const gatewayBase: string = (cfg.gatewayBase || "").replace(/\/+$/, "");
         const gatewayToken: string = cfg.gatewayToken || "";
         if (!gatewayBase || !gatewayToken) {
             MessageToast.show("Please configure gatewayBase and gatewayToken");
@@ -984,24 +959,21 @@ export default class JourneyPage extends BaseController {
         });
 
         // ---- timeout using model's /timeout (seconds), default 30s
-        const timeoutMs = Math.max(5, Number(form.getProperty("/timeout") || 30)) * 1000;
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        // const timeoutMs = Math.max(5, Number(form.getProperty("/timeout") || 30)) * 1000;
+        // const controller = new AbortController();
+        // const timer = setTimeout(() => controller.abort(), timeoutMs);
 
         let res: Response;
         let text = "";
         try {
-            res = await fetch(`${url}?${params.toString()}`, { method: "GET", headers, signal: controller.signal });
+            res = await fetch(`${url}?${params.toString()}`, { method: "GET", headers});
             text = await res.text();
         } catch (err) {
-            clearTimeout(timer);
             form.setProperty("/projects/list", []);
             form.setProperty("/projects/error", String(err));
             MessageToast.show("Network error while loading projects.");
             return;
-        } finally {
-            clearTimeout(timer);
-        }
+        } 
 
         // ---- parse JSON / XML (e.g., WSO2 <ams:fault/>)
         let data: any = {};
@@ -1108,8 +1080,7 @@ export default class JourneyPage extends BaseController {
         const form = this.getView().getModel("qyrusForm") as JSONModel;
 
         const cfg = this.getOwnerComponent()?.getManifestEntry("/sap.ui5/config") || {};
-        const gatewayBase: string = (cfg.gatewayBaseFallback || "").replace(/\/+$/, "");
-        const gatewayBase_2: string = (cfg.gatewayBase || "").replace(/\/+$/, "");
+        const gatewayBase: string = (cfg.gatewayBase || "").replace(/\/+$/, "");
         const gatewayToken: string = cfg.gatewayToken || "";
         if (!gatewayBase || !gatewayToken) {
             MessageToast.show("Please configure gatewayBase and gatewayToken");
@@ -1167,23 +1138,20 @@ export default class JourneyPage extends BaseController {
         });
 
         // optional timeout using your model's /timeout
-        const timeoutMs = Math.max(5, Number(form.getProperty("/timeout") || 30)) * 1000;
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), timeoutMs);
+        // const timeoutMs = Math.max(5, Number(form.getProperty("/timeout") || 30)) * 1000;
+        // const controller = new AbortController();
+        // const timer = setTimeout(() => controller.abort(), timeoutMs);
 
         let res: Response; let text = "";
         try {
-            res = await fetch(`${url}?${params.toString()}`, { method: "GET", headers, signal: controller.signal });
+            res = await fetch(`${url}?${params.toString()}`, { method: "GET", headers});
             text = await res.text();
         } catch (err) {
-            clearTimeout(timer);
             form.setProperty("/modules/list", []);
             form.setProperty("/modules/error", String(err));
             MessageToast.show("Network error while loading modules.");
             return;
-        } finally {
-            clearTimeout(timer);
-        }
+        } 
 
         let data: any;
         try { data = text ? JSON.parse(text) : {}; } catch { data = { _raw: text }; }
@@ -1217,12 +1185,10 @@ export default class JourneyPage extends BaseController {
             return;
         }
         let accessToken: string = String(form.getProperty("/accessToken") || "");
-        const appUrl = String(form.getProperty("/launchUrl") || "").trim();
+        const appUrl = "https://app.qyrus.com"
 
         const logoutPaths: string[] = cfg.logoutPaths || [
             "authentication/v1/api/logout",
-            "authentication/api/logout",
-            "auth/v1/api/logout"
         ];
 
         // Build headers/payload (same as doc)
@@ -1245,7 +1211,6 @@ export default class JourneyPage extends BaseController {
                     method: "POST",
                     headers,
                     body: JSON.stringify(payload),
-                    credentials: "omit"   // mirrors your login style (Postman-like)
                 });
                 const text = await res.text();
 
@@ -1257,11 +1222,14 @@ export default class JourneyPage extends BaseController {
                         lastErr = `404 on ${url}`;
                         continue;
                     }
+                    MessageToast.show(`Logout failed (${res.status}).`);
                     throw new Error(`HTTP ${res.status} on ${url}\n${text.slice(0, 1000)}`);
+                    
                 }
 
                 // success
                 logoutData = data;
+                MessageToast.show("Logged out Successfully.");
                 break;
             } catch (e) {
                 lastErr = e;
