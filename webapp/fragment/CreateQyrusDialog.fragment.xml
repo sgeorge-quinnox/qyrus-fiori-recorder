@@ -83,6 +83,8 @@
               <StepInput id="inpTimeout"
                         min="5" max="600" step="5"
                         value="{qyrusForm>/timeout}"
+                        enabled="false"
+                        editable="false"
                         width="12rem"
                         ariaLabelledBy="lblTimeout"/>
             </HBox>
@@ -93,6 +95,8 @@
               <StepInput id="inpPoll"
                         min="5" max="600" step="5"
                         value="{qyrusForm>/poll}"
+                        enabled="false"
+                        editable="false"
                         width="12rem"
                         ariaLabelledBy="lblPoll"/>
             </HBox>
