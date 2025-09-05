@@ -44,7 +44,34 @@
                     </ColumnListItem>
                 </items>
             </Table>
-    <!--  -->
+            <Table id="logsTable"
+                  inset="false"
+                  class="sapUiSizeCondensed sapUiSizeCompact sapUiTinyMarginTop fixedTableHeight"
+                  visibleRowCountMode="Fixed"
+                  alternateRowColors="true"
+                  mode="None"
+                  items="{logs>/}">
+                <columns>
+                    <Column hAlign="Center" width="7rem">
+                        <Text text="Step Number"/>
+                    </Column>
+                    <Column width="7rem">
+                        <Text text="Type"/>
+                    </Column>
+                    <Column minScreenWidth="Tablet" demandPopin="true">
+                        <Text text="Message"/>
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem vAlign="Middle" type="Inactive" press=".onRowPress" class="compactRow">
+                        <cells>
+                            <Text text="{logs>stepNumber}" textAlign="Center"/>
+                            <Text text="{logs>type}"/>
+                            <Text text="{logs>message}"/>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
 
       <form:SimpleForm id="qyrusForm"
                        editable="true"
@@ -81,7 +108,7 @@
             <HBox width="48%" alignItems="Center" justifyContent="SpaceBetween" class="qyrRow">
               <Label id="lblTimeout" text="Timeout (ms)" class="sapUiTinyMarginEnd"/>
               <StepInput id="inpTimeout"
-                        min="5" max="600" step="5"
+                        min="5" step="5"
                         value="{qyrusForm>/timeout}"
                         width="12rem"
                         ariaLabelledBy="lblTimeout"/>
@@ -91,7 +118,7 @@
             <HBox width="48%" alignItems="Center" justifyContent="SpaceBetween" class="qyrRow">
               <Label id="lblPoll" text="Poll every (ms)" class="sapUiTinyMarginEnd"/>
               <StepInput id="inpPoll"
-                        min="5" max="600" step="5"
+                        min="5" step="5"
                         value="{qyrusForm>/poll}"
                         width="12rem"
                         ariaLabelledBy="lblPoll"/>
