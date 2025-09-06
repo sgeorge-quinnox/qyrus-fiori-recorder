@@ -119,6 +119,12 @@
         }
       ]
     },
+    "config": {
+      "gatewayBase": "https://gateway.qyrus.com",
+      "gatewayBaseFallback": "https://gateway-uk.qyrus.com",
+      "gatewayToken": "9ec3ad62-5885-320a-9e46-608c39f09a22",
+      "gatewayFallbackToken": "9ec3ad62-5885-320a-9e46-608c39f09a22"
+    },
     "routing": {
       "config": {
         "routerClass": "sap.m.routing.Router",

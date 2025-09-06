@@ -280,7 +280,7 @@
 
   communicationService.post('/pageInfo/disconnected', (_, __) => {
     if (ui5TestRecorder.recorder) {
-      ui5TestRecorder.recorder.showToast('UI5 Journey Recorder disconnected', {
+      ui5TestRecorder.recorder.showToast('Qyrus Fiori Recorder disconnected', {
         duration: 2000,
         autoClose: true
       })

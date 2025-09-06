@@ -155,10 +155,9 @@ export default abstract class BaseController extends Controller {
 			this._unsafeDialog = new Dialog({
 				type: DialogType.Message,
 				state: ValueState.Warning,
-				title: 'Unsafed Changes!',
-				content: new Text({ text: "You have unsafed changes, proceed?" }),
+				title: 'Unsaved Changes!',
+				content: new Text({ text: "You have unsaved changes, proceed?" }),
 				beginButton: new Button({
-					type: ButtonType.Attention,
 					text: 'Proceed',
 					press: () => {
 						if (callbacks.success) {

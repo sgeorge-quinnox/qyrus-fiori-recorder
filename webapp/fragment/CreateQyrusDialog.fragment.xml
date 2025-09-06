@@ -1,4 +1,3 @@
-<!-- webapp/fragments/CreateQyrusDialog.fragment.xml -->
 <core:FragmentDefinition xmlns="sap.m"
   xmlns:core="sap.ui.core"
   xmlns:form="sap.ui.layout.form">
@@ -11,6 +10,69 @@
           class="sapUiMediumPadding">
 
     <content>
+    <!-- sunils Table  -->
+    <Table id="stepsTable"
+                  inset="false"
+                  class="sapUiSizeCondensed sapUiSizeCompact sapUiTinyMarginTop fixedTableHeight"
+                  visibleRowCount="5"
+                  visibleRowCountMode="Fixed"
+                  alternateRowColors="true"
+                  mode="None"
+                  items="{steps>/}">
+                <columns>
+                    <Column hAlign="Center" width="7rem">
+                        <Text text="Step Number"/>
+                    </Column>
+                    <Column width="7rem">
+                        <Text text="Step Type"/>
+                    </Column>
+                    <Column minScreenWidth="Tablet" demandPopin="true">
+                        <Text text="Field Name"/>
+                    </Column>
+                    <Column minScreenWidth="Tablet" demandPopin="true">
+                        <Text text="Field Value"/>
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem vAlign="Middle" type="Inactive" press=".onRowPress" class="compactRow">
+                        <cells>
+                            <Text text="{steps>stepNumber}" textAlign="Center"/>
+                            <Text text="{steps>actionType}"/>
+                            <Text text="{steps>fieldName}"/>
+                            <Text text="{steps>fieldValue}"/>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+            <Table id="logsTable"
+                  inset="false"
+                  class="sapUiSizeCondensed sapUiSizeCompact sapUiTinyMarginTop fixedTableHeight"
+                  visibleRowCountMode="Fixed"
+                  alternateRowColors="true"
+                  mode="None"
+                  items="{logs>/}">
+                <columns>
+                    <Column hAlign="Center" width="7rem">
+                        <Text text="Step Number"/>
+                    </Column>
+                    <Column width="7rem">
+                        <Text text="Type"/>
+                    </Column>
+                    <Column minScreenWidth="Tablet" demandPopin="true">
+                        <Text text="Message"/>
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem vAlign="Middle" type="Inactive" press=".onRowPress" class="compactRow">
+                        <cells>
+                            <Text text="{logs>stepNumber}" textAlign="Center"/>
+                            <Text text="{logs>type}"/>
+                            <Text text="{logs>message}"/>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+
       <form:SimpleForm id="qyrusForm"
                        editable="true"
                        layout="ResponsiveGridLayout"
@@ -18,201 +80,192 @@
                        adjustLabelSpan="false"
                        emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0"
                        columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false">
-
-        <!-- Execution options: side-by-side -->
-        <!-- <Label text="Execution Options"/> -->
         <VBox>
+
+          <!-- Helpers -->
           <HBox justifyContent="SpaceBetween" alignItems="Center">
-            <HBox width="100%" alignItems="Center">
-              <Label text="Inject UI5 + OPA5 helpers" />
-              <Switch state="{qyrusForm>/injectHelpers}" />
+            <!-- Left toggle -->
+            <HBox width="48%" alignItems="Center" justifyContent="SpaceBetween" class="qyrRow">
+              <Label id="lblInjectHelpers" text="Inject UI5 + OPA5 helpers" class="sapUiTinyMarginEnd"/>
+              <CheckBox id="chkInjectHelpers"
+                        selected="{qyrusForm>/injectHelpers}"
+                        ariaLabelledBy="lblInjectHelpers"/>
             </HBox>
-            <HBox width="100%" alignItems="Center">
-              <Label text="Add Wait before each action" />
-              <Switch state="{qyrusForm>/waitEach}" />
+
+            <!-- Right toggle -->
+            <HBox width="48%" alignItems="Center" justifyContent="SpaceBetween" class="qyrRow">
+              <Label id="lblWaitEach" text="Wait before each action" class="sapUiTinyMarginEnd"/>
+              <CheckBox id="chkWaitEach"
+                        selected="{qyrusForm>/waitEach}"
+                        ariaLabelledBy="lblWaitEach"/>
             </HBox>
           </HBox>
 
-          <!-- Session / Launch -->
-          <!-- Timing: Timeout + Poll side-by-side -->
-          <!-- <Label text="Timing"/> -->
-          <HBox alignItems="Center" justifyContent="SpaceBetween">
-            <HBox width="100%" class="sapUiTinyMarginEnd" alignItems="Center">
-              <Label text="Timeout (ms)" class="sapUiTinyMarginEnd"/>
-              <StepInput min="5" max="600" step="5" value="{qyrusForm>/timeout}" width="10rem" />
+
+          <!-- Timeout & Poll -->
+          <HBox justifyContent="SpaceBetween" alignItems="Center">
+            <!-- Timeout -->
+            <HBox width="48%" alignItems="Center" justifyContent="SpaceBetween" class="qyrRow">
+              <Label id="lblTimeout" text="Timeout (ms)" class="sapUiTinyMarginEnd"/>
+              <StepInput id="inpTimeout"
+                        min="5" step="5"
+                        value="{qyrusForm>/timeout}"
+                        width="12rem"
+                        ariaLabelledBy="lblTimeout"/>
             </HBox>
-            <HBox width="100%" alignItems="Center">
-              <Label text="Poll every (ms)" class="sapUiTinyMarginEnd"/>
-              <StepInput min="5" max="600" step="5" value="{qyrusForm>/poll}" width="10rem" />
+
+            <!-- Poll interval -->
+            <HBox width="48%" alignItems="Center" justifyContent="SpaceBetween" class="qyrRow">
+              <Label id="lblPoll" text="Poll every (ms)" class="sapUiTinyMarginEnd"/>
+              <StepInput id="inpPoll"
+                        min="5" step="5"
+                        value="{qyrusForm>/poll}"
+                        width="12rem"
+                        ariaLabelledBy="lblPoll"/>
             </HBox>
           </HBox>
 
-          <!-- <Label text="Launch"/> -->
-          <HBox alignItems="Center" justifyContent="SpaceBetween">
-            <HBox width="100%" class="sapUiTinyMarginEnd" alignItems="Center">
-              <CheckBox
-                  text="Add Launch URL"
-                  selected="{qyrusForm>/optLaunch}"
-              />
-              <Input
-                  value="{qyrusForm>/launchUrl}"
-                  placeholder="https://…"
-                  enabled="{= ${qyrusForm>/optLaunch} }"
-                  width="100%"
-              />
-            </HBox>
-            <HBox width="100%" alignItems="Center">
-              <CheckBox
-                  text="Add wait after launch (sec)"
-                  selected="{qyrusForm>/optWaitAfterLaunch}"
-              />
-              <StepInput
-                  min="0" max="6000" step="5"
-                  value="{qyrusForm>/waitAfterLaunch}"
-                  enabled="{= ${qyrusForm>/optWaitAfterLaunch} }"
-                  width="100%"
-              />
-            </HBox>
-          </HBox>
+
           
-
-          <!-- <Label text="Wait After Launch"/> -->
-          
-
-          <!-- Add Login step (toggles the nested login fields) -->
-          <!-- <Label text="Login"/> -->
-          <HBox alignItems="Center">
+          <!-- Launch row: checkbox + input on the same line -->
+          <HBox width="100%" alignItems="Center" justifyContent="Start" class="qyrRow">
             <CheckBox
-              text="Add Login step"
-              selected="{qyrusForm>/optLogin}"
-              class="sapUiTinyMarginEnd"
-            />
-
-            <!-- Nested login fields; only visible if optLogin is true -->
-            <!-- <Label text="Credentials" /> -->
-            <HBox visible="{= ${qyrusForm>/optLogin} }" alignItems="Center" justifyContent="SpaceBetween">
-              <HBox width="100%" class="sapUiTinyMarginEnd" alignItems="Center">
-                <Label text="User" class="sapUiTinyMarginEnd"/>
-                <Input value="{qyrusForm>/loginUser}" width="100%"/>
-              </HBox>
-              <HBox width="100%" alignItems="Center">
-                <Label text="Password" class="sapUiTinyMarginEnd"/>
-                <Input type="Password" value="{qyrusForm>/loginPass}" width="100%"/>
-              </HBox>
-            </HBox>
-          </HBox>
-
-          <!-- Add wait after login (sec) + numeric input (gated by optLogin & checkbox) -->
-          <!-- <Label text="Post-login Wait"/> -->
-          <HBox visible="{= ${qyrusForm>/optLogin} }" width="100%">
-            <CheckBox
-                text="Add wait after login (sec)"
-                selected="{qyrusForm>/optWaitAfterLogin}"
-                 class="sapUiTinyMarginEnd"
-            />
-            <StepInput
-                min="0" max="6000" step="5"
-                value="{qyrusForm>/waitAfterLogin}"
-                enabled="{= ${qyrusForm>/optWaitAfterLogin} }"
-                width="10rem"
-            />
-          </HBox>
-
-          <Button type="Emphasized" text="Convert" press=".onConvertOpa5" />
-
-          <!-- OPA5 Input / Convert / Output JSON -->
-          <!-- <Title text="OPA5 Input" level="H3"/>
-          <TextArea rows="4" width="100%" value="{qyrusForm>/opa5Input}" placeholder="Paste OPA5 code here…" />
-
-          <Title text="Output JSON" level="H3"/>
-          <TextArea rows="4" width="100%" value="{qyrusForm>/outJson}" /> -->
-
-
-          <!-- Teams and Service Store -->
-          <HBox alignItems="Center" justifyContent="SpaceBetween" gap="1rem">
+              id="chkLaunch"
+              text="Add launch URL"
+              selected="{qyrusForm>/optLaunch}"
+              class="sapUiTinyMarginEnd"/>
             
-            <!-- Teams -->
-            <HBox width="100%" class="sapUiTinyMarginEnd" alignItems="Center" flex="1">
-              <Label text="Teams" class="sapUiTinyMarginEnd"/>
-              <VBox width="100%" flex="1">
-                <Select id="teamSelect"
-                        width="100%"
-                        selectedKey="{qyrusForm>/teams/selectedId}"
-                        change=".onTeamChanged"
-                        items="{ path: 'qyrusForm>/teams/list' }">
-                  <core:Item key="{qyrusForm>id}" text="{qyrusForm>name}" />
-                </Select>
-              </VBox>
-            </HBox>
-
-            <!-- Service Stores -->
-            <HBox width="100%" alignItems="Center" flex="1">
-              <Label text="Service Stores" class="sapUiTinyMarginEnd"/>
-              <VBox width="100%" flex="1">
-                <Select id="serviceStoreSelect"
-                        width="100%"
-                        selectedKey="{qyrusForm>/serviceStores/selectedId}"
-                        change=".onServiceStoreChanged"
-                        items="{ path: 'qyrusForm>/serviceStores/list' }">
-                  <core:Item key="{qyrusForm>id}" text="{qyrusForm>name}" />
-                </Select>
-              </VBox>
-            </HBox>
-
+            <Input
+              id="inpLaunch"
+              value="{qyrusForm>/launchUrl}"
+              placeholder="https://…"
+              enabled="{= ${qyrusForm>/optLaunch} }"
+              width="100%">
+              <layoutData>
+                <FlexItemData growFactor="1"/>  <!-- make the input take remaining width -->
+              </layoutData>
+            </Input>
           </HBox>
 
 
-          <HBox alignItems="Center" justifyContent="SpaceBetween" gap="1rem">
-            <!-- Project -->
-            <HBox alignItems="Center" class="sapUiTinyMarginEnd" width="100%" flex="1">
-              <Label text="Project" class="sapUiTinyMarginEnd"/>
-              <VBox width="100%" flex="1">
-                <Select id="projectSelect"
-                        width="100%"
-                        selectedKey="{qyrusForm>/projects/selectedId}"
-                        change=".onProjectChanged"
-                        items="{ path: 'qyrusForm>/projects/list' }">
-                  <core:Item key="{qyrusForm>id}" text="{qyrusForm>name}" />
-                </Select>
-              </VBox>
+
+          <!-- Wait toggles row -->
+          <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween">
+            <HBox width="48%" alignItems="Center" class="qyrRow">
+              <CheckBox id="chkWaitAfterLaunch"
+                        text="Add wait after launch (sec)"
+                        selected="{qyrusForm>/optWaitAfterLaunch}"/>
             </HBox>
 
-            <!-- Module -->
-            <HBox alignItems="Center" width="100%" flex="1">
-              <Label text="Module" class="sapUiTinyMarginEnd"/>
-              <VBox width="100%" flex="1">
-                <Select id="moduleSelect"
-                        width="100%"
-                        selectedKey="{qyrusForm>/modules/selectedId}"
-                        items="{ path: 'qyrusForm>/modules/list' }">
-                  <core:Item key="{qyrusForm>id}" text="{qyrusForm>name}" />
-                </Select>
-              </VBox>
+            <HBox width="48%" alignItems="Center" class="qyrRow">
+              <CheckBox id="chkWaitAfterLogin"
+                        text="Add wait after login (sec)"
+                        selected="{qyrusForm>/optWaitAfterLogin}"/>
             </HBox>
           </HBox>
 
-          
-          <HBox alignItems="Center" justifyContent="SpaceBetween">
-            <HBox width="100%" class="sapUiTinyMarginEnd" alignItems="Center">
-              <!-- Test meta -->
-              <Label text="Test Name" class="sapUiTinyMarginEnd"/>
+
+          <!-- Login row: checkbox + user + password -->
+          <HBox width="100%" alignItems="Center" justifyContent="Start" class="qyrRow">
+            <CheckBox
+              id="chkLogin"
+              text="Add login step"
+              selected="{qyrusForm>/optLogin}"
+              class="sapUiTinyMarginEnd"/>
+
+            <Input
+              id="inpLoginUser"
+              value="{qyrusForm>/loginUser}"
+              placeholder="User"
+              enabled="{= ${qyrusForm>/optLogin} }"
+              width="100%">
+              <layoutData><FlexItemData growFactor="1"/></layoutData>
+            </Input>
+
+            <Input
+              id="inpLoginPass"
+              type="Password"
+              value="{qyrusForm>/loginPass}"
+              placeholder="Password"
+              enabled="{= ${qyrusForm>/optLogin} }"
+              width="100%">
+              <layoutData><FlexItemData growFactor="1"/></layoutData>
+            </Input>
+          </HBox>
+
+          <!-- Convert button -->
+          <!-- <Button type="Emphasized" text="Convert" press=".onConvertOpa5" class="sapUiSmallMarginTop" /> -->
+
+          <!-- Teams and Service Stores -->
+          <HBox justifyContent="SpaceBetween" alignItems="Center">
+            <VBox width="48%">
+              <Label text="Teams" />
+              <Select id="teamSelect"
+                      width="100%"
+                      selectedKey="{qyrusForm>/teams/selectedId}"
+                      change=".onTeamChanged"
+                      items="{ path: 'qyrusForm>/teams/list' }">
+                <core:Item key="{qyrusForm>id}" text="{qyrusForm>name}" />
+              </Select>
+            </VBox>
+            <VBox width="48%">
+              <Label text="Service Stores" />
+              <Select id="serviceStoreSelect"
+                      width="100%"
+                      selectedKey="{qyrusForm>/serviceStores/selectedId}"
+                      change=".onServiceStoreChanged"
+                      items="{ path: 'qyrusForm>/serviceStores/list' }">
+                <core:Item key="{qyrusForm>id}" text="{qyrusForm>name}" />
+              </Select>
+            </VBox>
+          </HBox>
+
+          <!-- Project and Module -->
+          <HBox justifyContent="SpaceBetween" alignItems="Center">
+            <VBox width="48%">
+              <Label text="Project" />
+              <Select id="projectSelect"
+                      width="100%"
+                      selectedKey="{qyrusForm>/projects/selectedId}"
+                      change=".onProjectChanged"
+                      items="{ path: 'qyrusForm>/projects/list' }">
+                <core:Item key="{qyrusForm>id}" text="{qyrusForm>name}" />
+              </Select>
+            </VBox>
+            <VBox width="48%">
+              <Label text="Module" />
+              <Select id="moduleSelect"
+                      width="100%"
+                      selectedKey="{qyrusForm>/modules/selectedId}"
+                      items="{ path: 'qyrusForm>/modules/list' }">
+                <core:Item key="{qyrusForm>id}" text="{qyrusForm>name}" />
+              </Select>
+            </VBox>
+          </HBox>
+
+          <!-- Test Name & Description -->
+          <HBox justifyContent="SpaceBetween" alignItems="Center">
+            <VBox width="48%">
+              <Label text="Test Name" />
               <Input value="{qyrusForm>/testName}" width="100%" />
-            </HBox>
-            <HBox width="100%" alignItems="Center">
-              <Label text="Test Description" class="sapUiTinyMarginEnd"/>
+            </VBox>
+            <VBox width="48%">
+              <Label text="Test Description" />
               <Input value="{qyrusForm>/testDescription}" width="100%" />
-            </HBox>
+            </VBox>
           </HBox>
 
-          <Label text="Test Objective"/>
+          <!-- Test Objective -->
+          <Label text="Test Objective" />
           <TextArea rows="3" width="100%" value="{qyrusForm>/testObjective}" />
+
         </VBox>
       </form:SimpleForm>
     </content>
 
-    <!-- 3 buttons as requested -->
+    <!-- Dialog Buttons -->
     <buttons class="sapUiSmallPadding">
-      <Button text="Create Headers" type="Transparent" press=".onCreateHeaders" />
+      <!-- <Button text="Create Headers" type="Transparent" press=".onCreateHeaders" /> -->
       <Button text="Create Test" type="Emphasized" press=".onCreateTest" />
       <Button text="Cancel" type="Transparent" press=".onCancelCreateQyrus" />
     </buttons>
