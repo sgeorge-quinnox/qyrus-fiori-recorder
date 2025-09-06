@@ -383,13 +383,13 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
             }
           })();
           `,
-          ui5ClickButton: `(async function () {
+          ui5ClickButton: `return (async function () {
             const buttonId = "{{BUTTON_ID}}";
             const pathPrefix = "{{PATH_PREFIX}}";
             const propToSet = "{{PROPERTY_PATH}}";
             const stepNumber = "{{STEP_NUMBER}}";
-            const maxWaitTime = {{ TIMEOUT }};
-            const interval = {{ POLL }};
+            const maxWaitTime = {{TIMEOUT}};
+            const interval = {{POLL}};
 
             function getButtonTarget() {
                 let target = null;
@@ -958,16 +958,14 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                   .replace(/{{PATH_PREFIX}}/g, myPath || "")
                   .replace(/{{PROPERTY_PATH}}/g, myPropertyPath || "")
                   .replace(/{{BUTTON_ID}}/g, myId || "")
-                  .replace(/{{NEW_VALUE}}/g, enteredValue || "")
-                  .replace(/{{POLL}}/g, input.poll)
-                  .replace(/{{TIMEOUT}}/g, input.timeout);
+                  .replace(/{{NEW_VALUE}}/g, enteredValue || "");
               
               // Add polling parameters only for wait templates
-              // if (input.waitEach) {
-              //     Jscript = Jscript
-              //         .replace(/{{POLL}}/g, input.poll)
-              //         .replace(/{{TIMEOUT}}/g, input.timeout);
-              // }
+              if (input.waitEach) {
+                  Jscript = Jscript
+                      .replace(/{{POLL}}/g, input.poll)
+                      .replace(/{{TIMEOUT}}/g, input.timeout);
+              }
 
               const stepData = data.actionType+" "+enteredValue+" in "+(data.text ? data.text : myId);
               // Add test step to the list
