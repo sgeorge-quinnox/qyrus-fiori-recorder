@@ -74,63 +74,14 @@
             </Table>
 
       <form:SimpleForm id="qyrusForm"
-                       editable="true"
-                       layout="ResponsiveGridLayout"
-                       labelSpanXL="3" labelSpanL="3" labelSpanM="4" labelSpanS="12"
-                       adjustLabelSpan="false"
-                       emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0"
-                       columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false">
+                      editable="true"
+                      layout="ResponsiveGridLayout"
+                      labelSpanXL="3" labelSpanL="3" labelSpanM="4" labelSpanS="12"
+                      adjustLabelSpan="false"
+                      emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0"
+                      columnsXL="2" columnsL="2" columnsM="1" singleContainerFullSize="false">
         <VBox>
-
-          <!-- Helpers -->
-          <HBox justifyContent="SpaceBetween" alignItems="Center">
-            <!-- Left toggle -->
-            <HBox width="48%" alignItems="Center" justifyContent="SpaceBetween" class="qyrRow">
-              <Label id="lblInjectHelpers" text="Inject UI5 + OPA5 helpers" class="sapUiTinyMarginEnd"/>
-              <CheckBox id="chkInjectHelpers"
-                        selected="{qyrusForm>/injectHelpers}"
-                        ariaLabelledBy="lblInjectHelpers"/>
-            </HBox>
-
-            <!-- Right toggle -->
-            <HBox width="48%" alignItems="Center" justifyContent="SpaceBetween" class="qyrRow">
-              <Label id="lblWaitEach" text="Wait before each action" class="sapUiTinyMarginEnd"/>
-              <CheckBox id="chkWaitEach"
-                        selected="{qyrusForm>/waitEach}"
-                        ariaLabelledBy="lblWaitEach"/>
-            </HBox>
-          </HBox>
-
-
-          <!-- Timeout & Poll -->
-          <HBox justifyContent="SpaceBetween" alignItems="Center">
-            <!-- Timeout -->
-            <HBox width="48%" alignItems="Center" justifyContent="SpaceBetween" class="qyrRow">
-              <Label id="lblTimeout" text="Timeout (ms)" class="sapUiTinyMarginEnd"/>
-              <StepInput id="inpTimeout"
-                        min="5" step="5"
-                        value="{qyrusForm>/timeout}"
-                        enabled="false"
-                        editable="false"
-                        width="12rem"
-                        ariaLabelledBy="lblTimeout"/>
-            </HBox>
-
-            <!-- Poll interval -->
-            <HBox width="48%" alignItems="Center" justifyContent="SpaceBetween" class="qyrRow">
-              <Label id="lblPoll" text="Poll every (ms)" class="sapUiTinyMarginEnd"/>
-              <StepInput id="inpPoll"
-                        min="5" step="5"
-                        value="{qyrusForm>/poll}"
-                        enabled="false"
-                        editable="false"
-                        width="12rem"
-                        ariaLabelledBy="lblPoll"/>
-            </HBox>
-          </HBox>
-
-
-          
+        
           <!-- Launch row: checkbox + input on the same line -->
           <HBox width="100%" alignItems="Center" justifyContent="Start" class="qyrRow">
             <CheckBox
@@ -154,7 +105,7 @@
 
 
           <!-- Wait toggles row -->
-          <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween">
+          <!-- <HBox width="100%" alignItems="Center" justifyContent="SpaceBetween">
             <HBox width="48%" alignItems="Center" class="qyrRow">
               <CheckBox id="chkWaitAfterLaunch"
                         text="Add wait after launch (sec)"
@@ -166,7 +117,7 @@
                         text="Add wait after login (sec)"
                         selected="{qyrusForm>/optWaitAfterLogin}"/>
             </HBox>
-          </HBox>
+          </HBox> -->
 
 
           <!-- Login row: checkbox + user + password -->
@@ -196,12 +147,43 @@
               <layoutData><FlexItemData growFactor="1"/></layoutData>
             </Input>
           </HBox>
+          
+          <!-- Wait + Timeout + Poll (single row, no wrap) -->
+          <HBox width="100%" alignItems="Center" wrap="NoWrap" class="qyrInline">
+            <!-- Wait toggle -->
+            <CheckBox id="chkWaitEach"
+                      selected="{qyrusForm>/waitEach}"
+                      ariaLabelledBy="lblWaitEach"/>
+            <Label id="lblWaitEach"
+                  text="Wait before action"
+                  class="qyrLblStart"
+                  wrapping="false"/>
+
+            <!-- Timeout -->
+            <Label text="Timeout (ms)" class="qyrLbl" wrapping="false"/>
+            <Input id="inpTimeout"
+                  type="Number"
+                  value="{qyrusForm>/timeout}"
+                  enabled="{= ${qyrusForm>/waitEach} }"
+                  width="7.5rem"
+                  textAlign="End"/>
+
+            <!-- Poll -->
+            <Label text="Poll every (ms)" class="qyrLbl" wrapping="false"/>
+            <Input id="inpPoll"
+                  type="Number"
+                  value="{qyrusForm>/poll}"
+                  enabled="{= ${qyrusForm>/waitEach} }"
+                  width="7.5rem"
+                  textAlign="End"/>
+          </HBox>
+
 
           <!-- Convert button -->
           <!-- <Button type="Emphasized" text="Convert" press=".onConvertOpa5" class="sapUiSmallMarginTop" /> -->
 
           <!-- Teams and Service Stores -->
-          <HBox justifyContent="SpaceBetween" alignItems="Center">
+          <HBox justifyContent="SpaceBetween" alignItems="Center" class="qyrSectionDivider">
             <VBox width="48%">
               <Label text="Teams" />
               <Select id="teamSelect"
@@ -261,7 +243,7 @@
 
           <!-- Test Objective -->
           <Label text="Test Objective" />
-          <TextArea rows="3" width="100%" value="{qyrusForm>/testObjective}" />
+          <TextArea rows="1" width="100%" value="{qyrusForm>/testObjective}" />
 
         </VBox>
       </form:SimpleForm>

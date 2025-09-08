@@ -218,4 +218,23 @@ export default class StepPage extends BaseController {
             (oViewModel as JSONModel).setProperty('/code', generatedCode);
         });
     }
+
+    private _hideShowDialog?: Dialog;
+    public async onToggleVisibility(): Promise<void> {
+        const dlg = await this._getHideShowDialog();
+        dlg.open();
+    }
+    private async _getHideShowDialog(): Promise<Dialog> {
+            if (!this._hideShowDialog || (this._hideShowDialog as any).isDestroyed?.()) {
+                const oView = this.getView();
+                const dlg = await Fragment.load({
+                    id: oView.getId(),
+                    name: "com.ui5.journeyrecorder.fragment.HideShowPasswordDialog",
+                    controller: this
+                }) as Dialog;
+                oView.addDependent(dlg);
+                this._hideShowDialog = dlg;
+            }
+            return this._hideShowDialog;
+        }
 }

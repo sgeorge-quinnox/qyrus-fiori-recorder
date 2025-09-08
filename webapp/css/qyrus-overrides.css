@@ -118,3 +118,21 @@
 .sapMListTblRow {
   height: 2rem !important;
 }
+/* Keep the whole row on one line and make labels tidy */
+.qyrInline .sapMLabel { white-space: nowrap; }
+.qyrInline .sapMInputBase { height: 2rem; flex: 0 0 auto; }
+
+/* Gaps that read well but save space */
+
+.qyrLbl      { margin: 0 .5rem 0 1rem; }
+
+/* If the dialog is very narrow, allow a graceful wrap */
+@media (max-width: 900px){
+  .qyrInline { flex-wrap: wrap; row-gap: .5rem; }
+}
+/* section divider between form blocks */
+.qyrSectionDivider{
+  margin-top: 1rem;            /* space above */
+  padding-top: .75rem;         /* breathing room inside */
+  border-top: 1px solid var(--sapList_BorderColor, rgba(0,0,0,.12));
+}
