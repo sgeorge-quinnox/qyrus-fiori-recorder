@@ -53,13 +53,13 @@
                   items="{logs>/}">
                 <columns>
                     <Column hAlign="Center" width="7rem">
-                        <Text text="Step Number"/>
+                        <Text text="Log Number"/>
                     </Column>
                     <Column width="7rem">
-                        <Text text="Type"/>
+                        <Text text="Log Type"/>
                     </Column>
                     <Column minScreenWidth="Tablet" demandPopin="true">
-                        <Text text="Message"/>
+                        <Text text="Log Message"/>
                     </Column>
                 </columns>
                 <items>
