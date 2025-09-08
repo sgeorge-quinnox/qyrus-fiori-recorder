@@ -32,7 +32,7 @@
                 console.log("✅ ValueHelp on:", inp.getId())
                 this.#captureValueHelp = inp;
               });
-            }    
+            }
           }
         });
       });
@@ -196,7 +196,7 @@
             return labelText;
           }
         }
-        return ctrl.getText?.() ?? ctrl.mProperties?.text ?? null;
+        return ctrl.getText?.() ?? ctrl.mProperties?.text ?? ctrl.mProperties?.title ?? null;
       }
 
       // For normal input fields (labels)
@@ -335,48 +335,59 @@
           .findControlSelectorByDOMElement({ domElement: n.getDomRef() })
           .then((t) => {
             e.control.recordReplaySelector = t;
-            if (e.control?.type?.trim()?.toLowerCase()?.includes('button')) {
+            let record = e.control.recordReplaySelector;
+            if (typeof n.firePress === "function" || typeof n.fireTitlePress === "function") {
+              // if (e.control?.type?.trim()?.toLowerCase()?.includes('button')) {
+              if (this.#captureValueHelp && n.getParent?.() === this.#captureValueHelp) {
+                console.log("⏩ Skipping captured ValueHelp icon");
+                this.#captureValueHelp.attachChange(evt => {
+                  const id = evt.mParameters.id;
+                  const fieldValue = evt.getParameter("value");
+                  this.#t.findControlSelectorByDOMElement({ domElement: n.getDomRef() })
+                    .then((ev) => {
+                      // console.log("✅ Changed:", inp.getId(), "→", e.getParameter("value"));
+                      var inputId1 = id;
+                      if (inputId1) {
+                        var inputttt = sap.ui.getCore().byId(inputId1);
+                        let recordDetails = e.control.recordReplaySelector;
+                        if (inputttt && typeof inputttt.getValue === "function") {
+                          const finalVal = fieldValue;
+                          console.log("✅ Final value in field:", finalVal);
+                          e.value = finalVal; // overwrite whatever was captured during typing
+                          e.control.id = inputId1;
+                          e.control.recordReplaySelector.id = inputId1;
+                        } else {
+                          console.log("⚠️ Input not found for ID:", inputId1);
+                        }
+                        e.control.recordReplaySelector.value = fieldValue;
+                        let labelField = this.getLabelDetails(e.control.recordReplaySelector?.id);
+                        e.control.recordReplaySelector.text = labelField;
+                        if (!e.control.recordReplaySelector.searchOpenDialogs) {
+                          s.send_record_step(JSON.parse(JSON.stringify(e)));
+                        }
+                        if (recordDetails.value && recordDetails.id && !recordDetails.searchOpenDialogs) {
+                          this.showToastDialog(e.control.recordReplaySelector.value, labelField);
+                        }
+                      }
+                    });
+                }
+                );
+                return;
+              }
+              if (!e.control.recordReplaySelector?.id) {
+                e.control.recordReplaySelector.id = e.control.id;
+              }
               let propertyField = this.getLabelDetails(e.control.recordReplaySelector?.id, true);
               e.control.recordReplaySelector.text = propertyField;
-              s.send_record_step(JSON.parse(JSON.stringify(e)));
-              if (e.control.recordReplaySelector.id) {
+              if (!e.control.recordReplaySelector.searchOpenDialogs) {
+                s.send_record_step(JSON.parse(JSON.stringify(e)));
+              }
+              if (record.id && !record.searchOpenDialogs) {
                 this.showToastDialog(null, propertyField);
               }
             } else {
               console.log('Base Field is this' + this.#captureValueHelp);
-              this.#captureValueHelp.attachChange(evt => {
-                const id = evt.mParameters.id;
-                const fieldValue = evt.getParameter("value");
-                this.#t.findControlSelectorByDOMElement({ domElement: n.getDomRef() })
-                  .then((ev) => {
-                    // console.log("✅ Changed:", inp.getId(), "→", e.getParameter("value"));
-                    var inputId1 = id;
-                    if (inputId1) {
-                      var inputttt = sap.ui.getCore().byId(inputId1);
-                      if (inputttt && typeof inputttt.getValue === "function") {
-                        const finalVal = fieldValue;
-                        console.log("✅ Final value in field:", finalVal);
-                        e.value = finalVal; // overwrite whatever was captured during typing
-                        e.control.id = inputId1;
-                        e.control.recordReplaySelector.id = inputId1;
-                      } else {
-                        console.log("⚠️ Input not found for ID:", inputId1);
-                      }
-                      e.control.recordReplaySelector.value = fieldValue;
-                      let labelField = this.getLabelDetails(e.control.recordReplaySelector?.id);
-                      e.control.recordReplaySelector.text = labelField;
-                      s.send_record_step(JSON.parse(JSON.stringify(e)));
-                      if (e.control.recordReplaySelector.value && e.control.recordReplaySelector.id) {
-                        this.showToastDialog(e.control.recordReplaySelector.value, labelField);
-                      }
-                    }
-                  });
-              }
-              );
-              // s.send_record_step(JSON.parse(JSON.stringify(e)));
-              // magic tells us if this an input click or not   
 
-              //s.send_record_step(JSON.parse(JSON.stringify(e.control.type)));
             }
           })
           .catch((e) => {
@@ -417,36 +428,40 @@
                   if (!t.control.recordReplaySelector.id) {
                     t.control.recordReplaySelector.id = t.control.id;
                   }
-
-                  n.attachChange((oEvent) => {
-                    setTimeout(() => {
-                      this.#t.findControlSelectorByDOMElement({ domElement: n.getDomRef() })
-                        .then((e) => {
-                          t.control.recordReplaySelector = e;
-                          var inputId1 = t.control.id;
-                          if (inputId1) {
-                            var inputttt = sap.ui.getCore().byId(inputId1);
-                            if (inputttt && typeof inputttt.getValue === "function") {
-                              const finalVal = inputttt.getValue();
-                              t.control.recordReplaySelector.value = inputttt.getValue();
-                              console.log("✅ Final value in field:", finalVal);
-                              t.key = finalVal; // overwrite whatever was captured during typing
-                            } else {
-                              console.log("⚠️ Input not found for ID:", inputId1);
+                  if (typeof n.attachChange === "function") {
+                    n.attachChange((oEvent) => {
+                      setTimeout(() => {
+                        this.#t.findControlSelectorByDOMElement({ domElement: n.getDomRef() })
+                          .then((e) => {
+                            t.control.recordReplaySelector = e;
+                            var inputId1 = t.control.id;
+                            let controlDetails = t.control.recordReplaySelector;
+                            if (inputId1) {
+                              var inputttt = sap.ui.getCore().byId(inputId1);
+                              if (inputttt && typeof inputttt.getValue === "function") {
+                                const finalVal = inputttt.getValue();
+                                t.control.recordReplaySelector.value = inputttt.getValue();
+                                console.log("✅ Final value in field:", finalVal);
+                                t.key = finalVal; // overwrite whatever was captured during typing
+                              } else {
+                                console.log("⚠️ Input not found for ID:", inputId1);
+                              }
+                              if (!t.control.recordReplaySelector.id) {
+                                t.control.recordReplaySelector.id = t.control.id
+                              }
+                              let labelFieldDetails = this.getLabelDetails(t.control.recordReplaySelector.id);
+                              t.control.recordReplaySelector.text = labelFieldDetails;
+                              if (!t.control.recordReplaySelector.searchOpenDialogs) {
+                                s.send_record_step(JSON.parse(JSON.stringify(t)));
+                              }
+                              if (controlDetails.value && controlDetails.id && !controlDetails.searchOpenDialogs) {
+                                this.showToastDialog(t.control.recordReplaySelector.value, labelFieldDetails);
+                              }
                             }
-                            if (!t.control.recordReplaySelector.id) {
-                              t.control.recordReplaySelector.id = t.control.id
-                            }
-                            let labelFieldDetails = this.getLabelDetails(t.control.recordReplaySelector.id);
-                            t.control.recordReplaySelector.text = labelFieldDetails;
-                            s.send_record_step(JSON.parse(JSON.stringify(t)));
-                            if (t.control.recordReplaySelector.value && t.control.recordReplaySelector.id) {
-                              this.showToastDialog(t.control.recordReplaySelector.value, labelFieldDetails);
-                            }
-                          }
-                        });
-                    });
-                  }, 1000);
+                          });
+                      });
+                    }, 500);
+                  }
                 })
 
                 .catch((e) => {

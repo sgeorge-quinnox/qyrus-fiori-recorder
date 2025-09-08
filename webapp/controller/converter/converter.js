@@ -1,23 +1,36 @@
 sap.ui.define([], function () { // ensures compatibility with UI5 system.
 
   let collectedLogs = [];
+  let transformationDisplayData = [];
+  let qyrusScriptArray = []; 
 
   function convertToTestSteps(receiveInput) {
       collectedLogs = [];
+      transformationDisplayData = [];
+      qyrusScriptArray = [];
       console.log("Input:", receiveInput);
       const input = buildRequestPayload(receiveInput);
       const output = doTransformation(input.opa5Input, input);
+
       console.log('Output: ', output);
       return output;
   }
 
-  function renderOutput(finalSteps) {
+  function renderOutput(finalSteps) {    
       const output = {
           logs: collectedLogs,
+          transformationDisplayData: transformationDisplayData,
           steps: {testSteps: finalSteps}
       };
       return output;
   }
+
+  const colors = {
+    reset: "\x1b[0m",
+    red: "\x1b[31m",
+    yellow: "\x1b[33m",
+    green: "\x1b[32m",
+  };
 
   const log = {
       info: (m) => { collectedLogs.push({ level: "info", msg: m }); },
@@ -25,386 +38,57 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
       warn: (m) => { collectedLogs.push({ level: "warn", msg: "⚠ " + m }); },
       err:  (m) => { collectedLogs.push({ level: "err", msg: "✖ " + m }); }
   };
+
+  const fieldConfig = {
+      "myId": {
+        "priority": ["viewId", "id"]
+      },
+      "myPath": {
+        "priority": ["bindingPath", "bindingPath.path"]
+      },
+      "myPropertyPath": {
+        "priority": ["propertyPath", "bindingPath.propertyPath"]
+      },
+      "pathPrefix": {
+        "toReplace": ["DraftUUID"]
+      }
+    };
   
-  var converterConfig = {
+  const converterConfig = {
       global: {
-        insertUi5HelperAtStart: true
+        insertUi5HelperAtStart: true,
+        injectUi5HelperDesc: "Inject UI5 + OPA5 helpers",
+        ui5HelperUserAction: "Execute Javascript",
       },
       initialSteps: [
-        { type: "launch", enable: true, user_action: "Go to url", desc: "Launch Application", data: "{launchUrl}" },
-        { type: "waitForElement", enable: true, user_action: "Wait", desc: "Wait for Element", locator: "USERNAME_FIELD-inner", data: "{waitAfterLaunchTime}" },
-        { type: "setUser", enable: true, user_action: "Set", desc: "Set Username", locator: "USERNAME_FIELD-inner", data: "{loginUser}" },
-        { type: "setPassword", enable: true, user_action: "Set", desc: "Set Password", locator: "PASSWORD_FIELD-inner", data: "{loginPass}" },
-        { type: "clickLogin", enable: true, user_action: "Click", desc: "Click Log On", locator: "LOGIN_LINK", data: "{loginLink}" },
-        { type: "wait", enable: true, user_action: "Wait", desc: "Wait After Login", data: "{waitAfterLoginTime}" }
+        { user_action: "Go to url", desc: "Launch Application", locator: "", dataKey: "launchUrl", enabledKeys: ["launchEnabled"] },
+        { user_action: "Wait", desc: "Wait for Element", locator: "USERNAME_FIELD-inner", dataKey: "waitAfterLaunch", enabledKeys: ["launchEnabled", "waitAfterLaunchEnabled"] },
+        { user_action: "Set", desc: "Set Username", locator: "USERNAME_FIELD-inner", dataKey: "loginUser", enabledKeys: ["loginEnabled"] },
+        { user_action: "Set", desc: "Set Password", locator: "PASSWORD_FIELD-inner", dataKey: "loginPass", enabledKeys: ["loginEnabled"] },
+        { user_action: "Click", desc: "Click Log On", locator: "LOGIN_LINK", enabledKeys: ["loginEnabled"] },
+        { user_action: "Wait", desc: "Wait After Login", locator: "", dataKey: "waitAfterLogin", enabledKeys: ["loginEnabled", "waitAfterLoginEnabled"] }
       ],
       actions: {
-        click: {
-          replaceWith: "Execute Javascript",
+        clicked: {
+          userAction: "Execute Javascript",
           locatorType: "Id",
           stepProperty: "text",
           templateName: "ui5ClickButton"
         },
         input: {
-          replaceWith: "Execute Javascript",
+          userAction: "Execute Javascript",
           locatorType: "Id",
           stepProperty: "text",
           templateName: "ui5SetValue"
         },
         wait: {
-          replaceWith: "Execute Javascript",
+          userAction: "Execute Javascript",
           locatorType: "Id",
           stepProperty: "text"
         }
       },
       templates: {
-        wait: {
-          ui5Helper: `(function(){
-            if (!window.sap || !sap.ui || !sap.ui.getCore) {
-              console.error("%c❌ SAP UI5 not available on this page.", "color: red; font-weight: bold;");
-              return;
-            }
-            // ============ ui5Helper =============
-            window.ui5Helper = window.ui5Helper || {};
-            (function(h){
-              h._cfg = { poll: {{POLL}}, timeout: {{TIMEOUT}} };
-
-              h._now = ()=>Date.now();
-              h._sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
-              h._busy = ()=> (sap.ui.core && sap.ui.core.BusyIndicator && sap.ui.core.BusyIndicator.oBusyIndicator) ? true : false;
-
-              h._allElements = () => Object.values(sap.ui.getCore().mElements || {});
-              h.findViewById = (id)=> sap.ui.getCore().byId(id);
-              h.findViewByName = (viewName) => {
-                const els = h._allElements();
-                for (const el of els){
-                  try {
-                    if (el.getViewName && el.getViewName() === viewName) return el;
-                  } catch(e){}
-                }
-                return null;
-              };
-              h._matchBinding = (ctrl, propPath, pathPrefix) => {
-                try{
-                  const ctx = ctrl.getBindingContext && ctrl.getBindingContext();
-                  if (!ctx) return false;
-                  const path = ctx.getPath && ctx.getPath();
-                  if (!path || !path.startsWith(pathPrefix)) return false;
-                  const binding = (ctrl.getBindingInfo && (ctrl.getBindingInfo("value") || ctrl.getBindingInfo("text") || ctrl.getBindingInfo("selectedKey")));
-                  if (!binding) return false;
-                  const parts = binding.parts || [];
-                  return parts.some(p => p.path === propPath);
-                }catch(e){ return false; }
-              };
-              h._matchProperties = (ctrl, props) => {
-                if (!props) return true;
-                try {
-                  return Object.entries(props).every(([k,v])=>{
-                    const getter = "get" + k.charAt(0).toUpperCase()+k.slice(1);
-                    if (typeof ctrl[getter] !== "function") return false;
-                    return String(ctrl[getter]()) === String(v);
-                  });
-                } catch(e){ return false; }
-              };
-              h._hasDescendant = (root, sel) => {
-                let found = null;
-                root.findAggregatedObjects(true, c=>{
-                  if (h._selectorMatch(c, sel)) { found = c; return true; }
-                  return false;
-                });
-                return !!found;
-              };
-              h._selectorMatch = (ctrl, sel) => {
-                if (sel.controlType && !(ctrl.isA && ctrl.isA(sel.controlType))) return false;
-                if (sel.bindingPath && !h._matchBinding(ctrl, sel.bindingPath.propertyPath, sel.bindingPath.path)) return false;
-                if (sel.properties && !h._matchProperties(ctrl, sel.properties)) return false;
-                return true;
-              };
-              h._roots = (includeDialogs) => {
-                const roots = [];
-                const els = h._allElements();
-                for (const el of els){
-                  try{
-                    // collect top-level Views and Dialogs if requested
-                    if (el.getViewName && !el.getParent) roots.push(el);
-                    if (includeDialogs && (el.isA && (el.isA("sap.m.Dialog") || el.isA("sap.m.Popover")))) roots.push(el);
-                  }catch(e){}
-                }
-                return roots;
-              };
-
-              h.waitForControlDom = async function(selector, timeout){
-                const T = timeout || h._cfg.timeout;
-                const start = h._now();
-                const id = selector && selector.id;
-                if (!id) throw new Error("waitForControlDom expects selector.id");
-                while (true){
-                  const ctrl = sap.ui.getCore().byId(id);
-                  if (ctrl && ctrl.getDomRef && ctrl.getDomRef()){
-                    console.log("✅ Control ready:", id);
-                    return ctrl;
-                  }
-                  if (h._now() - start > T){
-                    throw new Error("⏱ Timeout waiting for control " + id);
-                  }
-                  await h._sleep(h._cfg.poll);
-                }
-              };
-
-              h.findBySelectorObject = function(selector){
-                if (!selector) return null;
-                // Direct byId
-                if (selector.id){
-                  return sap.ui.getCore().byId(selector.id);
-                }
-                // Find view by id or name (optional)
-                let root = null;
-                if (selector.viewId) root = sap.ui.getCore().byId(selector.viewId);
-                if (!root && selector.viewName) root = h.findViewByName(selector.viewName);
-                const searchRoots = [];
-                if (root) searchRoots.push(root);
-                // Optionally include dialogs/popovers
-                for (const r of h._roots(!!selector.searchOpenDialogs)) {
-                  if (!root || r === root) searchRoots.push(r);
-                }
-                // Deduplicate
-                const uniq = Array.from(new Set(searchRoots));
-                for (const R of uniq){
-                  let candidate = null;
-                  try {
-                    R.findAggregatedObjects(true, c=>{
-                      if (!h._selectorMatch(c, selector)) return false;
-                      if (selector.descendant && !h._hasDescendant(c, selector.descendant)) return false;
-                      candidate = c;
-                      return true;
-                    });
-                  } catch(e){}
-                  if (candidate) return candidate;
-                }
-                return null;
-              };
-
-              h.press = function(selOrId){
-                let ctrl = null;
-                if (typeof selOrId === "string") ctrl = sap.ui.getCore().byId(selOrId);
-                else ctrl = h.findBySelectorObject(selOrId);
-                if (!ctrl) { console.error("❌ press: control not found", selOrId); return false; }
-                if (typeof ctrl.firePress === "function"){ ctrl.firePress(); return true; }
-                if (typeof ctrl.fireSelect === "function"){ ctrl.fireSelect({}); return true; }
-                if (typeof ctrl.fireTap === "function"){ ctrl.fireTap({}); return true; }
-                console.warn("⚠ press: no press/select/tap on control; avoiding DOM click");
-                return false;
-              };
-
-              h.setValue = function(opts){
-                const { selector, value } = opts||{};
-                let ctrl = null;
-                if (!selector){ console.error("❌ setValue: missing selector"); return false; }
-                if (selector.id){ ctrl = sap.ui.getCore().byId(selector.id); }
-                if (!ctrl) ctrl = h.findBySelectorObject(selector);
-                if (!ctrl || !ctrl.setValue){
-                  console.error("❌ setValue: control not found or not an input", selector, ctrl);
-                  return false;
-                }
-                try{
-                  ctrl.setValue(value);
-                  if (typeof ctrl.fireLiveChange === "function") ctrl.fireLiveChange({value});
-                  if (typeof ctrl.fireChange === "function") ctrl.fireChange({value});
-                  if (typeof ctrl.fireSubmit === "function") ctrl.fireSubmit({});
-                  return true;
-                }catch(e){
-                  console.error("❌ setValue error:", e);
-                  return false;
-                }
-              };
-            })(window.ui5Helper);
-
-            // ============ opa5Adapter (selector normalizer) ============
-            window.opa5Adapter = window.opa5Adapter || {};
-            (function(a,h){
-              a.normalizeSelector = function(obj){
-                // Return as-is; our helper understands OPA5-like structures.
-                return obj || {};
-              };
-            })(window.opa5Adapter, window.ui5Helper);
-
-            console.log("%c✅ Helpers injected: ui5Helper + opa5Adapter With Polling",  "color: green; font-weight: bold;");
-          })();
-          `,
-          ui5SetValue: `return (async function () {
-                if (!window.sap || !sap.ui || !sap.ui.getCore) {
-                    return console.error("%c❌ SAP UI5 not available", "color: red; font-weight: bold;");
-                }
-
-                const stepNumber = "{{STEP_NUMBER}}";
-                const viewId = "{{VIEW_ID}}";
-                const pathPrefix = "{{PATH_PREFIX}}";
-                const propToSet = "{{PROPERTY_PATH}}";
-                const newValue = "{{NEW_VALUE}}";
-                
-                const timeoutMs = {{TIMEOUT}};
-                const intervalMs = {{POLL}};
-                const start = Date.now();
-
-                let loopCount = 1;
-                let executionLocator = '';
-                function findTarget() {
-                    let target = null;
-
-                    if (viewId && !propToSet && !pathPrefix) {
-                        executionLocator = "STABLE LOCATOR: ";
-                        target = sap.ui.getCore().byId(viewId);
-                    }
-
-                    if (!target && viewId && propToSet && pathPrefix) {
-                        executionLocator = "UNSTABLE LOCATOR: ";
-                        const oView = sap.ui.getCore().byId(viewId);
-                        if (oView) {
-                            const inputs = oView.findAggregatedObjects(true, ctrl => ctrl.isA("sap.m.Input"));
-                            target = inputs.find(input => {
-                                const ctx = input.getBindingContext();
-                                if (!ctx) return false;
-                                const path = ctx.getPath();
-                                if (!path.startsWith(pathPrefix)) return false;
-                                const bindInfo = input.getBindingInfo("value");
-                                return bindInfo && bindInfo.parts.some(p => p.path === propToSet);
-                            });
-                        }
-                    }
-
-                    console.info("Step:", stepNumber, executionLocator, newValue,  " TARGET: ", target, " Loop Level -> ", loopCount);
-                    loopCount++;
-                    return target;
-                }
-
-                let target = null;
-                while (!(target = findTarget())) {
-                    if (Date.now() - start > timeoutMs) {
-                        console.error(
-                          \`%cStep: \${stepNumber} ⏰ Timeout: Control not found\`,
-                          "color: red; font-weight: bold;"
-                        );
-                        return;
-                    }
-                    await new Promise(r => setTimeout(r, intervalMs));
-                }
-
-                function setInputValueWithDetermination(ctrl, value) {
-                  if (!ctrl) return;
-
-                  if (ctrl.isA("sap.ui.comp.smartfield.SmartField")) {
-                    const inner = ctrl.getFirstInnerControl?.()[0];
-                    if (inner) {
-                      return setInputValueWithDetermination(inner, value);
-                    }
-                  }
-
-          if (ctrl.isA("sap.m.ComboBox") || ctrl.isA("sap.m.ComboBoxBase")) {
-            ctrl.setValue(value);
-
-            const item = ctrl.getItems().find(i => i.getText() === value || i.getKey() === value);
-            if (item) {
-              ctrl.setSelectedItem(item);
-              ctrl.fireSelectionChange({ selectedItem: item });
-            } else {
-              ctrl.fireChange({ value });
-              if (typeof ctrl.fireSubmit === "function") {
-                ctrl.fireSubmit({ value });
-              }
-            }
-            return;
-          }
-
-          if (ctrl.isA("sap.m.Input")) {
-            ctrl.setValue(value);
-            ctrl.fireChange({ value });
-
-            const groups = ctrl.getFieldGroupIds?.() || [];
-            if (groups.length > 0) {
-              ctrl.fireValidateFieldGroup({ fieldGroupIds: groups });
-            }
-            if (typeof ctrl.fireSubmit === "function") {
-              ctrl.fireSubmit({ value });
-            }
-            if (typeof ctrl.fireLiveChange === "function") {
-              ctrl.fireLiveChange({ value });
-            }
-            return;
-          }
-
-          if (ctrl.setValue) {
-            ctrl.setValue(value);
-            ctrl.fireChange({ value });
-          }
-        }
-
-                try {
-                    setInputValueWithDetermination(target, newValue);
-                    console.log(
-                      \`%cStep: \${stepNumber} ✅ Set Value: \${target.getId()}\`,
-                      "color: green; font-weight: bold;"
-                    );
-                    return true;
-                } catch (e) {
-                    console.error(
-                      \`%cStep: \${stepNumber} ❌ Error setting value: \${e}\`,
-                      "color: red; font-weight: bold;"
-                    );
-                    return false;
-                }
-            })();
-            `,          
-          ui5ClickButton: `(async function () {
-          const buttonId = "{{BUTTON_ID}}";
-          const stepNumber = "{{STEP_NUMBER}}";
-          const maxWaitTime = {{TIMEOUT}}
-          const interval = {{POLL}};
-
-          function getButton() {
-              return sap?.ui?.getCore?.().byId(buttonId);
-          }
-
-          async function waitForControl() {
-              const start = Date.now();
-              while (Date.now() - start < maxWaitTime) {
-              const btn = getButton();
-              if (btn) {
-                  return btn;
-              }
-              await new Promise(r => setTimeout(r, interval));
-              }
-              return null;
-          }
-
-          try {
-              const btn = await waitForControl();
-              if (btn && typeof btn.firePress === "function") {
-                btn.firePress();
-                console.log(
-                    \`%cStep: \${stepNumber} ✅ UI5 Create button clicked via firePress\`,
-                    "color: green; font-weight: bold;"
-                );
-              } else if (btn) {
-                console.error(
-                    \`%cStep: \${stepNumber} ❌ Control found but firePress not supported: \${btn}\`,
-                    "color: red; font-weight: bold;"
-                );
-              } else {
-                console.error(
-                    \`%cStep: \${stepNumber} ❌ Control not found after waiting 60 seconds\`,
-                    "color: red; font-weight: bold;"
-                );
-              }
-          } catch (err) {
-              console.error(
-                  \`%cStep: \${stepNumber} ❌ Error while waiting for control: \${err}\`,
-                  "color: red; font-weight: bold;"
-              );
-          }
-          })();`,      
-        },
-        noWait: {
-          ui5Helper: `(function(){
+        ui5Helper_old: `(function(){
             if (!window.sap || !sap.ui || !sap.ui.getCore) {
               console.error("❌ SAP UI5 not available on this page.");
               return;
@@ -550,11 +234,410 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
               };
             })(window.opa5Adapter, window.ui5Helper);
 
-            console.log("%c✅ Helpers injected: ui5Helper + opa5Adapter Without Polling",  "color: green; font-weight: bold;");
+            console.log("✅ Helpers injected: ui5Helper + opa5Adapter");
           })();`,
+        ui5Helper: `(() => {
+          window.ui5Helper = {
+            setValue: function(config) {
+              try {
+                let control = sap.ui.getCore().byId(config.selector.id);
+
+                if (control && typeof control.setValue === "function") {
+                  control.setValue(config.value);
+
+                  if (typeof control.fireChange === "function") {
+                    control.fireChange({ value: config.value });
+                  }
+
+                  console.log('✅ UI5 setValue executed: ' + config.value);
+                  return true;
+                } else {
+                  const element = document.getElementById(config.selector.id);
+                  if (element) {
+                    element.focus();
+                    element.value = config.value;
+                    element.dispatchEvent(new Event('input', { bubbles: true }));
+                    element.dispatchEvent(new Event('change', { bubbles: true }));
+                    element.blur();
+                    console.log('✅ DOM setValue executed: ' + config.value);
+                    return true;
+                  }
+                }
+
+                // ❌ Fail case
+                throw new Error(\`Control or element not found for id: \${config.selector.id}\`);
+
+              } catch (error) {
+                console.error('❌ Error in setValue:', error);
+                throw error;
+              }
+            }
+          };
+          console.log('✅ ui5Helper injected');
+        })();
+        `,
+        wait: {
+          ui5SetValue: `return (async function() {
+            const stepNumber = "{{STEP_NUMBER}}";
+            const viewId = "{{VIEW_ID}}";
+            const pathPrefix = "{{PATH_PREFIX}}";
+            const propToSet = "{{PROPERTY_PATH}}";
+            const enteredValue = "{{NEW_VALUE}}";
+            
+            const timeoutMs = {{TIMEOUT}};
+            const pollInterval = {{POLL}};
+
+            function findTarget() {
+              let target = null;
+
+              if (propToSet) { // Unstable locator
+                  const inputs = Object.values(sap.ui.core.Element.registry.all())
+                              .filter(ctrl => ctrl.isA("sap.m.Input"));
+                  target = inputs.find(input => {
+                      const ctx = input.getBindingContext();
+                      if (!ctx) return false;
+
+                      const path = ctx.getPath();
+                      if (!path.startsWith(pathPrefix)) return false;
+
+                      const bindInfo = input.getBindingInfo("value");
+                      return bindInfo && bindInfo.parts.some(p => p.path === propToSet);
+                  });
+              } else { // Stable locator available
+                  target = sap.ui.getCore().byId(viewId);
+              }
+              return target;
+            }
+
+            // Wait loop (dynamic wait)
+            async function waitForTarget() {
+              const start = Date.now();
+              return new Promise((resolve, reject) => {
+                (function check() {
+                  const target = findTarget();
+                  if (target) return resolve(target);
+
+                  if (Date.now() - start > timeoutMs) {
+                    return reject(new Error(\`⏰ Timeout: Could not find input\`));
+                  }
+                  setTimeout(check, pollInterval);
+                })();
+              });
+            }
+
+            function setInputValueWithDetermination(ctrl, value) {
+                  if (!ctrl) return;
+                  
+                  if (typeof ctrl.setValue === "function") {
+                      ctrl.setValue(value);
+
+                      // Always fire change (basic binding update)
+                      ctrl.fireChange({ value });
+
+                      // Fire field group validation (like leaving field / pressing Enter)
+                      const groups = ctrl.getFieldGroupIds?.() || [];
+                      if (groups.length > 0) {
+                          ctrl.fireValidateFieldGroup({ fieldGroupIds: groups });
+                      }
+
+                      // If the control supports submit (like search fields)
+                      if (typeof ctrl.fireSubmit === "function") {
+                          ctrl.fireSubmit({ value });
+                      }
+
+                      // Extra: fire liveChange (some apps hook into this)
+                      if (typeof ctrl.fireLiveChange === "function") {
+                          ctrl.fireLiveChange({ value });
+                      }
+
+                      // setProperty for directly changing the underlying data/model
+                      if (propToSet) {
+                          const ctxPath = ctrl.getBindingContext().getPath();
+                          if(ctxPath) {
+                              const basePath = ctxPath.split(")")[0] + ")";
+                              const fullPath = \`\${basePath}/\${propToSet}\`;
+
+                              const oModel = ctrl.getModel();
+                              oModel.setProperty(fullPath, value);
+                          }
+                      }
+                      return true;
+                  }        
+                  return false;
+              }
+
+            try {
+              const target = await waitForTarget();
+              console.log("✅ Found target control:", target);
+              const isSetValue = setInputValueWithDetermination(target, enteredValue);
+              if (!isSetValue) { 
+                  console.error("Control does not support setValue");
+                  throw new Error("Control does not support setValue");
+              }
+
+              console.log(\`✅ Set \${propToSet} = "\${enteredValue}" on control\`, target);
+              return true;    
+            } catch (err) {
+              console.error("❌ Failed to set value:", err.message);
+              throw err;
+            }
+          })();
+          `,
+          ui5ClickButton: `(async function () {
+            const buttonId = "{{BUTTON_ID}}";
+            const pathPrefix = "{{PATH_PREFIX}}";
+            const propToSet = "{{PROPERTY_PATH}}";
+            const stepNumber = "{{STEP_NUMBER}}";
+            const maxWaitTime = {{ TIMEOUT }};
+            const interval = {{ POLL }};
+
+            function getButtonTarget() {
+                let target = null;
+
+                if (propToSet) { // Dynamic locator via input binding (if button is near input)
+                    const inputs = Object.values(sap.ui.core.Element.registry.all())
+                        .filter(ctrl => ctrl.isA("sap.m.Input"));
+
+                    const input = inputs.find(input => {
+                        const ctx = input.getBindingContext();
+                        if (!ctx) return false;
+
+                        const path = ctx.getPath();
+                        if (!path.startsWith(pathPrefix)) return false;
+
+                        const bindInfo = input.getBindingInfo("value");
+                        return bindInfo && bindInfo.parts.some(p => p.path === propToSet);
+                    });
+
+                    if (input) {
+                        // Assuming button is sibling of input
+                        const parent = input.getParent();
+                        target = parent?.getContent?.()?.find(c => c.isA && c.isA("sap.m.Button"));
+                    }
+                } else {
+                  target = sap?.ui?.getCore?.().byId(buttonId);  
+                }
+
+                return target;
+            }
+
+            async function waitForControl() {
+                const start = Date.now();
+                return new Promise((resolve, reject) => {
+                    (function check() {
+                        const target = getButtonTarget();
+                        if (target) return resolve(target);
+
+                        if (Date.now() - start > maxWaitTime) {
+                            return reject(new Error(\`⏰ Timeout: Could not find input\`));
+                              }
+                              setTimeout(check, interval);
+                            })();
+                          });
+            }
+
+            try {
+                const btn = await waitForControl();
+                if (btn && typeof btn.firePress === "function") {
+                    btn.firePress();
+                    console.log(
+                        \`Step: \${stepNumber} ✅ UI5 Create button clicked via firePress\`
+                            );
+                          } else if (btn) {
+                            console.error(
+                                \`Step: \${stepNumber} ❌ Control found but firePress not supported: \${btn}\`
+                            );
+                            throw new Error("Control does not support firePress");
+                          } else {
+                            console.error(
+                                \`Step: \${stepNumber} ❌ Control not found after waiting 60 seconds\`
+                            );
+                            throw new Error("Control not found");
+                          }
+                      } catch (err) {
+                          console.error(
+                              \`Step: \${stepNumber} ❌ Error while waiting for control: \${err}\`
+                          );
+                          throw err;
+                      }
+                      })();
+          `,
+          ui5SetValue_old: `return (async function () {
+                if (!window.sap || !sap.ui || !sap.ui.getCore) {
+                    console.error("❌ SAP UI5 not available");
+                    throw new Error("SAP UI5 not available");
+                }
+
+                const stepNumber = "{{STEP_NUMBER}}";
+                const viewId = "{{VIEW_ID}}";
+                const pathPrefix = "{{PATH_PREFIX}}";
+                const propToSet = "{{PROPERTY_PATH}}";
+                const newValue = "{{NEW_VALUE}}";
+
+                /***************************************/                
+                const timeoutMs = {{TIMEOUT}};
+                const intervalMs = {{POLL}};
+                const start = Date.now();
+                /***************************************/
+
+                let loopCount = 1;
+                let executionLocator = '';
+                function findTarget() {
+                    let target = null;
+
+                    if (viewId && !propToSet && !pathPrefix) {
+                        executionLocator = "STABLE LOCATOR: ";
+                        target = sap.ui.getCore().byId(viewId);
+                    }
+
+                    if (!target && viewId && propToSet && pathPrefix) {
+                        executionLocator = "UNSTABLE LOCATOR: ";
+                        const oView = sap.ui.getCore().byId(viewId);
+                        if (oView) {
+                            const inputs = oView.findAggregatedObjects(true, ctrl => ctrl.isA("sap.m.Input"));
+                            target = inputs.find(input => {
+                                const ctx = input.getBindingContext();
+                                if (!ctx) return false;
+                                const path = ctx.getPath();
+                                if (!path.startsWith(pathPrefix)) return false;
+                                const bindInfo = input.getBindingInfo("value");
+                                return bindInfo && bindInfo.parts.some(p => p.path === propToSet);
+                            });
+                        }
+                    }
+
+                    console.info("Step:", stepNumber, executionLocator, newValue,  " TARGET: ", target, " Loop Level -> ", loopCount);
+                    loopCount++;
+                    return target;
+                }
+
+                let target = null;
+                while (!(target = findTarget())) {
+                    if (Date.now() - start > timeoutMs) {
+                        console.error(
+                          \`Step: \${stepNumber} ⏰ Timeout: Control not found\`
+                        );
+                        throw new Error("Timeout waiting for control");
+                    }
+                    await new Promise(r => setTimeout(r, intervalMs));
+                }
+
+                function setInputValueWithDetermination(ctrl, value) {
+                  if (!ctrl) return;
+
+                  if (ctrl.isA("sap.ui.comp.smartfield.SmartField")) {
+                    const inner = ctrl.getFirstInnerControl?.()[0];
+                    if (inner) {
+                      return setInputValueWithDetermination(inner, value);
+                    }
+                  }
+
+          if (ctrl.isA("sap.m.ComboBox") || ctrl.isA("sap.m.ComboBoxBase")) {
+            ctrl.setValue(value);
+
+            const item = ctrl.getItems().find(i => i.getText() === value || i.getKey() === value);
+            if (item) {
+              ctrl.setSelectedItem(item);
+              ctrl.fireSelectionChange({ selectedItem: item });
+            } else {
+              ctrl.fireChange({ value });
+              if (typeof ctrl.fireSubmit === "function") {
+                ctrl.fireSubmit({ value });
+              }
+            }
+            return;
+          }
+
+          if (ctrl.isA("sap.m.Input")) {
+            ctrl.setValue(value);
+            ctrl.fireChange({ value });
+
+            const groups = ctrl.getFieldGroupIds?.() || [];
+            if (groups.length > 0) {
+              ctrl.fireValidateFieldGroup({ fieldGroupIds: groups });
+            }
+            if (typeof ctrl.fireSubmit === "function") {
+              ctrl.fireSubmit({ value });
+            }
+            if (typeof ctrl.fireLiveChange === "function") {
+              ctrl.fireLiveChange({ value });
+            }
+            return;
+          }
+
+          if (ctrl.setValue) {
+            ctrl.setValue(value);
+            ctrl.fireChange({ value });
+          }
+        }
+
+                try {
+                    setInputValueWithDetermination(target, newValue);
+                    console.log(
+                      \`Step: \${stepNumber} ✅ Set Value: \${target.getId()}\`
+                    );
+                    return true;
+                } catch (e) {
+                    console.error(
+                      \`Step: \${stepNumber} ❌ Error setting value: \${e}\`
+                    );
+                    throw e;
+                }
+            })();
+            `,          
+          ui5ClickButton_old: `(async function () {
+          const buttonId = "{{BUTTON_ID}}";
+          const stepNumber = "{{STEP_NUMBER}}";
+          const maxWaitTime = {{TIMEOUT}}
+          const interval = {{POLL}};
+
+          function getButton() {
+              return sap?.ui?.getCore?.().byId(buttonId);
+          }
+
+          async function waitForControl() {
+              const start = Date.now();
+              while (Date.now() - start < maxWaitTime) {
+              const btn = getButton();
+              if (btn) {
+                  return btn;
+              }
+              await new Promise(r => setTimeout(r, interval));
+              }
+              return null;
+          }
+
+          try {
+              const btn = await waitForControl();
+              if (btn && typeof btn.firePress === "function") {
+                btn.firePress();
+                console.log(
+                    \`Step: \${stepNumber} ✅ UI5 Create button clicked via firePress\`
+                );
+              } else if (btn) {
+                console.error(
+                    \`Step: \${stepNumber} ❌ Control found but firePress not supported: \${btn}\`
+                );
+                throw new Error("Control does not support firePress");
+              } else {
+                console.error(
+                    \`Step: \${stepNumber} ❌ Control not found after waiting 60 seconds\`
+                );
+                throw new Error("Control not found");
+              }
+          } catch (err) {
+              console.error(
+                  \`Step: \${stepNumber} ❌ Error while waiting for control: \${err}\`
+              );
+              throw err;
+          }
+          })();`,      
+        },
+        noWait: {          
           ui5SetValue: `return (async function () {
             if (!window.sap || !sap.ui || !sap.ui.getCore) {
-                return console.error("%c❌ SAP UI5 not available", "color: red; font-weight: bold;");
+                console.error("❌ SAP UI5 not available");
+                throw new Error("SAP UI5 not available");
             }
 
             const stepNumber = "{{STEP_NUMBER}}";
@@ -647,24 +730,21 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                 if (!target) {
                     console.error("Step:", stepNumber, "❌ Control not found");
                     console.error(
-                      \`%cStep: \${stepNumber} ❌ Control not found: \${e}\`,
-                      "color: red; font-weight: bold;"
+                      \`Step: \${stepNumber} ❌ Control not found: \${e}\`
                     );
-                    return false;
+                    throw new Error("Control not found");
                 }
 
                 setInputValueWithDetermination(target, newValue);
                 console.log(
-                  \`%cStep: \${stepNumber} ✅ Set Value: \${target.getId()}\`,
-                  "color: green; font-weight: bold;"
+                  \`Step: \${stepNumber} ✅ Set Value: \${target.getId()}\`
                 );
                 return true;
             } catch (e) {
                 console.error(
-                  \`%cStep: \${stepNumber} ❌ Error setting value: \${e}\`,
-                  "color: red; font-weight: bold;"
+                  \`Step: \${stepNumber} ❌ Error setting value: \${e}\`
                 );
-                return false;
+                throw e;
             }
         })();`,          
           ui5ClickButton: `(function () {
@@ -677,93 +757,41 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                 if (btn && typeof btn.firePress === "function") {
                     btn.firePress();
                     console.log(
-                        \`%cStep: \${stepNumber} ✅ UI5 Create button clicked via firePress\`,
-                        "color: green; font-weight: bold;"
+                        \`Step: \${stepNumber} ✅ UI5 Create button clicked via firePress\`
                     );
                 } else if (btn) {
                     console.error(
-                        \`%cStep: \${stepNumber} ❌ Control found but firePress not supported: \${btn}\`,
-                        "color: red; font-weight: bold;"
+                        \`Step: \${stepNumber} ❌ Control found but firePress not supported: \${btn}\`
                     );
+                    throw new Error("Control does not support firePress");
                 } else {
                   console.error(
-                      \`%cStep: \${stepNumber} ❌ Control not found on the page\`,
-                      "color: red; font-weight: bold;"
+                      \`Step: \${stepNumber} ❌ Control not found on the page\`
                   );
+                  throw new Error("Control not found on the page");
                 }
             } catch (err) {
                 console.error(
-                    \`%cStep: \${stepNumber} ❌ Error while clicking the button: \${err}\`,
-                    "color: red; font-weight: bold;"
+                    \`Step: \${stepNumber} ❌ Error while clicking the button: \${err}\`
                 );
+                throw err;
             }
         })();`,      
         },
       }
     };
 
-    const RULES = {
-          rules: {
-            input: {
-              keys: "last",
-              fields: {
-                actionType: "'input'",
-                id: "recordReplaySelector.id",
-                controlType: "recordReplaySelector.controlType",
-                viewName: "recordReplaySelector.viewName",
-                viewId: "recordReplaySelector.viewId",
-                bindingPath: "recordReplaySelector.bindingPath.path",
-                propertyPath: "recordReplaySelector.bindingPath.propertyPath",
-                value: "recordReplaySelector.value",
-                text: "recordReplaySelector.text"
-              }
-            },
-            keypress: {
-              keys: "last",
-              fields: {
-                actionType: "'input'",
-                id: "recordReplaySelector.id",
-                controlType: "recordReplaySelector.controlType",
-                viewName: "recordReplaySelector.viewName",
-                viewId: "recordReplaySelector.viewId",
-                bindingPath: "recordReplaySelector.bindingPath.path",
-                propertyPath: "recordReplaySelector.bindingPath.propertyPath",
-                value: "recordReplaySelector.value",
-                text: "recordReplaySelector.text"
-              }
-            },
-            clicked: {
-              when: "recordReplaySelector.value != null",
-              fields: {
-                actionType: "'input'",
-                id: "recordReplaySelector.id",
-                value: "recordReplaySelector.value",
-                controlType: "recordReplaySelector.ancestor.controlType",
-                viewName: "recordReplaySelector.ancestor.viewName",
-                viewId: "recordReplaySelector.ancestor.viewId",
-                bindingPath: "recordReplaySelector.ancestor.bindingPath",
-                text: "recordReplaySelector.text"
-              },
-              elseFields: {
-                actionType: "'click'",
-                id: "recordReplaySelector.id",
-                value: "recordReplaySelector.value",
-                bindingPath: "recordReplaySelector.ancestor.bindingPath",
-                text: "recordReplaySelector.text"
-              }
-            }
-          }
-      };
+    
 
- 
+    
   function doTransformation(OPA5Text, input) {
     
     const rules = {
         rules: {
           input: {
-            keys: "last",
+            keys: "last", // We will have keys array for input events
             fields: {
-              actionType: "'input'",
+              actionType: "input",
               id: "recordReplaySelector.id",
               controlType: "recordReplaySelector.controlType",
               viewName: "recordReplaySelector.viewName",
@@ -775,9 +803,21 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
             }
           },
           keypress: {
-            keys: "last",
             fields: {
-              actionType: "'input'",
+              actionType: "input",
+              id: "recordReplaySelector.id",
+              controlType: "recordReplaySelector.controlType",
+              viewName: "recordReplaySelector.viewName",
+              viewId: "recordReplaySelector.viewId",
+              bindingPath: "recordReplaySelector.bindingPath.path",
+              propertyPath: "recordReplaySelector.bindingPath.propertyPath",
+              value: "recordReplaySelector.value",
+              text: "recordReplaySelector.text"
+            }
+          },
+          validate: {
+            fields: {
+              actionType: "clicked",
               id: "recordReplaySelector.id",
               controlType: "recordReplaySelector.controlType",
               viewName: "recordReplaySelector.viewName",
@@ -789,9 +829,9 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
             }
           },
           clicked: {
-            when: "recordReplaySelector.value != null",
+            when: "step.recordReplaySelector.value != null",
             fields: {
-              actionType: "'input'",
+              actionType: "input",
               id: "recordReplaySelector.id",
               value: "recordReplaySelector.value",
               controlType: "recordReplaySelector.ancestor.controlType",
@@ -801,7 +841,7 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
               text: "recordReplaySelector.text"
             },
             elseFields: {
-              actionType: "'click'",
+              actionType: "clicked",
               id: "recordReplaySelector.id",
               value: "recordReplaySelector.value",
               bindingPath: "recordReplaySelector.ancestor.bindingPath",
@@ -811,8 +851,8 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
         }
     };
 
-
-    const result = [];
+    
+    const simpleTestStepArray = [];
     if (!OPA5Text.steps || !Array.isArray(OPA5Text.steps)) {
       const errMsg = 'No steps found in input JSON';
       log.err(errMsg);
@@ -823,89 +863,79 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
     OPA5Text.steps.forEach(step => {
       const rule = rules.rules[step.actionType];
 
-      let obj = step;
-      if (step.keys && rule.keys === "last") {
-        obj = step.keys[step.keys.length - 1];
+      if(!rule) {
+        log.error(`No rule defined for actionType: ${step.actionType}. Step skipped.`);
+        throw new Error(`No rule defined for actionType: ${step.actionType}`);
       }
-
-      // choose fields or elseFields based on "when"
-      let fieldsToUse = rule.fields;
-      if (rule.when) {
-        const [path, operator, rawValue] = rule.when.split(" ");
-        const actualValue = getValueByPath(step, path);
-        const expectedValue = rawValue === "null" ? null : rawValue.replace(/'/g, "");
-
-        let conditionMet = false;
-        if (operator === "!=") conditionMet = actualValue != expectedValue;
-        if (operator === "==") conditionMet = actualValue == expectedValue;
-
-        if (!conditionMet && rule.elseFields) {
-          fieldsToUse = rule.elseFields;
+      // `step.keys` will be available only for actionType `input`.      
+      // If a keys array is available it means all values for further process should be taken from under the keys array.
+      // Most cases relavant updated values (id, controlId, PropertyPath, enteredValue) are available in in the last keys array.
+      // Hence in config we have mentioned keys.last
+      // With this config all values under the last keys are used for further processing
+      let obj = step;
+      if (step.keys) {
+        if(rule.keys === "last") {
+          obj = step.keys[step.keys.length - 1];
         }
       }
 
+      let fieldsToUse = rule.fields;
+      if (step.actionType === "clicked") {
+        if (step.recordReplaySelector?.value != null) {
+          fieldsToUse = rule.fields;   // value help
+        } else {
+          fieldsToUse = rule.elseFields; // button click
+        }
+      }
+
+      // let fieldsToUse;
+      // if (rule.when) {
+      //   if (eval(rule.when)) {
+      //     fieldsToUse = rule.fields;
+      //   } else {
+      //     fieldsToUse = rule.elseFields;
+      //   }
+      // } else {
+      //   fieldsToUse = rule.fields;
+      // }
+  
       const transformed = {};
       for (let [key, path] of Object.entries(fieldsToUse)) {
-        if (path.startsWith("'") && path.endsWith("'")) {
-          transformed[key] = path.slice(1, -1); // literal value
-        } else {
-          transformed[key] = getValueByPath(obj, path);
-        }
+        transformed[key] = getValueByPath(obj, path);
       }
-      result.push(transformed);
+      simpleTestStepArray.push(transformed);
     });
-
-    console.log(`Intermediate transformation result:`, result);
-    
-
+    transformationDisplayData.push(...simpleTestStepArray);
+ 
     // Second Loop
-    let stepNum = 1;
-    const steps = [];  
+    let stepNum = 1;     
 
-      // Create Initial Steps
-      for (const stepDef of converterConfig.initialSteps) {
-          const processedData = initialProcessStep(stepDef, input);
-          if (processedData !== null) {
-              steps.push(makeStep(stepNum, stepDef.desc, processedData, stepDef.locator, stepDef.user_action));
-              log.ok(`Step ${stepNum}: ${stepDef.desc} added`);
-              stepNum++;
-          } else {
-              log.warn(`Step skipped: ${stepDef.desc}`);
-          }
-      }
-
-    // UI5 Helper Inject
-    if (converterConfig.global.insertUi5HelperAtStart && input.injectHelpers) {
-        const templateSetHelper = input.waitEach ? converterConfig.templates.wait : converterConfig.templates.noWait;
-        const scriptContent = templateSetHelper.ui5Helper;
-
-        let Jscript = scriptContent;          
-        if (input.waitEach) {
-            Jscript = Jscript
-                .replace(/{{POLL}}/g, input.poll || 0)
-                .replace(/{{TIMEOUT}}/g, input.timeout || 0);
-        }
-
-        steps.push(makeStep(stepNum, "Inject UI5 + OPA5 helpers", Jscript));
-        log.ok(`Step ${stepNum}: Added ${input.waitEach ? 'polling' : 'non-polling'} helper injection`);
-        stepNum++;
-    }
+    // Insert Initial Steps like Launch, Login, and UI5 Helper
+    stepNum = initialSteps(stepNum, input);   
 
       try {
-          result.map(data => {
-              const viewId = data?.viewId ? data.viewId : (data?.id || '');
-              const pathPrefix = typeof data?.bindingPath === "string"
-                  ? data.bindingPath.replace(/,DraftUUID.*\)/, "")
-                  : (data?.bindingPath?.path
-                      ? data.bindingPath.path.replace(/,DraftUUID.*\)/, "")
-                      : "");
+        console.log('simpleTestStepArray: ', simpleTestStepArray)
+          simpleTestStepArray.map(data => {
 
-              const propertyPath = typeof data?.bindingPath === "object"
-                  ? data.bindingPath?.propertyPath || ""
-                  : data?.propertyPath || "";
+              // Extracting ID, Path, and Property Path
+              const myId = fieldConfig.myId.priority
+                .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
+                .find(v => v !== undefined);
 
-              const newValue = data?.value || '';   
-              
+              const myPath = fieldConfig.myPath.priority
+                .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
+                .find(v => v !== undefined)?.replace(
+                  new RegExp(`,(?:${fieldConfig.pathPrefix.toReplace.join("|")}).*\\)`),
+                  ""
+                );
+
+              const myPropertyPath = fieldConfig.myPropertyPath.priority
+                .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
+                .find(v => v !== undefined);
+
+              console.log(`Step ${stepNum}, actionType: ${data.actionType}, myId: ${myId}, myPath: ${myPath}, myPropertyPath: ${myPropertyPath}`);
+              const enteredValue = data?.value || '';
+
               const actionConfig = converterConfig.actions[data.actionType];
               if (!actionConfig) {
                   log.warn(`No action config found for type: ${data.actionType}`);
@@ -921,35 +951,40 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                   return;
               }
 
-              // Get template and perform replacements
+              // Get template and update placeholders
               let Jscript = templateSet[templateName]
                   .replace(/{{STEP_NUMBER}}/g, stepNum.toString())
-                  .replace(/{{VIEW_ID}}/g, viewId || "")
-                  .replace(/{{PATH_PREFIX}}/g, pathPrefix || "")
-                  .replace(/{{PROPERTY_PATH}}/g, propertyPath || "")
-                  .replace(/{{BUTTON_ID}}/g, viewId || "")
-                  .replace(/{{NEW_VALUE}}/g, newValue || "");
+                  .replace(/{{VIEW_ID}}/g, myId || "")
+                  .replace(/{{PATH_PREFIX}}/g, myPath || "")
+                  .replace(/{{PROPERTY_PATH}}/g, myPropertyPath || "")
+                  .replace(/{{BUTTON_ID}}/g, myId || "")
+                  .replace(/{{NEW_VALUE}}/g, enteredValue || "")
+                  .replace(/{{POLL}}/g, input.poll)
+                  .replace(/{{TIMEOUT}}/g, input.timeout);
               
               // Add polling parameters only for wait templates
-              if (input.waitEach) {
-                  Jscript = Jscript
-                      .replace(/{{POLL}}/g, input.poll || 0)
-                      .replace(/{{TIMEOUT}}/g, input.timeout || 0);
-              }
-              
-              const stepData = data.actionType+" "+newValue+" in "+(data.text ? data.text : viewId);
-              steps.push(makeStep(
+              // if (input.waitEach) {
+              //     Jscript = Jscript
+              //         .replace(/{{POLL}}/g, input.poll)
+              //         .replace(/{{TIMEOUT}}/g, input.timeout);
+              // }
+
+              const stepData = data.actionType+" "+enteredValue+" in "+(data.text ? data.text : myId);
+              // Add test step to the list
+              qyrusScriptArray.push(makeStep(
                       stepNum,
                       stepData,
-                      Jscript
+                      Jscript,
+                      "",
+                      converterConfig.actions[data.actionType].userAction
                   ));
 
-              log.ok(`Step ${stepNum}: Generated for Action="${data.actionType}", ViewId="${viewId}", Property="${propertyPath}", Value="${newValue}"`);
+              log.ok(`Step ${stepNum}: Generated for Action="${data.actionType}", ViewId="${myId}", Property="${myPropertyPath}", Value="${enteredValue}"`);
               stepNum++;
           });
 
-          log.ok(`Transformation complete. Total steps: ${steps.length}`);
-          return renderOutput(steps);
+          log.ok(`Transformation complete. Total steps: ${qyrusScriptArray.length}`);
+          return renderOutput(qyrusScriptArray);
       }
       catch(e){
           log.err("Error during transformation: " + e.message);
@@ -958,13 +993,55 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
   }
 
 
-  function makeStep(stepNumber, description, data, locator = "", userAction = "Execute Javascript") {
+  function initialSteps(stepNum, input) {
+    
+    for (const stepDef of converterConfig.initialSteps) {
+        const isEnabled = stepDef.enabledKeys.every(key => input[key] ?? true); // Check if all enabledKeys based on UI input are true
+        if(isEnabled) {
+          const stepInputData = stepDef.dataKey ? input[stepDef.dataKey] : ""; // get step data from UI
+          // Add Initial steps
+          qyrusScriptArray.push(makeStep(
+            stepNum, 
+            stepDef.desc, 
+            stepInputData, 
+            stepDef.locator, 
+            stepDef.user_action
+          ));
+          log.ok(`${colors.green}✅ Step ${stepNum}: ${stepDef.desc} added`);
+          // log.error(`${colors.red}❌ Step skipped: ${stepDef.desc}${colors.reset}`);          
+        } else {
+          log.warn(`${colors.yellow}⚠️ Step skipped: ${stepDef.desc}`);
+        }
+        stepNum++;        
+    }
+
+    if (converterConfig.global.insertUi5HelperAtStart) {
+        const Jscript = converterConfig.templates.ui5Helper;
+        qyrusScriptArray.push(makeStep(
+            stepNum, 
+            converterConfig.global.injectUi5HelperDesc, 
+            Jscript, 
+            "", 
+            converterConfig.global.ui5HelperUserAction
+          )
+        );
+        log.ok(`Step ${stepNum}: Added helper injection`);
+        stepNum++;
+    } else {
+      log.warn(`UI5 Helper injection skipped`);
+    }
+
+    return stepNum;
+  }
+
+
+  function makeStep(stepNumber, description, data, locator = "", userAction) {
     return {
       Step_Number: stepNumber,
       Step_Description: description,
       Control_Type: "WebElement",
       Locator_Type: "Id",
-      Locator_Value: locator ? locator : "",
+      Locator_Value: locator,
       User_Action: userAction,
       Data_Column: stepNumber,
       Step_Property: "text",
@@ -1003,88 +1080,18 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
     return payload;
   }
 
-  function initialProcessStep(stepDef, input) { // Add Step data only if checkbox enabled
-      let jsData = stepDef.data || "";
-      let shouldAdd = true;
-
-      const rules = [
-          { token: "{launchUrl}", enabled: input.launchEnabled, value: input.launchUrl },
-          { token: "{loginUser}", enabled: input.loginEnabled, value: input.loginUser },
-          { token: "{loginPass}", enabled: input.loginEnabled, value: input.loginPass },
-          { token: "{loginLink}", enabled: input.loginEnabled, value: '' },
-          { token: "{waitAfterLaunchTime}", enabled: input.waitAfterLaunchEnabled, value: input.waitAfterLaunch },
-          { token: "{waitAfterLoginTime}", enabled: input.waitAfterLoginEnabled, value: input.waitAfterLogin }
-      ];
-
-      for (const { token, enabled, value } of rules) {
-          if (jsData.includes(token)) {
-              if (enabled) {
-                  jsData = jsData.replace(token, value);
-              } else {
-                  shouldAdd = false;
-              }
-          }
-      }
-
-      return shouldAdd ? jsData : null;
-  }
-
+  
   function getValueByPath(obj, path) {
     if (!path) return null;
+    if (!path.includes(".")) {
+      return path;
+    }
     return path.split(".").reduce((acc, part) => acc?.[part], obj);
   }
 
-  function getTransformedOPA5Data(OPA5Text) { 
-
-    const result = [];
-    if (!OPA5Text.steps || !Array.isArray(OPA5Text.steps)) {
-      const errMsg = 'No steps found in input JSON';
-      log.err(errMsg);
-      throw new Error(errMsg);
-    }
-
-    // First Loop - Transform OPA5 steps to intermediate format
-    OPA5Text.steps.forEach(step => {
-      const rule = RULES.rules[step.actionType];
-
-      let obj = step;
-      if (step.keys && rule.keys === "last") {
-        obj = step.keys[step.keys.length - 1];
-      }
-
-      // choose fields or elseFields based on "when"
-      let fieldsToUse = rule.fields;
-      if (rule.when) {
-        const [path, operator, rawValue] = rule.when.split(" ");
-        const actualValue = getValueByPath(step, path);
-        const expectedValue = rawValue === "null" ? null : rawValue.replace(/'/g, "");
-
-        let conditionMet = false;
-        if (operator === "!=") conditionMet = actualValue != expectedValue;
-        if (operator === "==") conditionMet = actualValue == expectedValue;
-
-        if (!conditionMet && rule.elseFields) {
-          fieldsToUse = rule.elseFields;
-        }
-      }
-
-      const transformed = {};
-      for (let [key, path] of Object.entries(fieldsToUse)) {
-        if (path.startsWith("'") && path.endsWith("'")) {
-          transformed[key] = path.slice(1, -1); // literal value
-        } else {
-          transformed[key] = getValueByPath(obj, path);
-        }
-      }
-      result.push(transformed);
-    });
-
-    return result;
-  }
-
+  
   return {
-      convertToTestSteps,
-      getTransformedOPA5Data
+      convertToTestSteps
   };
 
 });

@@ -64,8 +64,8 @@ export default class JourneyPage extends BaseController {
             injectHelpers: true,
             waitEach: true,
             launchUrl: this.getView().getModel("journey")?.getProperty("/startUrl") || "",
-            timeout: 30,
-            poll: 1000,
+            timeout: 30000,
+            poll: 200,
             project: "",
             module: "",
             testName: "",
@@ -78,8 +78,8 @@ export default class JourneyPage extends BaseController {
             waitAfterLaunch: 30,   // seconds
 
             optLogin: true,
-            loginUser: "",
-            loginPass: "",
+            loginUser: "s4h_sd",
+            loginPass: "Welcome1",
 
             optWaitAfterLogin: true,
             waitAfterLogin: 60,    // seconds
@@ -473,19 +473,8 @@ export default class JourneyPage extends BaseController {
                     );
                     const OPA5TEXT = JSON.parse(jour.toString() || '{}');
                     console.log("Parsed Object:", OPA5TEXT);
-                    const transformedRecordedData = await Converter.getTransformedOPA5Data(OPA5TEXT);
 
-                    const transformedWithStep = transformedRecordedData.map((step: any, i: number) => ({
-                        stepNumber: i + 1,
-                        actionType: step.actionType ?? "",
-                        fieldName: step.text ?? "",
-                        fieldValue: step.value ?? ""
-                    }));
-                    console.log("Transformed OPA5 Data:", transformedWithStep);
-                    // ✅ Bind steps model to dialog
-                    const stepsModel = new JSONModel(transformedWithStep);
-                    this._createQyrusDialog.setModel(stepsModel, "steps");
-
+                    const form = this.getView().getModel("qyrusForm") as JSONModel; 
                     // ✅ Extract actionLocation from first step (if available)
                     const firstStep = OPA5TEXT.steps && OPA5TEXT.steps.length > 0 ? OPA5TEXT.steps[0] : null;
                     if (firstStep?.actionLocation) {
@@ -495,6 +484,62 @@ export default class JourneyPage extends BaseController {
                             console.log("launchUrl set in qyrusForm model:", firstStep.actionLocation);
                         }
                     }
+
+                    const input = {
+                        opa5Text: OPA5TEXT,
+                        injectHelpers: !!form.getProperty("/injectHelpers"),
+                        waitEach: !!form.getProperty("/waitEach"),
+                        timeout: Number(form.getProperty("/timeout") ?? 0),
+                        poll: Number(form.getProperty("/poll") ?? 0),
+                        launch: Boolean(form.getProperty("/optLaunch") ?? true),
+                        launchUrl: String(form.getProperty("/launchUrl") ?? ""),
+                        waitAfterLaunch: Boolean(form.getProperty("/optWaitAfterLaunch") ?? true),
+                        // Login options
+                        login: Boolean(form.getProperty("/optLogin") ?? true),
+                        loginUser: String(form.getProperty("/loginUser") ?? ""),
+                        loginPass: String(form.getProperty("/loginPass") ?? ""),
+                        waitAfterLogin: Boolean(form.getProperty("/optWaitAfterLogin") ?? true),
+                    };
+                    console.log("Converting with input:", input);
+                    const result = await Converter.convertToTestSteps(input);
+
+                    if(result.transformationDisplayData) {
+                        const transformedWithStep = result.transformationDisplayData.map((step: any, i: number) => ({
+                            stepNumber: i + 1,
+                            actionType: step.actionType ?? "",
+                            fieldName: step.text ?? "",
+                            fieldValue: step.value ?? ""
+                        }));
+                        // ✅ Bind steps model to dialog
+                        const stepsModel = new JSONModel(transformedWithStep);
+                        this._createQyrusDialog.setModel(stepsModel, "steps");
+                    }
+                    
+                    if(result.logs) {
+                        const transformedWithLogs = result.logs.map((log: any, i: number) => ({
+                            stepNumber: i + 1,
+                            type: log.level ?? "",
+                            message: log.msg ?? "",
+                        }));
+                        const logsModel = new JSONModel(transformedWithLogs);
+                        this._createQyrusDialog.setModel(logsModel, "logs");
+                    }
+                    
+
+                    // const transformedRecordedData = await Converter.getTransformedOPA5Data(OPA5TEXT);
+
+                    // const transformedWithStep = transformedRecordedData.map((step: any, i: number) => ({
+                    //     stepNumber: i + 1,
+                    //     actionType: step.actionType ?? "",
+                    //     fieldName: step.text ?? "",
+                    //     fieldValue: step.value ?? ""
+                    // }));
+                    // console.log("Transformed OPA5 Data:", transformedWithStep);
+                    // // ✅ Bind steps model to dialog
+                    // const stepsModel = new JSONModel(transformedWithStep);
+                    // this._createQyrusDialog.setModel(stepsModel, "steps");
+
+                    
                     await this.onConvertOpa5();
 
                 } catch (err) {
@@ -503,7 +548,6 @@ export default class JourneyPage extends BaseController {
             });
         }
         this._createQyrusDialog.open();
-        // await this.onConvertOpa5();
     }
 
     public async onCancelCreateQyrus(): Promise<void> {
@@ -709,6 +753,41 @@ export default class JourneyPage extends BaseController {
             // Guard: ensure UUID exists before importing
             const form = this.getView().getModel("qyrusForm") as JSONModel;
             const scriptUUID = form.getProperty("/createdScriptUUID");
+
+            const jour = await JourneyStorageService.getInstance().getById(
+                this.model.getProperty('/id') as string
+            );
+            const OPA5TEXT = JSON.parse(jour.toString() || '{}');
+
+
+            const input = {
+                opa5Text: OPA5TEXT,
+                injectHelpers: !!form.getProperty("/injectHelpers"),
+                waitEach: !!form.getProperty("/waitEach"),
+                timeout: Number(form.getProperty("/timeout") ?? 0),
+                poll: Number(form.getProperty("/poll") ?? 0),
+                launch: Boolean(form.getProperty("/optLaunch") ?? true),
+                launchUrl: String(form.getProperty("/launchUrl") ?? ""),
+                waitAfterLaunch: Boolean(form.getProperty("/optWaitAfterLaunch") ?? true),
+                // Login options
+                login: Boolean(form.getProperty("/optLogin") ?? true),
+                loginUser: String(form.getProperty("/loginUser") ?? ""),
+                loginPass: String(form.getProperty("/loginPass") ?? ""),
+                waitAfterLogin: Boolean(form.getProperty("/optWaitAfterLogin") ?? true),
+            };
+
+            console.log("Test function input.", input);
+            const result = await Converter.convertToTestSteps(input);
+            console.log("Extension Received Output: ", result);
+            if(result.logs) {
+                const transformedWithLogs = result.logs.map((log: any, i: number) => ({
+                    stepNumber: i + 1,
+                    type: log.level ?? "",
+                    message: log.msg ?? "",
+                }));
+                const logsModel = new JSONModel(transformedWithLogs);
+                this._createQyrusDialog.setModel(logsModel, "logs");
+            }
             // if (!scriptUUID) {
             //     MessageToast.show("Script UUID missing after creation; import skipped.");
             //     return;

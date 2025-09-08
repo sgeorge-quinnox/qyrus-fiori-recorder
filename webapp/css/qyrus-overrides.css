@@ -101,7 +101,6 @@
 /* sunil table css */
 /* Fixed table height */
 .fixedTableHeight {
-  top: -30px;
   height: 20rem; /* adjust as needed */
   overflow-y: auto; /* prevents table from expanding */
 }
