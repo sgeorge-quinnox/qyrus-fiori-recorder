@@ -12,15 +12,15 @@
 >
     <Page>
         <customHeader>
-            <Bar>
+            <Bar class="appNavbar" design="Header">
                 <contentLeft>
                     <Button
                         type="Back"
                         press=".onNavBack"
                     />
                     <Image
-                        src="assets/icons/ui5_journey_recorder.png"
-                        height="2.5rem"
+                        src="assets/icons/qyrus-logo-white.svg"
+                        height="1.2rem"
                     />
                     <Title text="{i18n>appTitle}" />
                 </contentLeft>
