@@ -4,7 +4,8 @@
     #t;
     #r;
     #n;
-    #captureValueHelp
+    #captureValueHelp;
+    #captureSelection;
     constructor() {
       try {
         this.#t = sap.ui.requireSync("sap/ui/test/RecordReplay");
@@ -18,13 +19,18 @@
       }
       this.#n = true;
     }
-    getParentInputFieldDetails() {
+
+    //our code - original
+    getDataOnLoad() {
       sap.ui.getCore().attachEvent("UIUpdated", () => {
         const elems = sap.ui.core.Element.registry.all
           ? sap.ui.core.Element.registry.all()
           : sap.ui.core.Element.registry.mElements;
 
         Object.values(elems).forEach(inp => {
+          console.log('input Elements', inp);
+          // get the fields and check if it is sap.m.input type and it has attachValueHelpRequest method
+          // set captureValueHelp - contains respective help value details
           if (inp instanceof sap.m.Input && !inp._vhHooked) {
             inp._vhHooked = true;
             if (typeof inp.attachValueHelpRequest === "function") {
@@ -34,9 +40,12 @@
               });
             }
           }
+
         });
       });
     }
+
+    //our code
 
     enableRecording() {
       this.#s = this.#s.name.startsWith("bound ")
@@ -51,7 +60,9 @@
       document.addEventListener("mouseover", this.#s);
       document.addEventListener("mouseout", this.#i);
       document.addEventListener("click", this.#o);
-      this.getParentInputFieldDetails();
+      // our code
+      this.getDataOnLoad();
+      // our code
     }
     disableRecording() {
       if (this.#e && this.#e.removeStyleClass) {
@@ -208,29 +219,60 @@
     }
 
 
-    showToastDialog(value, propertyField) {
+    showToastDialog(status, value, recordDetails, type) {
       // prepare items dynamically
       let items = [];
-
       // top success message
-      items.push(new sap.m.Text({
-        text: "✅ Steps recorded successfully",
-        design: "Bold"
-      }));
-
+      if (status === 'success') {
+        items.push(new sap.m.Text({
+          text: "✅ Steps recorded successfully",
+          design: "Bold"
+        }));
+      } else {
+        items.push(new sap.m.Text({
+          text: "🚫 Empty click Ignored",
+          design: "Bold"
+        }));
+      }
+      // type field value Id path propertypath 
       items.push(new sap.m.Text({ text: " " }));
+      if (type) {
+        items.push(new sap.m.Label({ text: "Type:", design: "Bold" }));
+        items.push(new sap.m.Text({ text: type }));
+      }
+
+      if (recordDetails?.text) {
+        items.push(new sap.m.Text({ text: " " }));
+        items.push(new sap.m.Label({ text: "Field:", design: "Bold" }));
+        items.push(new sap.m.Text({ text: recordDetails.text }));
+      }
 
       if (value) {
+        items.push(new sap.m.Text({ text: " " }));
         items.push(new sap.m.Label({ text: "Value:", design: "Bold" }));
         items.push(new sap.m.Text({ text: value }));
       }
 
+      // ID path property path
+      if (recordDetails?.id) {
+        items.push(new sap.m.Text({ text: " " }));
+        items.push(new sap.m.Label({ text: "Id:", design: "Bold" }));
+        items.push(new sap.m.Text({ text: recordDetails.id }));
+      }
+
+      if (recordDetails?.bindingPath?.path) {
+        items.push(new sap.m.Text({ text: " " }));
+        items.push(new sap.m.Label({ text: "Path:", design: "Bold" }));
+        items.push(new sap.m.Text({ text: recordDetails.bindingPath?.path }));
+      }
+
+      if (recordDetails?.bindingPath?.propertyPath) {
+        items.push(new sap.m.Text({ text: " " }));
+        items.push(new sap.m.Label({ text: "Property Path:", design: "Bold" }));
+        items.push(new sap.m.Text({ text: recordDetails.bindingPath?.propertyPath }));
+      }
       items.push(new sap.m.Text({ text: " " }));
 
-      if (propertyField) {
-        items.push(new sap.m.Label({ text: "Field:", design: "Bold" }));
-        items.push(new sap.m.Text({ text: propertyField }));
-      }
 
       const oDialog = new sap.m.Dialog({
         type: "Message",
@@ -273,6 +315,131 @@
       }
     }
 
+    getTableDetails(oTable) {
+      return new Promise((resolve) => {
+        if (typeof oTable.attachRowSelectionChange !== "function") {
+          resolve(undefined); // immediately resolve with undefined
+          return;
+        }
+        let tableRecord = { rowContext: null, rowIndex: null };
+        oTable.attachRowSelectionChange(function (oEvent) {
+          var indices = oEvent.getParameter("rowIndices"); // selected row indices // [1]
+          var rowIndex = indices && indices[0];// 1
+          var rowContext = oTable.getContextByIndex(rowIndex)
+          console.log("✅ Checkbox clicked in table!");
+          console.log("Row index:", rowIndex);
+          console.log("Row context path:", rowContext ? rowContext.getPath() : "N/A");
+          console.log("Row data:", rowContext ? rowContext.getObject() : "N/A");
+          tableRecord.rowContext = rowContext;
+          tableRecord.rowIndex = rowIndex;
+          resolve(tableRecord);
+        });
+      });
+    }
+
+    // At the page load all value help are attached with listener
+    recordStepForValueHelp(s, n, stepDetails) {
+      // whenever the button next to field for choosing input is clicked
+      // the below code is triggered (value help click)
+      // then we attach a change listener on the main input field and when the value changes we get the value and send it to the recorder.
+      // this way we are preventing the click value help step from being logged. 
+      console.log("⏩ Skipping captured ValueHelp icon");
+      return new Promise((resolve) => {
+        this.#captureValueHelp.attachChange(evt => {
+          const id = evt.mParameters.id;
+          const fieldValue = evt.getParameter("value");
+          this.#t.findControlSelectorByDOMElement({ domElement: n.getDomRef() })
+            .then((ev) => {
+              var inputId1 = id;
+              if (inputId1) {
+                var inputttt = sap.ui.getCore().byId(inputId1);
+                if (inputttt && typeof inputttt.getValue === "function") {
+                  const finalVal = fieldValue;
+                  console.log("✅ Final value in field:", finalVal);
+                  stepDetails.eventDetails.value = finalVal; // overwrite whatever was captured during typing
+                  stepDetails.eventDetails.control.id = inputId1;
+                  stepDetails.eventDetails.control.recordReplaySelector.id = inputId1;
+                  stepDetails.eventDetails.control.recordReplaySelector.value = fieldValue;
+                  stepDetails = this.setRecordStepDetails(stepDetails);
+                  resolve(stepDetails);
+                }
+              }
+            });
+        }
+        );
+      });
+    }
+
+    recordStepForButton(s, stepDetails, isButton) {
+      stepDetails = this.setRecordStepDetails(stepDetails, isButton);
+      return stepDetails;
+    }
+
+
+    setRecordStepDetails(stepDetails, isButtonClick = false, isKeyPress = false) {
+      if (isButtonClick || isKeyPress) {
+        if (!stepDetails.eventDetails.control.recordReplaySelector?.id) {
+          stepDetails.eventDetails.control.recordReplaySelector.id = stepDetails.eventDetails.control.id;
+        }
+      }
+
+      let labelField = this.getLabelDetails(stepDetails.eventDetails.control.recordReplaySelector?.id, isButtonClick);
+      stepDetails.eventDetails.control.recordReplaySelector.text = labelField;
+      return stepDetails;
+
+    }
+
+    toastDisplayBasedOnControl(status, stepDetails, type, isButton) {
+      let propertyField = stepDetails?.eventDetails?.control?.recordReplaySelector;
+      if (status !== 'success') {
+        this.showToastDialog('failure');
+      }
+      else if (isButton && propertyField?.text) {
+        this.showToastDialog(status, null, propertyField, type);
+      }
+      else {
+        if (propertyField?.value && propertyField?.text) {
+          this.showToastDialog(status, propertyField.value, propertyField, type);
+        }
+      }
+    }
+
+    recordStepsOnkeyPress(s, n, stepDetails) {
+      if (!stepDetails.eventDetails.control.recordReplaySelector.id) {
+        stepDetails.eventDetails.control.recordReplaySelector.id = stepDetails.eventDetails.control.id;
+      }
+      if (typeof n.attachChange === "function") {
+        n.attachChange((oEvent) => {
+          setTimeout(() => {
+            this.#t.findControlSelectorByDOMElement({ domElement: n.getDomRef() })
+              .then((e) => {
+                stepDetails.eventDetails.control.recordReplaySelector = e;
+                var inputId1 = stepDetails.eventDetails.control.id;
+                if (inputId1) {
+                  var inputttt = sap.ui.getCore().byId(inputId1);
+                  if (inputttt && typeof inputttt.getValue === "function") {
+                    const finalVal = inputttt.getValue();
+                    stepDetails.eventDetails.control.recordReplaySelector.value = inputttt.getValue();
+                    console.log("✅ Final value in field:", finalVal);
+                    stepDetails.eventDetails.key = finalVal; // overwrite whatever was captured during typing
+                    stepDetails = this.setRecordStepDetails(stepDetails, false, true);
+                    this.sendStepToRecorder(s, stepDetails);
+                  }
+                }
+              });
+          }, 500);
+        });
+      }
+    }
+
+    sendStepToRecorder(s, stepRecordDetails) {
+      if (stepRecordDetails.shouldStepBeRecorded) {
+        s.send_record_step(JSON.parse(JSON.stringify(stepRecordDetails.eventDetails)));
+        this.toastDisplayBasedOnControl('success', stepRecordDetails, 'KeyPress');
+      } else {
+        this.toastDisplayBasedOnControl('failure');
+      }
+    }
 
 
     getUI5Version() {
@@ -334,61 +501,115 @@
         this.#t
           .findControlSelectorByDOMElement({ domElement: n.getDomRef() })
           .then((t) => {
+            // our code
             e.control.recordReplaySelector = t;
-            let record = e.control.recordReplaySelector;
+            // all click events including click on an input field comes here.We want to record only if the click is on a button
+            // navigation or similar fields, also for value help. 
             if (typeof n.firePress === "function" || typeof n.fireTitlePress === "function") {
-              // if (e.control?.type?.trim()?.toLowerCase()?.includes('button')) {
+              let stepDetails = { shouldStepBeRecorded: false, eventDetails: e };
+              // it triggers for all the value help fields
               if (this.#captureValueHelp && n.getParent?.() === this.#captureValueHelp) {
-                console.log("⏩ Skipping captured ValueHelp icon");
-                this.#captureValueHelp.attachChange(evt => {
-                  const id = evt.mParameters.id;
-                  const fieldValue = evt.getParameter("value");
-                  this.#t.findControlSelectorByDOMElement({ domElement: n.getDomRef() })
-                    .then((ev) => {
-                      // console.log("✅ Changed:", inp.getId(), "→", e.getParameter("value"));
-                      var inputId1 = id;
-                      if (inputId1) {
-                        var inputttt = sap.ui.getCore().byId(inputId1);
-                        let recordDetails = e.control.recordReplaySelector;
-                        if (inputttt && typeof inputttt.getValue === "function") {
-                          const finalVal = fieldValue;
-                          console.log("✅ Final value in field:", finalVal);
-                          e.value = finalVal; // overwrite whatever was captured during typing
-                          e.control.id = inputId1;
-                          e.control.recordReplaySelector.id = inputId1;
-                        } else {
-                          console.log("⚠️ Input not found for ID:", inputId1);
-                        }
-                        e.control.recordReplaySelector.value = fieldValue;
-                        let labelField = this.getLabelDetails(e.control.recordReplaySelector?.id);
-                        e.control.recordReplaySelector.text = labelField;
-                        if (!e.control.recordReplaySelector.searchOpenDialogs) {
-                          s.send_record_step(JSON.parse(JSON.stringify(e)));
-                        }
-                        if (recordDetails.value && recordDetails.id && !recordDetails.searchOpenDialogs) {
-                          this.showToastDialog(e.control.recordReplaySelector.value, labelField);
-                        }
-                      }
-                    });
+                // search open dialogs tell us it is a interim step or not 
+                if (!stepDetails.eventDetails.control.recordReplaySelector.searchOpenDialogs) {
+                  stepDetails.shouldStepBeRecorded = true;
                 }
-                );
+                this.recordStepForValueHelp(s, n, stepDetails).then((recordStepDetails) => {
+                  if (recordStepDetails?.shouldStepBeRecorded) {
+                    s.send_record_step(JSON.parse(JSON.stringify(recordStepDetails.eventDetails)));
+                    this.toastDisplayBasedOnControl('success', recordStepDetails, 'Value Help');
+                  } else {
+                    this.toastDisplayBasedOnControl('failure');
+                  }
+                });
                 return;
               }
-              if (!e.control.recordReplaySelector?.id) {
-                e.control.recordReplaySelector.id = e.control.id;
+              if (!stepDetails.eventDetails.control.recordReplaySelector.searchOpenDialogs) {
+                stepDetails.shouldStepBeRecorded = true;
               }
-              let propertyField = this.getLabelDetails(e.control.recordReplaySelector?.id, true);
-              e.control.recordReplaySelector.text = propertyField;
-              if (!e.control.recordReplaySelector.searchOpenDialogs) {
-                s.send_record_step(JSON.parse(JSON.stringify(e)));
+              let recordStepDetails = this.recordStepForButton(s, stepDetails, true);
+              if (recordStepDetails?.shouldStepBeRecorded) {
+                s.send_record_step(JSON.parse(JSON.stringify(recordStepDetails.eventDetails)));
+                // if property path is blank 
+                this.toastDisplayBasedOnControl('success', recordStepDetails, 'Button', true);
+                // else 
+                // this.toastDisplayBasedOnControl(recordStepDetails, 'Button in table', true); // 
               }
-              if (record.id && !record.searchOpenDialogs) {
-                this.showToastDialog(null, propertyField);
+              else {
+                this.toastDisplayBasedOnControl('failure');
               }
-            } else {
-              console.log('Base Field is this' + this.#captureValueHelp);
-
             }
+            // checkbox/radio additional
+            else {
+              let stepDetails = { shouldStepBeRecorded: false, eventDetails: e };
+              let oTable = sap.ui.getCore().byId(e.control.id);
+              if (oTable) {
+                this.getTableDetails(oTable).then((tableRecordDetails) => {
+                  if (tableRecordDetails) {
+                    let recordDetails = e.control.recordReplaySelector;
+                    if (!e.control.recordReplaySelector?.id) {
+                      recordDetails.id = e.control.id;
+                    }
+                    // replace path for table
+                    if (recordDetails.bindingPath) {
+                      recordDetails.bindingPath.path = tableRecordDetails.rowContext.getPath();
+                    }
+                    // check if not in dialog
+                    if (!recordDetails.searchOpenDialogs) {
+                      stepDetails.shouldStepBeRecorded = true;
+                    }
+                    let recordStepDetails = this.recordStepForButton(s, stepDetails);
+                    if (recordStepDetails?.shouldStepBeRecorded) {
+                      s.send_record_step(JSON.parse(JSON.stringify(recordStepDetails.eventDetails)));
+                      // if property path is blank 
+                      this.toastDisplayBasedOnControl('success', recordStepDetails, 'Table', true);
+                      // else 
+                      // this.toastDisplayBasedOnControl(recordStepDetails, 'Button in table', true); // 
+                    }
+                    this.showToastDialog('success', recordDetails.value, recordDetails, 'clicked');
+                  } else {
+                    this.toastDisplayBasedOnControl('failure');
+                  }
+                  console.log("Listener attached to SmartTable for rowSelectionChange ✅");
+                });
+              } else {
+                console.log("❌ Table not found. Check the control ID again.");
+                this.toastDisplayBasedOnControl('failure');
+              }
+
+              // Generic attach for controls that support "select" event
+              // if (typeof n.attachSelect === "function") {
+              //   n.attachSelect((evt) => {
+              //     // Try to get selected state dynamically if available
+              //     const selected = evt.getParameter("selected")
+              //       ?? evt.getParameter("selectedItem")
+              //       ?? evt.getParameter("value")
+              //       ?? null;
+
+              //     e.value = selected;
+              //     e.control.value = selected;
+
+              //     if (e.control.properties) {
+              //       // If control has 'selected' property, update it
+              //       if ("selected" in e.control.properties) {
+              //         e.control.properties.selected = selected;
+              //       }
+              //       // If it's a RadioButtonGroup / Select etc.
+              //       if ("selectedKey" in e.control.properties) {
+              //         e.control.properties.selectedKey = selected;
+              //       }
+              //       if ("selectedIndex" in e.control.properties) {
+              //         e.control.properties.selectedIndex = selected;
+              //       }
+              //     }
+
+              //     console.log("📌", e.control?.type, "→", selected);
+              //     s.send_record_step(JSON.parse(JSON.stringify(e)));
+              //   });
+              // }
+            }
+            //}
+            // our code
+
           })
           .catch((e) => {
             console.log(e.message);
@@ -424,44 +645,14 @@
               this.#t
                 .findControlSelectorByDOMElement({ domElement: n.getDomRef() })
                 .then((e) => {
+                  // our code
                   t.control.recordReplaySelector = e;
-                  if (!t.control.recordReplaySelector.id) {
-                    t.control.recordReplaySelector.id = t.control.id;
+                  let stepDetails = { shouldStepBeRecorded: false, eventDetails: t };
+                  if (!stepDetails.eventDetails.control.recordReplaySelector.searchOpenDialogs) {
+                    stepDetails.shouldStepBeRecorded = true;
                   }
-                  if (typeof n.attachChange === "function") {
-                    n.attachChange((oEvent) => {
-                      setTimeout(() => {
-                        this.#t.findControlSelectorByDOMElement({ domElement: n.getDomRef() })
-                          .then((e) => {
-                            t.control.recordReplaySelector = e;
-                            var inputId1 = t.control.id;
-                            let controlDetails = t.control.recordReplaySelector;
-                            if (inputId1) {
-                              var inputttt = sap.ui.getCore().byId(inputId1);
-                              if (inputttt && typeof inputttt.getValue === "function") {
-                                const finalVal = inputttt.getValue();
-                                t.control.recordReplaySelector.value = inputttt.getValue();
-                                console.log("✅ Final value in field:", finalVal);
-                                t.key = finalVal; // overwrite whatever was captured during typing
-                              } else {
-                                console.log("⚠️ Input not found for ID:", inputId1);
-                              }
-                              if (!t.control.recordReplaySelector.id) {
-                                t.control.recordReplaySelector.id = t.control.id
-                              }
-                              let labelFieldDetails = this.getLabelDetails(t.control.recordReplaySelector.id);
-                              t.control.recordReplaySelector.text = labelFieldDetails;
-                              if (!t.control.recordReplaySelector.searchOpenDialogs) {
-                                s.send_record_step(JSON.parse(JSON.stringify(t)));
-                              }
-                              if (controlDetails.value && controlDetails.id && !controlDetails.searchOpenDialogs) {
-                                this.showToastDialog(t.control.recordReplaySelector.value, labelFieldDetails);
-                              }
-                            }
-                          });
-                      });
-                    }, 500);
-                  }
+                  this.recordStepsOnkeyPress(s, n, stepDetails);
+                  // our code
                 })
 
                 .catch((e) => {
@@ -539,18 +730,86 @@
           }
         }, {});
     }
+
+    // start of commented code - original
+    // #m(e) {
+    //     const t = Object.keys(e.mBindingInfos)
+    //         .map((t) => {
+    //             // if parts is available
+    //             let r = e.mBindingInfos[t].parts.map((e) => {
+    //                 const r = {};
+    //                 r.key = t;
+    //                 r.i18n = e.model === "i18n";
+    //                 r.propertyPath = e.path;
+    //                 r.model = e.model;
+    //                 return r;
+    //                 // else parts is not available then r = r.propertyPath = path;
+    //             });
+    //             if (r.length > 1) {
+    //                 r = r.map((t) => {
+    //                     const r = e.mBindingInfos[t.key].binding.aBindings.find(
+    //                         (e) => e.sPath === t.propertyPath
+    //                     );
+    //                     if (r) {
+    //                         t.modelPath = r.oContext?.sPath;
+    //                         t.value = r.oValue;
+    //                     }
+    //                     return t;
+    //                 });
+    //             } else if (r.length === 1) {
+    //                 const t = e.mBindingInfos[r[0].key].binding;
+    //                 if (t) {
+    //                     r[0].modelPath = t.oContext?.sPath;
+    //                     r[0].value = t.oValue;
+    //                 }
+    //             }
+    //             return r;
+    //         })
+    //         .reduce((e, t) => [...t, ...e], []);
+    //     const r = Object.keys(e.oPropagatedProperties.oModels)
+    //         .map((t) => {
+    //             const r = e.getBindingContext(t);
+    //             if (r) {
+    //                 return { model: t, contextPath: r.getPath() };
+    //             }
+    //         })
+    //         .filter((e) => e);
+    //     return [...t, ...r];
+    // }
+
+    // 
+    // end of commented code 
+
+    // code changes 
+    // earlier used function above assumes that e.mBindingInfos[t].parts is always defined, 
+    // but in some cases it’s undefined (or null), so map breaks.
+    // now the function below always returns a valid array even if some bindings are missing/undefined and
+    // get the bindingpath directly e.mBindingInfos[t].path if the e.mBindingInfos[t].parts is undefined
+
     #m(e) {
       const t = Object.keys(e.mBindingInfos)
         .map((t) => {
-          let r = e.mBindingInfos[t].parts.map((e) => {
+          // if parts is available
+          let r = e.mBindingInfos[t].parts?.map((e) => {
             const r = {};
             r.key = t;
             r.i18n = e.model === "i18n";
             r.propertyPath = e.path;
             r.model = e.model;
             return r;
+            // else parts is not available then r = r.propertyPath = path;
           });
-          if (r.length > 1) {
+          if (r === undefined) {
+            const r = [];
+            const details = {};
+            details.key = t;
+            details.i18n = e.model === "i18n";
+            details.propertyPath = e.mBindingInfos[t].path;
+            details.model = e.model;
+            r.push(details);
+            return r
+          }
+          if (r?.length > 1) {
             r = r.map((t) => {
               const r = e.mBindingInfos[t.key].binding.aBindings.find(
                 (e) => e.sPath === t.propertyPath
@@ -561,7 +820,7 @@
               }
               return t;
             });
-          } else if (r.length === 1) {
+          } else if (r?.length === 1) {
             const t = e.mBindingInfos[r[0].key].binding;
             if (t) {
               r[0].modelPath = t.oContext?.sPath;
@@ -581,6 +840,7 @@
         .filter((e) => e);
       return [...t, ...r];
     }
+
     #p(e) {
       let t = e;
       while (t && !t.getViewName) {

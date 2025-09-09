@@ -49,6 +49,13 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
       "myPropertyPath": {
         "priority": ["propertyPath", "bindingPath.propertyPath"]
       },
+      "myModelName": {
+        "priority": ["modelName", "bindingPath.modelName"],
+      },
+      "myGuid": {
+        "priority": ["bindingPath"],
+        "regex": "guid'([a-f0-9-]+)'"
+      },
       "pathPrefix": {
         "toReplace": ["DraftUUID"]
       }
@@ -62,11 +69,11 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
       },
       initialSteps: [
         { user_action: "Go to url", desc: "Launch Application", locator: "", dataKey: "launchUrl", enabledKeys: ["launchEnabled"] },
-        { user_action: "Wait", desc: "Wait for Element", locator: "USERNAME_FIELD-inner", dataKey: "waitAfterLaunch", enabledKeys: ["launchEnabled", "waitAfterLaunchEnabled"] },
+        // { user_action: "Wait", desc: "Wait for Element", locator: "USERNAME_FIELD-inner", dataKey: "waitAfterLaunch", enabledKeys: ["launchEnabled", "waitAfterLaunchEnabled"] },
         { user_action: "Set", desc: "Set Username", locator: "USERNAME_FIELD-inner", dataKey: "loginUser", enabledKeys: ["loginEnabled"] },
         { user_action: "Set", desc: "Set Password", locator: "PASSWORD_FIELD-inner", dataKey: "loginPass", enabledKeys: ["loginEnabled"] },
         { user_action: "Click", desc: "Click Log On", locator: "LOGIN_LINK", enabledKeys: ["loginEnabled"] },
-        { user_action: "Wait", desc: "Wait After Login", locator: "", dataKey: "waitAfterLogin", enabledKeys: ["loginEnabled", "waitAfterLoginEnabled"] }
+        // { user_action: "Wait", desc: "Wait After Login", locator: "", dataKey: "waitAfterLogin", enabledKeys: ["loginEnabled", "waitAfterLoginEnabled"] }
       ],
       actions: {
         clicked: {
@@ -282,7 +289,7 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
             const viewId = "{{VIEW_ID}}";
             const pathPrefix = "{{PATH_PREFIX}}";
             const propToSet = "{{PROPERTY_PATH}}";
-            const enteredValue = "{{NEW_VALUE}}";
+            const enteredValue = "{{ENTERED_VALUE}}";
             
             const timeoutMs = {{TIMEOUT}};
             const pollInterval = {{POLL}};
@@ -383,84 +390,91 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
             }
           })();
           `,
-          ui5ClickButton: `return (async function () {
-            const buttonId = "{{BUTTON_ID}}";
-            const pathPrefix = "{{PATH_PREFIX}}";
-            const propToSet = "{{PROPERTY_PATH}}";
+          ui5ClickButton: `(async function () {
             const stepNumber = "{{STEP_NUMBER}}";
-            const maxWaitTime = {{TIMEOUT}};
-            const interval = {{POLL}};
+            const maxWaitTime = "{{TIMEOUT}}";
+            const interval = "{{POLL}}";
 
-            function getButtonTarget() {
-                let target = null;
+            const myId = "{{VIEW_ID}}";
+            const tableModelName = "{{MODEL_NAME}}";
+            const targetGUID = "{{GUID}}";
 
-                if (propToSet) { // Dynamic locator via input binding (if button is near input)
-                    const inputs = Object.values(sap.ui.core.Element.registry.all())
-                        .filter(ctrl => ctrl.isA("sap.m.Input"));
-
-                    const input = inputs.find(input => {
-                        const ctx = input.getBindingContext();
-                        if (!ctx) return false;
-
-                        const path = ctx.getPath();
-                        if (!path.startsWith(pathPrefix)) return false;
-
-                        const bindInfo = input.getBindingInfo("value");
-                        return bindInfo && bindInfo.parts.some(p => p.path === propToSet);
-                    });
-
-                    if (input) {
-                        // Assuming button is sibling of input
-                        const parent = input.getParent();
-                        target = parent?.getContent?.()?.find(c => c.isA && c.isA("sap.m.Button"));
-                    }
-                } else {
-                  target = sap?.ui?.getCore?.().byId(buttonId);  
-                }
-
-                return target;
+            function getControl(id) {
+              return sap?.ui?.getCore?.().byId(id);
             }
 
-            async function waitForControl() {
-                const start = Date.now();
-                return new Promise((resolve, reject) => {
-                    (function check() {
-                        const target = getButtonTarget();
-                        if (target) return resolve(target);
-
-                        if (Date.now() - start > maxWaitTime) {
-                            return reject(new Error(\`⏰ Timeout: Could not find input\`));
-                              }
-                              setTimeout(check, interval);
-                            })();
-                          });
+            async function waitForControl(id) {
+              const start = Date.now();
+              while (Date.now() - start < maxWaitTime) {
+                const ctrl = getControl(id);
+                if (ctrl) return ctrl;
+                await new Promise(r => setTimeout(r, interval));
+              }
+              return null;
             }
 
             try {
-                const btn = await waitForControl();
+              // 🔀 Scenario 1: GUID + table model provided → row selection mode
+              if (targetGUID && tableModelName) {
+
+                const oView = await waitForControl(myId);
+                if (!oView) throw new Error("View not found");
+
+                const tables = oView.findAggregatedObjects(true, ctrl => ctrl.isA("sap.m.Table"));
+
+                const mainTable = tables.find(t => !t.getId().toLowerCase().includes("popup"));
+                if (!mainTable) throw new Error("Main table not found");
+
+                const targetRow = mainTable.getItems().find(item => {
+                  const ctx = item.getBindingContext(tableModelName);
+                  if (!ctx) return false;
+                  const path = ctx.getPath();
+                  console.log("🔍 Checking row binding path:", path);
+                  return path.includes(targetGUID);
+                });
+
+                if (!targetRow) throw new Error(\`Row with GUID \${targetGUID} not found\`);
+
+                try {
+                  targetRow.firePress?.();
+                  targetRow.setSelected?.(true);
+                  const table = targetRow.getParent();
+                  table?.fireItemPress({ listItem: targetRow });
+                  console.log(\`✅ Row with GUID \${targetGUID} pressed via firePress\`);
+                } catch (fireError) {
+                  console.error("❌ Error firing press on row:", fireError);
+                }
+
+              } else {
+                // 🔀 Scenario 2: Fall back to button click workflow
+                console.log("ℹ Running button press workflow");
+
+                const btn = await waitForControl(myId);
                 if (btn && typeof btn.firePress === "function") {
-                    btn.firePress();
-                    console.log(
-                        \`Step: \${stepNumber} ✅ UI5 Create button clicked via firePress\`
-                            );
-                          } else if (btn) {
-                            console.error(
-                                \`Step: \${stepNumber} ❌ Control found but firePress not supported: \${btn}\`
-                            );
-                            throw new Error("Control does not support firePress");
-                          } else {
-                            console.error(
-                                \`Step: \${stepNumber} ❌ Control not found after waiting 60 seconds\`
-                            );
-                            throw new Error("Control not found");
-                          }
-                      } catch (err) {
-                          console.error(
-                              \`Step: \${stepNumber} ❌ Error while waiting for control: \${err}\`
-                          );
-                          throw err;
-                      }
-                      })();
+                  btn.firePress();
+                  console.log(
+                    \`Step: \${stepNumber} ✅ UI5 button clicked via firePress (ID=\${myId})\`
+                  );
+                } else if (btn) {
+                  console.error(
+                    \`Step: \${stepNumber} ❌ Control found but firePress not supported: \${btn}\`
+                  );
+                  throw new Error("Control does not support firePress");
+                } else {
+                  console.error(
+                    \`Step: \${stepNumber} ❌ Control not found after waiting \${maxWaitTime / 1000} seconds\`
+                  );
+                  throw new Error("Control not found");
+                }
+              }
+            } catch (err) {
+              console.error(
+                \`Step: \${stepNumber} ❌ Error in workflow: \${err.message}\`,
+                err
+              );
+              throw err;
+            }
+          })();
           `,
           ui5SetValue_old: `return (async function () {
                 if (!window.sap || !sap.ui || !sap.ui.getCore) {
@@ -472,7 +486,7 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                 const viewId = "{{VIEW_ID}}";
                 const pathPrefix = "{{PATH_PREFIX}}";
                 const propToSet = "{{PROPERTY_PATH}}";
-                const newValue = "{{NEW_VALUE}}";
+                const newValue = "{{ENTERED_VALUE}}";
 
                 /***************************************/                
                 const timeoutMs = {{TIMEOUT}};
@@ -644,7 +658,7 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
             const viewId = "{{VIEW_ID}}";
             const pathPrefix = "{{PATH_PREFIX}}";
             const propToSet = "{{PROPERTY_PATH}}";
-            const newValue = "{{NEW_VALUE}}";
+            const newValue = "{{ENTERED_VALUE}}";
 
             let executionLocator = '';
 
@@ -824,6 +838,7 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
               viewId: "recordReplaySelector.viewId",
               bindingPath: "recordReplaySelector.bindingPath.path",
               propertyPath: "recordReplaySelector.bindingPath.propertyPath",
+              modelName: "recordReplaySelector.bindingPath.modelName",
               value: "recordReplaySelector.value",
               text: "recordReplaySelector.text"
             }
@@ -917,29 +932,9 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
         console.log('simpleTestStepArray: ', simpleTestStepArray)
           simpleTestStepArray.map(data => {
 
-              // Extracting ID, Path, and Property Path
-              const myId = fieldConfig.myId.priority
-                .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
-                .find(v => v !== undefined && v !== "") ?? "";
+              const { myId, myPath, myPropertyPath, myGuid, myModelName } = getPropertyFields(data);
 
-              const myPath = (() => {
-                const val = fieldConfig.myPath.priority
-                  .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
-                  .find(v => typeof v === 'string' && v !== undefined && v !== "");
-
-                return typeof val === 'string'
-                  ? val.replace(
-                      new RegExp(`,(?:${fieldConfig.pathPrefix.toReplace.join("|")}).*\\)`),
-                      ""
-                    )
-                  : "";
-              })();
-
-              const myPropertyPath = fieldConfig.myPropertyPath.priority
-                .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
-                .find(v => v !== undefined && v !== "") ?? "";
-
-              console.log(`Step ${stepNum}, actionType: ${data.actionType}, myId: ${myId}, myPath: ${myPath}, myPropertyPath: ${myPropertyPath}`);
+              // console.log(`Step ${stepNum}, actionType: ${data.actionType}, myId: ${myId}, myPath: ${myPath}, myPropertyPath: ${myPropertyPath}`);
               const enteredValue = data?.value || '';
 
               const actionConfig = converterConfig.actions[data.actionType];
@@ -963,8 +958,9 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                   .replace(/{{VIEW_ID}}/g, myId || "")
                   .replace(/{{PATH_PREFIX}}/g, myPath || "")
                   .replace(/{{PROPERTY_PATH}}/g, myPropertyPath || "")
-                  .replace(/{{BUTTON_ID}}/g, myId || "")
-                  .replace(/{{NEW_VALUE}}/g, enteredValue || "");
+                  .replace(/{{GUID}}/g, myGuid || "")
+                  .replace(/{{MODEL_NAME}}/g, myModelName || "")
+                  .replace(/{{ENTERED_VALUE}}/g, enteredValue || "");
               
               // Add polling parameters only for wait templates
               if (input.waitEach) {
@@ -996,11 +992,55 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
       }
   }
 
+  function getPropertyFields(data) {
+    // Extracting ID, Path, and Property Path
+    const myId = fieldConfig.myId.priority
+      .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
+      .find(v => v !== undefined && v !== "") ?? "";
+
+    const myPath = (() => {
+      const val = fieldConfig.myPath.priority
+        .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
+        .find(v => typeof v === 'string' && v !== undefined && v !== "");
+
+      return typeof val === 'string'
+        ? val.replace(
+            new RegExp(`,(?:${fieldConfig.pathPrefix.toReplace.join("|")}).*\\)`),
+            ""
+          )
+        : "";
+    })();
+
+    const myPropertyPath = fieldConfig.myPropertyPath.priority
+      .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
+      .find(v => v !== undefined && v !== "") ?? "";
+    
+    const myGuid = (() => {
+      const val = fieldConfig.myGuid.priority
+        .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
+        .find(v => typeof v === "string");
+      if (!val) return "";
+
+      const match = val.match(new RegExp(fieldConfig.myGuid.regex, "i"));
+      return match ? match[1] : "";
+    })();
+
+    const myModelName = (() => {
+      return fieldConfig.myModelName.priority
+        .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
+        .find(v => v !== undefined && v !== "") ?? "";
+    })();
+
+    return { myId, myPath, myPropertyPath, myGuid, myModelName };
+
+  }
+
 
   function initialSteps(stepNum, input) {
     
     for (const stepDef of converterConfig.initialSteps) {
         const isEnabled = stepDef.enabledKeys.every(key => input[key] ?? true); // Check if all enabledKeys based on UI input are true
+        console.log(`Initial Step Check: ${stepDef.desc}, Enabled: ${isEnabled}`);
         if(isEnabled) {
           const stepInputData = stepDef.dataKey ? input[stepDef.dataKey] : ""; // get step data from UI
           // Add Initial steps
@@ -1068,15 +1108,15 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
       waitEach: input.waitEach ?? true,
       timeout: input.timeout ?? 30000,
       poll: input.poll ?? 200,
-      launchEnabled: input.launch ?? true,
+      launchEnabled: input.launch ?? false,
       launchUrl: input.launchUrl ?? '',
-      waitAfterLaunchEnabled: (input.launch ?? true) && !!input.waitAfterLaunch,
+      waitAfterLaunchEnabled: (input.launch ?? false) && !!input.waitAfterLaunch,
       waitAfterLaunch: input.waitAfterLaunch ? 30 : null,
-      loginEnabled: input.login ?? true,
+      loginEnabled: input.login ?? false,
       loginUser: input.loginUser ?? '',
       loginPass: input.loginPass ?? '',
-      waitAfterLoginEnabled: (input.login ?? true) && !!input.waitAfterLogin,
-      waitAfterLogin: (input.login ?? true) && input.waitAfterLogin ? 60 : null,
+      waitAfterLoginEnabled: (input.login ?? false) && !!input.waitAfterLogin,
+      waitAfterLogin: (input.login ?? false) && input.waitAfterLogin ? 60 : null,
       opa5Input: input.opa5Text ?? {}
     };
 
