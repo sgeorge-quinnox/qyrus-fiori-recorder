@@ -136,3 +136,14 @@
   padding-top: .75rem;         /* breathing room inside */
   border-top: 1px solid var(--sapList_BorderColor, rgba(0,0,0,.12));
 }
+
+.fixedTableHeightAuto {
+  height: auto !important;
+}
+
+.fixedTableHeightScroll {
+  height: 200px !important;
+  overflow-y: auto !important;
+  display: block; /* ensures scroll activates */
+}
+

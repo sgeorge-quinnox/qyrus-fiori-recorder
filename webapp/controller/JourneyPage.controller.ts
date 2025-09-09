@@ -489,15 +489,33 @@ export default class JourneyPage extends BaseController {
                 fieldValue: step.value ?? ""
             }));
             this._createQyrusDialog.setModel(new JSONModel(transformedWithStep), "steps");
+
+            const tableId = this._createQyrusDialog.getId().replace("--createQyrusDialog", "--stepsTable");
+            this._applyTableHeight(tableId, transformedWithStep.length);
         }
 
         if (result.logs) {
             const transformedWithLogs = result.logs.map((log: any, i: number) => ({
                 stepNumber: i + 1,
                 type: log.level ?? "",
+                color: log.color ?? "",
                 message: log.msg ?? "",
-            }));
+            })).reverse();
             this._createQyrusDialog.setModel(new JSONModel(transformedWithLogs), "logs");
+
+            const tableId = this._createQyrusDialog.getId().replace("--createQyrusDialog", "--logsTable");
+            this._applyTableHeight(tableId, transformedWithLogs.length);
+        }
+    }
+
+    private _applyTableHeight(tableId: string, rowCount: number): void {
+        const oTable = sap.ui.getCore().byId(tableId) as any;
+        if (!oTable) return;
+
+        if (rowCount <= 5) {
+            oTable.removeStyleClass("fixedTableHeightScroll").addStyleClass("fixedTableHeightAuto");
+        } else {
+            oTable.removeStyleClass("fixedTableHeightAuto").addStyleClass("fixedTableHeightScroll");
         }
     }
 
