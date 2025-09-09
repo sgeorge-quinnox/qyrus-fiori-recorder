@@ -13,9 +13,10 @@
     <!-- sunils Table  -->
     <Table id="stepsTable"
                   inset="false"
-                  class="sapUiSizeCondensed sapUiSizeCompact sapUiTinyMarginTop fixedTableHeight"
-                  visibleRowCount="5"
-                  visibleRowCountMode="Fixed"
+                  class="sapUiSizeCondensed sapUiSizeCompact sapUiTinyMarginTop fixedTableHeightAuto"
+                  visibleRowCountMode="Auto"
+                  minAutoRowCount="1"
+                  maxAutoRowCount="5"
                   alternateRowColors="true"
                   mode="None"
                   items="{steps>/}">
@@ -46,7 +47,7 @@
             </Table>
             <Table id="logsTable"
                   inset="false"
-                  class="sapUiSizeCondensed sapUiSizeCompact sapUiTinyMarginTop fixedTableHeight"
+                  class="sapUiSizeCondensed sapUiSizeCompact sapUiTinyMarginTop fixedTableHeightAuto"
                   visibleRowCountMode="Fixed"
                   alternateRowColors="true"
                   mode="None"

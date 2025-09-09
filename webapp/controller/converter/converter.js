@@ -33,10 +33,10 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
   };
 
   const log = {
-      info: (m) => { collectedLogs.push({ level: "info", msg: m }); },
-      ok:   (m) => { collectedLogs.push({ level: "ok", msg: "✔ " + m }); },
-      warn: (m) => { collectedLogs.push({ level: "warn", msg: "⚠ " + m }); },
-      err:  (m) => { collectedLogs.push({ level: "err", msg: "✖ " + m }); }
+      info: (m) => { collectedLogs.push({ level: "info", color: colors.yellow, msg:"ℹ️ " + m }); },
+      ok:   (m) => { collectedLogs.push({ level: "ok", color: colors.green, msg: "✅ " + m }); },
+      warn: (m) => { collectedLogs.push({ level: "warn", color: colors.yellow, msg: "⚠️ " + m }); },
+      err:  (m) => { collectedLogs.push({ level: "err", color: colors.red, msg: "❌ " + m }); }
   };
 
   const fieldConfig = {
@@ -920,18 +920,24 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
               // Extracting ID, Path, and Property Path
               const myId = fieldConfig.myId.priority
                 .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
-                .find(v => v !== undefined);
+                .find(v => v !== undefined && v !== "") ?? "";
 
-              const myPath = fieldConfig.myPath.priority
-                .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
-                .find(v => v !== undefined)?.replace(
-                  new RegExp(`,(?:${fieldConfig.pathPrefix.toReplace.join("|")}).*\\)`),
-                  ""
-                );
+              const myPath = (() => {
+                const val = fieldConfig.myPath.priority
+                  .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
+                  .find(v => typeof v === 'string' && v !== undefined && v !== "");
+
+                return typeof val === 'string'
+                  ? val.replace(
+                      new RegExp(`,(?:${fieldConfig.pathPrefix.toReplace.join("|")}).*\\)`),
+                      ""
+                    )
+                  : "";
+              })();
 
               const myPropertyPath = fieldConfig.myPropertyPath.priority
                 .map(p => p.split('.').reduce((acc, key) => acc?.[key], data))
-                .find(v => v !== undefined);
+                .find(v => v !== undefined && v !== "") ?? "";
 
               console.log(`Step ${stepNum}, actionType: ${data.actionType}, myId: ${myId}, myPath: ${myPath}, myPropertyPath: ${myPropertyPath}`);
               const enteredValue = data?.value || '';
@@ -1005,10 +1011,9 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
             stepDef.locator, 
             stepDef.user_action
           ));
-          log.ok(`${colors.green}✅ Step ${stepNum}: ${stepDef.desc} added`);
-          // log.error(`${colors.red}❌ Step skipped: ${stepDef.desc}${colors.reset}`);          
+          log.ok(`Step ${stepNum}: ${stepDef.desc} added`);
         } else {
-          log.warn(`${colors.yellow}⚠️ Step skipped: ${stepDef.desc}`);
+          log.warn(`Step skipped: ${stepDef.desc}`);
         }
         stepNum++;        
     }
