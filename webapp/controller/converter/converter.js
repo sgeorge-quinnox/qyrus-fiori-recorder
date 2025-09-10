@@ -283,7 +283,7 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
           console.log('✅ ui5Helper injected');
         })();
         `,
-        wait: {
+        action: {
           ui5SetValue: `return (async function() {
             const stepNumber = "{{STEP_NUMBER}}";
             const viewId = "{{VIEW_ID}}";
@@ -390,7 +390,7 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
             }
           })();
           `,
-          ui5ClickButton: `(async function () {
+          ui5ClickButton: `return (async function () {
             const stepNumber = "{{STEP_NUMBER}}";
             const maxWaitTime = "{{TIMEOUT}}";
             const interval = "{{POLL}}";
@@ -429,7 +429,6 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                   const ctx = item.getBindingContext(tableModelName);
                   if (!ctx) return false;
                   const path = ctx.getPath();
-                  console.log("🔍 Checking row binding path:", path);
                   return path.includes(targetGUID);
                 });
 
@@ -441,20 +440,20 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                   const table = targetRow.getParent();
                   table?.fireItemPress({ listItem: targetRow });
                   console.log(\`✅ Row with GUID \${targetGUID} pressed via firePress\`);
+                  return true;
                 } catch (fireError) {
                   console.error("❌ Error firing press on row:", fireError);
                 }
 
               } else {
                 // 🔀 Scenario 2: Fall back to button click workflow
-                console.log("ℹ Running button press workflow");
-
                 const btn = await waitForControl(myId);
                 if (btn && typeof btn.firePress === "function") {
                   btn.firePress();
                   console.log(
                     \`Step: \${stepNumber} ✅ UI5 button clicked via firePress (ID=\${myId})\`
                   );
+                  return true;
                 } else if (btn) {
                   console.error(
                     \`Step: \${stepNumber} ❌ Control found but firePress not supported: \${btn}\`
@@ -647,151 +646,6 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
           }
           })();`,      
         },
-        noWait: {          
-          ui5SetValue: `return (async function () {
-            if (!window.sap || !sap.ui || !sap.ui.getCore) {
-                console.error("❌ SAP UI5 not available");
-                throw new Error("SAP UI5 not available");
-            }
-
-            const stepNumber = "{{STEP_NUMBER}}";
-            const viewId = "{{VIEW_ID}}";
-            const pathPrefix = "{{PATH_PREFIX}}";
-            const propToSet = "{{PROPERTY_PATH}}";
-            const newValue = "{{ENTERED_VALUE}}";
-
-            let executionLocator = '';
-
-            function findTarget() {
-                let target = null;
-
-                if (viewId && !propToSet && !pathPrefix) {
-                    executionLocator = "STABLE LOCATOR: ";
-                    target = sap.ui.getCore().byId(viewId);
-                }
-
-                if (!target && viewId && propToSet && pathPrefix) {
-                    executionLocator = "UNSTABLE LOCATOR: ";
-                    const oView = sap.ui.getCore().byId(viewId);
-                    if (oView) {
-                        const inputs = oView.findAggregatedObjects(true, ctrl => ctrl.isA("sap.m.Input"));
-                        target = inputs.find(input => {
-                            const ctx = input.getBindingContext();
-                            if (!ctx) return false;
-                            const path = ctx.getPath();
-                            if (!path.startsWith(pathPrefix)) return false;
-                            const bindInfo = input.getBindingInfo("value");
-                            return bindInfo && bindInfo.parts.some(p => p.path === propToSet);
-                        });
-                    }
-                }
-
-                console.info("Step:", stepNumber, executionLocator, newValue, " TARGET: ", target);
-                return target;
-            }
-
-            function setInputValueWithDetermination(ctrl, value) {
-                if (!ctrl) return;
-
-                if (ctrl.isA("sap.ui.comp.smartfield.SmartField")) {
-                    const inner = ctrl.getFirstInnerControl?.()[0];
-                    if (inner) {
-                        return setInputValueWithDetermination(inner, value);
-                    }
-                }
-
-                if (ctrl.isA("sap.m.ComboBox") || ctrl.isA("sap.m.ComboBoxBase")) {
-                    ctrl.setValue(value);
-
-                    const item = ctrl.getItems().find(i => i.getText() === value || i.getKey() === value);
-                    if (item) {
-                        ctrl.setSelectedItem(item);
-                        ctrl.fireSelectionChange({ selectedItem: item });
-                    } else {
-                        ctrl.fireChange({ value });
-                        if (typeof ctrl.fireSubmit === "function") {
-                            ctrl.fireSubmit({ value });
-                        }
-                    }
-                    return;
-                }
-
-                if (ctrl.isA("sap.m.Input")) {
-                    ctrl.setValue(value);
-                    ctrl.fireChange({ value });
-
-                    const groups = ctrl.getFieldGroupIds?.() || [];
-                    if (groups.length > 0) {
-                        ctrl.fireValidateFieldGroup({ fieldGroupIds: groups });
-                    }
-                    if (typeof ctrl.fireSubmit === "function") {
-                        ctrl.fireSubmit({ value });
-                    }
-                    if (typeof ctrl.fireLiveChange === "function") {
-                        ctrl.fireLiveChange({ value });
-                    }
-                    return;
-                }
-
-                if (ctrl.setValue) {
-                    ctrl.setValue(value);
-                    ctrl.fireChange({ value });
-                }
-            }
-
-            try {
-                const target = findTarget();
-                if (!target) {
-                    console.error("Step:", stepNumber, "❌ Control not found");
-                    console.error(
-                      \`Step: \${stepNumber} ❌ Control not found: \${e}\`
-                    );
-                    throw new Error("Control not found");
-                }
-
-                setInputValueWithDetermination(target, newValue);
-                console.log(
-                  \`Step: \${stepNumber} ✅ Set Value: \${target.getId()}\`
-                );
-                return true;
-            } catch (e) {
-                console.error(
-                  \`Step: \${stepNumber} ❌ Error setting value: \${e}\`
-                );
-                throw e;
-            }
-        })();`,          
-          ui5ClickButton: `(function () {
-            const buttonId = "{{BUTTON_ID}}";
-            const stepNumber = "{{STEP_NUMBER}}";
-
-            try {
-                const btn = sap?.ui?.getCore?.().byId(buttonId);
-
-                if (btn && typeof btn.firePress === "function") {
-                    btn.firePress();
-                    console.log(
-                        \`Step: \${stepNumber} ✅ UI5 Create button clicked via firePress\`
-                    );
-                } else if (btn) {
-                    console.error(
-                        \`Step: \${stepNumber} ❌ Control found but firePress not supported: \${btn}\`
-                    );
-                    throw new Error("Control does not support firePress");
-                } else {
-                  console.error(
-                      \`Step: \${stepNumber} ❌ Control not found on the page\`
-                  );
-                  throw new Error("Control not found on the page");
-                }
-            } catch (err) {
-                console.error(
-                    \`Step: \${stepNumber} ❌ Error while clicking the button: \${err}\`
-                );
-                throw err;
-            }
-        })();`,      
-        },
       }
     };
 
@@ -933,8 +787,6 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
           simpleTestStepArray.map(data => {
 
               const { myId, myPath, myPropertyPath, myGuid, myModelName } = getPropertyFields(data);
-
-              // console.log(`Step ${stepNum}, actionType: ${data.actionType}, myId: ${myId}, myPath: ${myPath}, myPropertyPath: ${myPropertyPath}`);
               const enteredValue = data?.value || '';
 
               const actionConfig = converterConfig.actions[data.actionType];
@@ -944,11 +796,11 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
               }
 
               // Select template set based on waitEach flag
-              const templateSet = input.waitEach ? converterConfig.templates.wait : converterConfig.templates.noWait;
+              const templateSet = converterConfig.templates.action;
               const templateName = actionConfig.templateName;
               
               if (!templateName || !templateSet[templateName]) {
-                  log.warn(`Template not found: ${templateName} in ${input.waitEach ? 'wait' : 'noWait'} set`);
+                  log.warn(`Template not found: ${templateName} for actionType: ${data.actionType}`);
                   return;
               }
 
@@ -960,14 +812,9 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                   .replace(/{{PROPERTY_PATH}}/g, myPropertyPath || "")
                   .replace(/{{GUID}}/g, myGuid || "")
                   .replace(/{{MODEL_NAME}}/g, myModelName || "")
-                  .replace(/{{ENTERED_VALUE}}/g, enteredValue || "");
-              
-              // Add polling parameters only for wait templates
-              if (input.waitEach) {
-                  Jscript = Jscript
-                      .replace(/{{POLL}}/g, input.poll)
-                      .replace(/{{TIMEOUT}}/g, input.timeout);
-              }
+                  .replace(/{{ENTERED_VALUE}}/g, enteredValue || "")
+                  .replace(/{{POLL}}/g, input.waitEach ? input.poll : 0)
+                  .replace(/{{TIMEOUT}}/g, input.waitEach ? input.timeout : 0);
 
               const stepData = data.actionType+" "+enteredValue+" in "+(data.text ? data.text : myId);
               // Add test step to the list
