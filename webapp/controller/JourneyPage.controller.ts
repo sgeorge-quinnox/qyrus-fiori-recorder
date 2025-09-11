@@ -506,6 +506,9 @@ export default class JourneyPage extends BaseController {
             const tableId = this._createQyrusDialog.getId().replace("--createQyrusDialog", "--logsTable");
             this._applyTableHeight(tableId, transformedWithLogs.length);
         }
+
+        const form = this.getView().getModel("qyrusForm") as JSONModel;
+        form.setProperty("/outJson", JSON.stringify(result.steps ? result.steps : [], null, 2));
     }
 
     private _applyTableHeight(tableId: string, rowCount: number): void {
@@ -603,6 +606,8 @@ export default class JourneyPage extends BaseController {
         const outJsonStr = String(form.getProperty("/outJson") || "").trim();
         let stepsObj: any = null;
         try { stepsObj = outJsonStr ? JSON.parse(outJsonStr) : null; } catch { stepsObj = null; }
+
+        console.log("stepsObj:", stepsObj);
 
         // --- sanity checks
         const missing: string[] = [];
@@ -774,7 +779,7 @@ export default class JourneyPage extends BaseController {
     public async onConvertOpa5(result: any): Promise<void> {
         const form = this.getView().getModel("qyrusForm") as JSONModel;        
 
-        form.setProperty("/outJson", JSON.stringify(result.steps, null, 2));
+        // form.setProperty("/outJson", JSON.stringify(result.steps, null, 2));
 
         // end
 
