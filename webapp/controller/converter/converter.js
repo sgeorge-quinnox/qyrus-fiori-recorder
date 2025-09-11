@@ -69,11 +69,11 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
       },
       initialSteps: [
         { user_action: "Go to url", desc: "Launch Application", locator: "", dataKey: "launchUrl", enabledKeys: ["launchEnabled"] },
-        // { user_action: "Wait", desc: "Wait for Element", locator: "USERNAME_FIELD-inner", dataKey: "waitAfterLaunch", enabledKeys: ["launchEnabled", "waitAfterLaunchEnabled"] },
+        { user_action: "Wait", desc: "Wait for Element", locator: "USERNAME_FIELD-inner", dataKey: "waitAfterLaunch", enabledKeys: ["launchEnabled", "waitAfterLaunchEnabled"] },
         { user_action: "Set", desc: "Set Username", locator: "USERNAME_FIELD-inner", dataKey: "loginUser", enabledKeys: ["loginEnabled"] },
         { user_action: "Set", desc: "Set Password", locator: "PASSWORD_FIELD-inner", dataKey: "loginPass", enabledKeys: ["loginEnabled"] },
         { user_action: "Click", desc: "Click Log On", locator: "LOGIN_LINK", enabledKeys: ["loginEnabled"] },
-        // { user_action: "Wait", desc: "Wait After Login", locator: "", dataKey: "waitAfterLogin", enabledKeys: ["loginEnabled", "waitAfterLoginEnabled"] }
+        { user_action: "Wait", desc: "Wait After Login", locator: "", dataKey: "waitAfterLogin", enabledKeys: ["loginEnabled", "waitAfterLoginEnabled"] }
       ],
       actions: {
         clicked: {
@@ -398,6 +398,101 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
             const myId = "{{VIEW_ID}}";
             const tableModelName = "{{MODEL_NAME}}";
             const targetGUID = "{{GUID}}";
+            const pathPrefix = "{{PATH_PREFIX}}"; // binding path
+            const propToSet = "{{PROPERTY_PATH}}"; // property path
+
+            function getControl(id) {
+              return sap?.ui?.getCore?.().byId(id);
+            }
+
+            async function waitForControl(id) {
+              const start = Date.now();
+              while (Date.now() - start < maxWaitTime) {
+                const ctrl = getControl(id);
+                if (ctrl) return ctrl;
+                await new Promise(r => setTimeout(r, interval));
+              }
+              return null;
+            }
+
+            const scenarios = { // Handlers for different scenarios
+              actionByGUID: async (ctrl) => {
+                const tables = ctrl.findAggregatedObjects(true, c => c.isA("sap.m.Table"));
+                const mainTable = tables.find(t => !t.getId().toLowerCase().includes("popup"));
+                if (!mainTable) throw new Error("Main table not found");
+
+                const targetRow = mainTable.getItems().find(item => {
+                  const ctx = item.getBindingContext(tableModelName);
+                  return ctx?.getPath()?.includes(targetGUID);
+                });
+
+                if (!targetRow) throw new Error(\`Row with GUID \${targetGUID} not found\`);
+
+                targetRow.firePress?.();
+                targetRow.setSelected?.(true);
+                mainTable.fireItemPress({ listItem: targetRow });
+
+                console.log(\`✅ [Step \${stepNumber}] Row with GUID \${targetGUID} selected\`);
+                return true;
+              },
+
+              actionByPath: async (ctrl) => {
+                const oBinding = ctrl.getBinding("rows");
+                const aContexts = oBinding.getContexts();
+                const idx = aContexts.findIndex(ctx => ctx.getPath() === pathPrefix);
+
+                if (idx < 0) throw new Error(\`Row with path \${pathPrefix} not found\`);
+
+                ctrl.addSelectionInterval(idx, idx);
+                const row = ctrl.getRows()[idx];
+                row.firePress?.();
+
+                console.log(\`✅ [Step \${stepNumber}] Row with path \${pathPrefix} selected\`);
+                return true;
+              },
+
+              actionByButtonClick: async (ctrl) => {
+                if (typeof ctrl.firePress === "function") {
+                  ctrl.firePress();
+                  console.log(\`✅ [Step \${stepNumber}] Button clicked (ID=\${myId})\`);
+                  return true;
+                }
+                throw new Error("Control does not support firePress");
+              }
+            };
+            
+            try { // Begin execution
+              const control = await waitForControl(myId);
+              if (!control) throw new Error(\`Control with ID \${myId} not found\`);
+
+              let scenarioKey;
+              if (targetGUID && tableModelName) {
+                scenarioKey = "actionByGUID";
+              } else if (pathPrefix) {
+                scenarioKey = "actionByPath";
+              } else {
+                scenarioKey = "actionByButtonClick";
+              }
+
+              const actionHandler = scenarios[scenarioKey];
+              if (!actionHandler) throw new Error(\`No handler for scenario: \${scenarioKey}\`);
+
+              await actionHandler(control);
+            } catch (err) {
+              console.error(\`❌ [Step \${stepNumber}] Error: \${err.message}\`, err);
+              throw err;
+            }
+          })()`,
+          ui5ClickButton1: `return (async function () {
+            const stepNumber = "{{STEP_NUMBER}}";
+            const maxWaitTime = "{{TIMEOUT}}";
+            const interval = "{{POLL}}";
+
+            const myId = "{{VIEW_ID}}"; // button or view ID
+            const tableModelName = "{{MODEL_NAME}}"; // optional, for table row selection
+            const targetGUID = "{{GUID}}"; // target row identifier
+            const pathPrefix = "{{PATH_PREFIX}}"; // binding path prefix
+            const propToSet = "{{PROPERTY_PATH}}"; // property path
 
             function getControl(id) {
               return sap?.ui?.getCore?.().byId(id);
@@ -444,6 +539,26 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                 } catch (fireError) {
                   console.error("❌ Error firing press on row:", fireError);
                 }
+
+              } else if(pathPrefix) {
+                // 🔀 Scenario 3: Property set mode
+                
+                const control = await waitForControl(myId);
+                let selectByPath = function(oTable = null, sPath = null) { 
+                  const oBinding = oTable.getBinding("rows");
+                  const aContexts = oBinding.getContexts();
+                  const targetIndex = aContexts.findIndex(ctx => ctx.getPath() === sPath);
+
+                  if (targetIndex >= 0) {
+                    return oTable.setSelectedIndex(targetIndex);
+                  }
+                };
+                console.log("control: ", control);
+                const targetRow = selectByPath(control, pathPrefix);
+                
+                if(!targetRow) throw new Error(\`Row with path \${pathPrefix} not found\`);
+
+                targetRow.firePress?.();
 
               } else {
                 // 🔀 Scenario 2: Fall back to button click workflow
