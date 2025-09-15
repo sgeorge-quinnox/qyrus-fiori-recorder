@@ -60,6 +60,7 @@
       document.addEventListener("mouseover", this.#s);
       document.addEventListener("mouseout", this.#i);
       document.addEventListener("click", this.#o);
+      document.addEventListener("keydown", this.#k);
       // our code
       this.getDataOnLoad();
       // our code
@@ -76,6 +77,20 @@
     getElementsForId(e) {
       return Object.values(this.#l()).filter((t) => t.getId() === e);
     }
+
+    //check
+
+    selectByPath(oTable, sPath) {
+      let oBinding = oTable.getBinding("rows");
+      let aContexts = oBinding.getContexts();
+      let targetIndex = aContexts.findIndex(ctx => ctx.getPath() === sPath);
+
+      if (targetIndex >= 0) {
+        oTable.setSelectedIndex(targetIndex);
+      }
+    }
+    //check
+
 
     getElementsBySelectors(e) {
       let r = this.#l();
@@ -219,7 +234,7 @@
     }
 
 
-    showToastDialog(status, value, recordDetails, type) {
+    showToastDialog(status, recordDetails, type) {
       // prepare items dynamically
       let items = [];
       // top success message
@@ -247,10 +262,10 @@
         items.push(new sap.m.Text({ text: recordDetails.text }));
       }
 
-      if (value) {
+      if (recordDetails?.value) {
         items.push(new sap.m.Text({ text: " " }));
         items.push(new sap.m.Label({ text: "Value:", design: "Bold" }));
-        items.push(new sap.m.Text({ text: value }));
+        items.push(new sap.m.Text({ text: recordDetails.value }));
       }
 
       // ID path property path
@@ -323,15 +338,16 @@
         }
         let tableRecord = { rowContext: null, rowIndex: null };
         oTable.attachRowSelectionChange(function (oEvent) {
-          var indices = oEvent.getParameter("rowIndices"); // selected row indices // [1]
-          var rowIndex = indices && indices[0];// 1
+          var indices = oEvent.getParameter("rowIndices"); // selected row indices // [6]
+          var rowIndex = indices && indices[0];// 6
           var rowContext = oTable.getContextByIndex(rowIndex)
           console.log("✅ Checkbox clicked in table!");
           console.log("Row index:", rowIndex);
-          console.log("Row context path:", rowContext ? rowContext.getPath() : "N/A");
+          console.log("Row context path:", rowContext ? rowContext.getPath() : "N/A"); // 9
           console.log("Row data:", rowContext ? rowContext.getObject() : "N/A");
           tableRecord.rowContext = rowContext;
           tableRecord.rowIndex = rowIndex;
+          tableRecord.value = oTable.isIndexSelected(rowIndex);
           resolve(tableRecord);
         });
       });
@@ -377,31 +393,33 @@
 
 
     setRecordStepDetails(stepDetails, isButtonClick = false, isKeyPress = false) {
-      if (isButtonClick || isKeyPress) {
-        if (!stepDetails.eventDetails.control.recordReplaySelector?.id) {
-          stepDetails.eventDetails.control.recordReplaySelector.id = stepDetails.eventDetails.control.id;
-        }
+      //if (isButtonClick || isKeyPress) {
+      if (!stepDetails.eventDetails.control.recordReplaySelector?.id) {
+        stepDetails.eventDetails.control.recordReplaySelector.id = stepDetails.eventDetails.control.id;
       }
+      //}
 
       let labelField = this.getLabelDetails(stepDetails.eventDetails.control.recordReplaySelector?.id, isButtonClick);
+      if (!labelField) {
+        labelField = this.setControlFieldText(labelField, stepDetails.eventDetails.control.recordReplaySelector);
+      }
       stepDetails.eventDetails.control.recordReplaySelector.text = labelField;
       return stepDetails;
 
     }
 
-    toastDisplayBasedOnControl(status, stepDetails, type, isButton) {
+    toastDisplayBasedOnControl(status, stepDetails, type) {
       let propertyField = stepDetails?.eventDetails?.control?.recordReplaySelector;
-      if (status !== 'success') {
-        this.showToastDialog('failure');
-      }
-      else if (isButton && propertyField?.text) {
-        this.showToastDialog(status, null, propertyField, type);
-      }
-      else {
-        if (propertyField?.value && propertyField?.text) {
-          this.showToastDialog(status, propertyField.value, propertyField, type);
-        }
-      }
+      this.showToastDialog(status, propertyField, type);
+      // if (status !== 'success') {
+      //   this.showToastDialog('failure');
+      // }
+      // else if (isButton && propertyField?.text) {
+      //   this.showToastDialog(status, null, propertyField, type);
+      // }
+      // else {
+      //   this.showToastDialog(status,propertyField, type);
+      // }
     }
 
     recordStepsOnkeyPress(s, n, stepDetails) {
@@ -441,6 +459,16 @@
       }
     }
 
+    setControlFieldText(text, record) {
+      if (!text) {
+        text = record?.bindingPath?.propertyPath;
+        if (!text) {
+          text = record.id;
+        }
+        return text;
+      }
+    }
+
 
     getUI5Version() {
       return sap.ui.version;
@@ -471,6 +499,85 @@
       }
     };
 
+    // our Code 
+    // F9 help and click on fields to log details start
+    #k = (evt) => {
+      if (!this.#n) {
+        return;
+      }
+
+      let t = evt || window.event;
+      let r = t.target || t.srcElement;
+      let n = this.#u(r);
+      const s = window?.ui5TestRecorder?.communication?.webSocket;
+
+      if (!n || !s) {
+        return;
+      }
+
+      this.#t
+        .findControlSelectorByDOMElement({ domElement: n.getDomRef() })
+        .then((selector) => {
+
+          // ✅ Special condition: Activate capture mode on F9
+          if (evt.key === "F9") {
+            console.log("Capture mode activated. Click on a table cell to record its value.");
+            // capture the click event after the F9 Block Start
+            const handler = (clickEvt) => {
+              clickEvt.preventDefault();
+              clickEvt.stopPropagation();
+
+              const domId = clickEvt.target.id;
+              const control = sap.ui.getCore().byId(domId);
+
+              if (control) {
+                let value = null;
+                if (typeof control.getValue === "function") value = control.getValue();
+                else if (typeof control.getText === "function") value = control.getText();
+                else if (control.getDomRef) value = control.getDomRef().innerText;
+
+                let rowData = null;
+                if (control.getBindingContext()) {
+                  rowData = control.getBindingContext().getObject();
+                }
+
+                const eventDetails = {
+                  type: "clicked",
+                  control: {
+                    id: domId,
+                    type: control.getMetadata().getElementName(),
+                    classes: control.aCustomStyleClasses,
+                    properties: this.#d(control),
+                    bindings: this.#m(control),
+                    view: this.#p(control),
+                    events: {
+                      press:
+                        n.getMetadata().getEvent("press") !== undefined ||
+                        n.getMetadata().getEvent("click") !== undefined,
+                    },
+                  },
+                  location: window.location.href,
+                };
+                let stepDetails = { eventDetails: eventDetails };
+                eventDetails.control.recordReplaySelector = { id: domId, value: value, rows: rowData };
+                s.send_record_step(JSON.parse(JSON.stringify(stepDetails.eventDetails)));
+                this.toastDisplayBasedOnControl('success', stepDetails, 'cell Capture');
+                // Remove handler after one click
+                document.removeEventListener("click", handler, true);
+              } else {
+                console.warn("❌ No UI5 control found for", domId);
+              }
+            };
+            // capture the click event after the F9 Block End
+            document.addEventListener("click", handler, true);
+          }
+        })
+        .catch((err) => {
+          console.error("Keydown handler error:", err.message);
+        });
+    };
+    // F9 help and click on fields to log details end
+    // our Code 
 
     #o = (e) => {
       if (!this.#n) {
@@ -505,10 +612,14 @@
             e.control.recordReplaySelector = t;
             // all click events including click on an input field comes here.We want to record only if the click is on a button
             // navigation or similar fields, also for value help. 
+
+            // ********************** Fire Press/ Fire Title Press Block  Start*************//
             if (typeof n.firePress === "function" || typeof n.fireTitlePress === "function") {
               let stepDetails = { shouldStepBeRecorded: false, eventDetails: e };
-              // it triggers for all the value help fields
+
+              // *****************Value Help Block Start********************************// 
               if (this.#captureValueHelp && n.getParent?.() === this.#captureValueHelp) {
+                // it triggers for all the value help fields
                 // search open dialogs tell us it is a interim step or not 
                 if (!stepDetails.eventDetails.control.recordReplaySelector.searchOpenDialogs) {
                   stepDetails.shouldStepBeRecorded = true;
@@ -523,6 +634,9 @@
                 });
                 return;
               }
+              // ******************Value Help Block End **********************************//
+
+              // ********Button/Links/Navigation/Icons and controls apart from Value Help field Block Start ********//
               if (!stepDetails.eventDetails.control.recordReplaySelector.searchOpenDialogs) {
                 stepDetails.shouldStepBeRecorded = true;
               }
@@ -530,20 +644,23 @@
               if (recordStepDetails?.shouldStepBeRecorded) {
                 s.send_record_step(JSON.parse(JSON.stringify(recordStepDetails.eventDetails)));
                 // if property path is blank 
-                this.toastDisplayBasedOnControl('success', recordStepDetails, 'Button', true);
-                // else 
-                // this.toastDisplayBasedOnControl(recordStepDetails, 'Button in table', true); // 
+                this.toastDisplayBasedOnControl('success', recordStepDetails, 'Button');
               }
               else {
                 this.toastDisplayBasedOnControl('failure');
               }
+              // ********Button/Links/Navigation/Icons and controls apart from Value Help field Block End ********//
             }
-            // checkbox/radio additional
+            // ********************** Fire Press/ Fire Title Press Block  End*************//
+
+            //**********************Not Fire Press nor Fire Title Press Block Start************************//
             else {
               let stepDetails = { shouldStepBeRecorded: false, eventDetails: e };
               let oTable = sap.ui.getCore().byId(e.control.id);
               if (oTable) {
                 this.getTableDetails(oTable).then((tableRecordDetails) => {
+
+                  // ************Table Block Start if the control is a table row selection**************//
                   if (tableRecordDetails) {
                     let recordDetails = e.control.recordReplaySelector;
                     if (!e.control.recordReplaySelector?.id) {
@@ -558,56 +675,86 @@
                       stepDetails.shouldStepBeRecorded = true;
                     }
                     let recordStepDetails = this.recordStepForButton(s, stepDetails);
+                    recordStepDetails.eventDetails.control.recordReplaySelector.value  = tableRecordDetails.value;
                     if (recordStepDetails?.shouldStepBeRecorded) {
                       s.send_record_step(JSON.parse(JSON.stringify(recordStepDetails.eventDetails)));
                       // if property path is blank 
-                      this.toastDisplayBasedOnControl('success', recordStepDetails, 'Table', true);
-                      // else 
-                      // this.toastDisplayBasedOnControl(recordStepDetails, 'Button in table', true); // 
+                      this.toastDisplayBasedOnControl('success', recordStepDetails, 'Table');
                     }
-                    this.showToastDialog('success', recordDetails.value, recordDetails, 'clicked');
-                  } else {
-                    this.toastDisplayBasedOnControl('failure');
+                    this.showToastDialog('success', recordDetails, 'clicked');
                   }
+                  // ************Table Block End if the control is a table row selection**************//
+
+                  // ************Not a Table row Selection block Start if the control is other than table row selection**************//
+                  else {
+
+                    let stepDetails = { shouldStepBeRecorded: false, eventDetails: e };
+
+
+                    // ************Checkbox/Radio Block Start if the control is a checkbox/radio**************//
+
+                    // Generic attach for controls that support "select" event
+                    if (typeof n.attachSelect === "function" && !n._customSelectAttached) {
+                      n._customSelectAttached = true; // ✅ Attach only once
+
+                      n.attachSelect((evt) => {
+                        // Try to detect selected state dynamically
+                        const selected =
+                          evt.getParameter("selected") ??
+                          evt.getParameter("selectedItem") ??
+                          evt.getParameter("value") ??
+                          null;
+
+                        // ✅ Deduplicate: only record on state change
+                        if (n._lastSelected !== selected) {
+                          n._lastSelected = selected;
+
+                          e.value = selected;
+                          e.control.value = selected;
+
+                          if (e.control.properties) {
+                            // If control supports "selected"
+                            if ("selected" in e.control.properties) {
+                              e.control.properties.selected = selected;
+                            }
+                            // If control supports "selectedKey"
+                            if ("selectedKey" in e.control.properties) {
+                              e.control.properties.selectedKey = selected;
+                            }
+                            // If control supports "selectedIndex"
+                            if ("selectedIndex" in e.control.properties) {
+                              e.control.properties.selectedIndex = selected;
+                            }
+                          }
+                          console.log("📌", e.control?.type, "→", selected);
+                          if (!stepDetails.eventDetails.control.recordReplaySelector.searchOpenDialogs) {
+                            stepDetails.shouldStepBeRecorded = true;
+                          }
+                          let recordStepDetails = this.recordStepForButton(s, stepDetails);
+                          recordStepDetails.eventDetails.control.recordReplaySelector.value = selected;
+                          if (recordStepDetails?.shouldStepBeRecorded) {
+                            s.send_record_step(JSON.parse(JSON.stringify(recordStepDetails.eventDetails)));
+                            this.toastDisplayBasedOnControl('success', recordStepDetails, 'Checkbox/Radio');
+                          }
+                        }
+                      });
+                    }
+                    // ************Checkbox/Radio Block End if the control is a checkbox/radio**************//
+                    else {
+                      // if other than table rowselection,checkbox,radio //
+                      this.toastDisplayBasedOnControl('failure');
+                    }
+                  }
+                  // ************Not a Table row Selection block End if the control is other than table row selection**************//
                   console.log("Listener attached to SmartTable for rowSelectionChange ✅");
                 });
               } else {
                 console.log("❌ Table not found. Check the control ID again.");
                 this.toastDisplayBasedOnControl('failure');
               }
-
-              // Generic attach for controls that support "select" event
-              // if (typeof n.attachSelect === "function") {
-              //   n.attachSelect((evt) => {
-              //     // Try to get selected state dynamically if available
-              //     const selected = evt.getParameter("selected")
-              //       ?? evt.getParameter("selectedItem")
-              //       ?? evt.getParameter("value")
-              //       ?? null;
-
-              //     e.value = selected;
-              //     e.control.value = selected;
-
-              //     if (e.control.properties) {
-              //       // If control has 'selected' property, update it
-              //       if ("selected" in e.control.properties) {
-              //         e.control.properties.selected = selected;
-              //       }
-              //       // If it's a RadioButtonGroup / Select etc.
-              //       if ("selectedKey" in e.control.properties) {
-              //         e.control.properties.selectedKey = selected;
-              //       }
-              //       if ("selectedIndex" in e.control.properties) {
-              //         e.control.properties.selectedIndex = selected;
-              //       }
-              //     }
-
-              //     console.log("📌", e.control?.type, "→", selected);
-              //     s.send_record_step(JSON.parse(JSON.stringify(e)));
-              //   });
-              // }
             }
-            //}
+            //**********************Not Fire Press nor Fire Title Press Block End************************//
+
             // our code
 
           })
@@ -646,12 +793,15 @@
                 .findControlSelectorByDOMElement({ domElement: n.getDomRef() })
                 .then((e) => {
                   // our code
+                  // ************** Keypress Block Start ***********//
                   t.control.recordReplaySelector = e;
                   let stepDetails = { shouldStepBeRecorded: false, eventDetails: t };
                   if (!stepDetails.eventDetails.control.recordReplaySelector.searchOpenDialogs) {
                     stepDetails.shouldStepBeRecorded = true;
                   }
                   this.recordStepsOnkeyPress(s, n, stepDetails);
+                  //************* Key Press Block End *************/
+
                   // our code
                 })
 

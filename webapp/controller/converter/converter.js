@@ -69,11 +69,11 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
       },
       initialSteps: [
         { user_action: "Go to url", desc: "Launch Application", locator: "", dataKey: "launchUrl", enabledKeys: ["launchEnabled"] },
-        { user_action: "Wait", desc: "Wait for Element", locator: "USERNAME_FIELD-inner", dataKey: "waitAfterLaunch", enabledKeys: ["launchEnabled", "waitAfterLaunchEnabled"] },
-        { user_action: "Set", desc: "Set Username", locator: "USERNAME_FIELD-inner", dataKey: "loginUser", enabledKeys: ["loginEnabled"] },
-        { user_action: "Set", desc: "Set Password", locator: "PASSWORD_FIELD-inner", dataKey: "loginPass", enabledKeys: ["loginEnabled"] },
-        { user_action: "Click", desc: "Click Log On", locator: "LOGIN_LINK", enabledKeys: ["loginEnabled"] },
-        { user_action: "Wait", desc: "Wait After Login", locator: "", dataKey: "waitAfterLogin", enabledKeys: ["loginEnabled", "waitAfterLoginEnabled"] }
+        { user_action: "Wait", desc: "Wait for Element", locator: "userLocator", dataKey: "waitAfterLaunch", enabledKeys: ["launchEnabled"] },
+        { user_action: "Set", desc: "Set Username", locator: "userLocator", dataKey: "loginUser", enabledKeys: ["loginEnabled"] },
+        { user_action: "Set", desc: "Set Password", locator: "passwordLocator", dataKey: "loginPass", enabledKeys: ["loginEnabled"] },
+        { user_action: "Click", desc: "Click Log On", locator: "loginLocator", enabledKeys: ["loginEnabled"] },
+        { user_action: "Wait", desc: "Wait After Login", locator: "", dataKey: "waitAfterLogin", enabledKeys: ["loginEnabled"] }
       ],
       actions: {
         clicked: {
@@ -444,7 +444,9 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
                 if (idx < 0) throw new Error(\`Row with path \${pathPrefix} not found\`);
 
                 ctrl.addSelectionInterval(idx, idx);
-                const row = ctrl.getRows()[idx];
+                ctrl.setFirstVisibleRow(idx);
+                await new Promise(r => setTimeout(r, 500));
+                const row = ctrl.getRows().find(r => r.getBindingContext()?.getPath() === pathPrefix);
                 row.firePress?.();
 
                 console.log(\`✅ [Step \${stepNumber}] Row with path \${pathPrefix} selected\`);
@@ -1005,12 +1007,13 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
         console.log(`Initial Step Check: ${stepDef.desc}, Enabled: ${isEnabled}`);
         if(isEnabled) {
           const stepInputData = stepDef.dataKey ? input[stepDef.dataKey] : ""; // get step data from UI
+          const locator = stepDef.locator ? input[stepDef.locator] : "";
           // Add Initial steps
           qyrusScriptArray.push(makeStep(
             stepNum, 
             stepDef.desc, 
             stepInputData, 
-            stepDef.locator, 
+            locator, 
             stepDef.user_action
           ));
           log.ok(`Step ${stepNum}: ${stepDef.desc} added`);
@@ -1072,12 +1075,13 @@ sap.ui.define([], function () { // ensures compatibility with UI5 system.
       poll: input.poll ?? 200,
       launchEnabled: input.launch ?? false,
       launchUrl: input.launchUrl ?? '',
-      waitAfterLaunchEnabled: (input.launch ?? false) && !!input.waitAfterLaunch,
       waitAfterLaunch: input.waitAfterLaunch ? 30 : null,
       loginEnabled: input.login ?? false,
       loginUser: input.loginUser ?? '',
       loginPass: input.loginPass ?? '',
-      waitAfterLoginEnabled: (input.login ?? false) && !!input.waitAfterLogin,
+      userLocator: input.userLocator ?? 'USERNAME_FIELD-inner',
+      passwordLocator: input.passwordLocator ?? 'PASSWORD_FIELD-inner',
+      loginLocator: input.loginLocator ?? 'LOGIN_LINK',
       waitAfterLogin: (input.login ?? false) && input.waitAfterLogin ? 60 : null,
       opa5Input: input.opa5Text ?? {}
     };
