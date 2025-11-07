@@ -315,6 +315,22 @@
         document.head.appendChild(style);
       }
     }
+   
+
+    recordStepForInteractiveElements(stepDetails, s) {
+      if (!stepDetails.eventDetails.control.recordReplaySelector.searchOpenDialogs) {
+        stepDetails.shouldStepBeRecorded = true;
+      }
+      let recordStepDetails = this.recordStepForButton(s, stepDetails, true);
+      if (recordStepDetails?.shouldStepBeRecorded) {
+        s.send_record_step(JSON.parse(JSON.stringify(recordStepDetails.eventDetails)));
+        // if property path is blank 
+        this.toastDisplayBasedOnControl('success', recordStepDetails, 'Button');
+      }
+      else {
+        this.toastDisplayBasedOnControl('failure');
+      }      
+    }
 
     getTableDetails(oTable) {
       return new Promise((resolve) => {
@@ -339,7 +355,73 @@
       });
     }
 
-    // At the page load all value help are attached with listener
+   getControlFromEvent(e) {
+      let el = e?.target;
+      while (el) {
+        if (el.id) {
+          const ctrl = sap.ui.getCore().byId(el.id);
+          if (ctrl) return ctrl;
+        }
+        el = el.parentElement;
+      }
+      return null;
+    }
+
+    checkTableCellClick(e) {
+      const ctrl = this.getControlFromEvent(e);
+      if (!ctrl) return false;
+
+      // 1️⃣ must be label/text-like (getText() but not getValue())
+      const isLabelLike =
+        typeof ctrl.getText === "function" && typeof ctrl.getValue !== "function";
+      if (!isLabelLike) return false;
+
+      // 2️⃣ climb up UI5 parents (not DOM)
+      let parent = ctrl;
+      let depth = 0;
+
+      while (parent && depth < 20) {
+        const md = parent.getMetadata?.();
+        if (!md) break;
+
+        // unwrap SmartTable if any
+        if (typeof parent.getTable === "function") {
+          parent = parent.getTable();
+          depth++;
+          continue;
+        }
+
+        const name = md.getName?.() || "";
+        const hasRowAggregation =
+          typeof parent.getRows === "function" || typeof parent.getItems === "function";
+
+        // ✅ any table-like control (generic, no hardcoding)
+        if (/\bTable\b/.test(name) && hasRowAggregation) {
+          const rows = parent.getRows?.() || parent.getItems?.() || [];
+          for (const row of rows) {
+            const cells = row.getCells?.() || row.getAggregation?.("cells") || [];
+            for (const cell of cells) {
+              if (cell === ctrl) return true;
+              if (cell.findAggregatedObjects?.()?.includes(ctrl)) return true;
+            }
+          }
+          return false; // header/footer/toolbar label
+        }
+
+        // 🚫 stop if we reach a list-like non-table structure
+        const isListLike =
+          /\bList\b/.test(name) &&
+          !/\bTable\b/.test(name) &&
+          (typeof parent.getItems === "function" || typeof parent.getAggregation === "function");
+        if (isListLike) return false;
+
+        parent = parent.getParent?.();
+        depth++;
+      }
+
+      return false;
+    }
+
     recordStepForValueHelp(s, n, stepDetails) {
       // whenever the button next to field for choosing input is clicked
       // the below code is triggered (value help click)
@@ -601,7 +683,9 @@
       if (!this.#n) {
         return;
       }
-      let t = e || window.event;
+      const origEvent = e || window.event; // ✅ store reference before reassigning e
+      let t = origEvent;
+      //let t = e || window.event;
       let r = t.target || t.srcElement;
       let n = this.#u(r);
       const s = window?.ui5TestRecorder?.communication?.webSocket;
@@ -655,26 +739,18 @@
               // ******************Value Help Block End **********************************//
 
               // ********Button/Links/Navigation/Icons and controls apart from Value Help field Block Start ********//
-              if (!stepDetails.eventDetails.control.recordReplaySelector.searchOpenDialogs) {
-                stepDetails.shouldStepBeRecorded = true;
-              }
-              let recordStepDetails = this.recordStepForButton(s, stepDetails, true);
-              if (recordStepDetails?.shouldStepBeRecorded) {
-                s.send_record_step(JSON.parse(JSON.stringify(recordStepDetails.eventDetails)));
-                // if property path is blank 
-                this.toastDisplayBasedOnControl('success', recordStepDetails, 'Button');
-              }
-              else {
-                this.toastDisplayBasedOnControl('failure');
-              }
+              this.recordStepForInteractiveElements(stepDetails, s);
+
               // ********Button/Links/Navigation/Icons and controls apart from Value Help field Block End ********//
             }
+
             // ********************** Fire Press/ Fire Title Press Block  End*************//
 
             //**********************Not Fire Press nor Fire Title Press Block Start************************//
             else {
               let stepDetails = { shouldStepBeRecorded: false, eventDetails: e };
               let oTable = sap.ui.getCore().byId(e.control.id);
+              let isRequiredToLogDetails = this.checkTableCellClick(origEvent);
               if (oTable) {
                 this.getTableDetails(oTable).then((tableRecordDetails) => {
 
@@ -758,6 +834,13 @@
                       });
                     }
                     // ************Checkbox/Radio Block End if the control is a checkbox/radio**************//
+
+                    // ************Capture property path/path for individual click on table cell  Block Start**************/
+                    else if (isRequiredToLogDetails) {
+                      this.recordStepForInteractiveElements(stepDetails, s);               
+                    }
+                    // ************Capture property path/path for individual click on table cell clicks Block End**************/
+                    
                     else {
                       // if other than table rowselection,checkbox,radio //
                       this.toastDisplayBasedOnControl('failure');
