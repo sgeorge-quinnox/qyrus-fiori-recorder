@@ -20,30 +20,92 @@
       this.#n = true;
     }
 
-    //our code - original
     getDataOnLoad() {
-      sap.ui.getCore().attachEvent("UIUpdated", () => {
+      const attachValueHelpHook = (ctrl) => {
+        if (ctrl instanceof sap.m.Input && !ctrl._vhHooked) {
+          ctrl._vhHooked = true;
+          if (typeof ctrl.attachValueHelpRequest === "function") {
+            ctrl.attachValueHelpRequest(() => {
+              console.log("✅ ValueHelp on:", ctrl.getId());
+              this.#captureValueHelp = ctrl;
+            });
+          }
+        }
+      };
+
+      const attachValueHelpHooks = () => {
         const elems = sap.ui.core.Element.registry.all
           ? sap.ui.core.Element.registry.all()
           : sap.ui.core.Element.registry.mElements;
 
-        Object.values(elems).forEach(inp => {
-          console.log('input Elements', inp);
-          // get the fields and check if it is sap.m.input type and it has attachValueHelpRequest method
-          // set captureValueHelp - contains respective help value details
-          if (inp instanceof sap.m.Input && !inp._vhHooked) {
-            inp._vhHooked = true;
-            if (typeof inp.attachValueHelpRequest === "function") {
-              inp.attachValueHelpRequest(() => {
-                console.log("✅ ValueHelp on:", inp.getId())
-                this.#captureValueHelp = inp;
-              });
-            }
-          }
+        Object.values(elems).forEach(attachValueHelpHook);
+      };
 
-        });
+      // 1️⃣ Run once after Core initialized
+      if (sap.ui.getCore().isInitialized()) {
+        attachValueHelpHooks();
+      } else {
+        sap.ui.getCore().attachInit(attachValueHelpHooks);
+      }
+
+      // 2️⃣ Re-run after each rendering
+      sap.ui.getCore().attachEvent("UIUpdated", attachValueHelpHooks);
+
+      // 3️⃣ Smart polling fallback (self-stopping)
+      let lastCount = 0;
+      let idleCycles = 0;
+      let pollingActive = false;
+
+      const smartRecheck = () => {
+        const elems = sap.ui.core.Element.registry.all
+          ? sap.ui.core.Element.registry.all()
+          : sap.ui.core.Element.registry.mElements;
+        const count = Object.keys(elems).length;
+
+        if (count > lastCount) {
+          lastCount = count;
+          idleCycles = 0;
+          attachValueHelpHooks();
+        } else {
+          idleCycles++;
+        }
+
+        if (idleCycles < 10 && pollingActive) {
+          setTimeout(smartRecheck, 2000);
+        } else if (pollingActive) {
+          console.log("Stopped ValueHelp watcher (idle).");
+          pollingActive = false;
+        }
+      };
+
+      const startSmartPolling = () => {
+        if (!pollingActive) {
+          pollingActive = true;
+          idleCycles = 0;
+          setTimeout(smartRecheck, 2000);
+        }
+      };
+
+      // restart polling on every UI update
+      sap.ui.getCore().attachEvent("UIUpdated", startSmartPolling);
+
+      // initial kick
+      startSmartPolling();
+
+      // 4️⃣ DOM-level MutationObserver for instant detection
+      const observer = new MutationObserver((mutations) => {
+        // Run only if new nodes inserted (not attribute changes)
+        const hasNewNodes = mutations.some(m => m.addedNodes.length > 0);
+        if (hasNewNodes) attachValueHelpHooks();
       });
+
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      console.log("🚀 ValueHelp hook system initialized.");
     }
+
+
+
 
     //our code
 
@@ -315,7 +377,7 @@
         document.head.appendChild(style);
       }
     }
-   
+
 
     recordStepForInteractiveElements(stepDetails, s) {
       if (!stepDetails.eventDetails.control.recordReplaySelector.searchOpenDialogs) {
@@ -329,8 +391,46 @@
       }
       else {
         this.toastDisplayBasedOnControl('failure');
-      }      
+      }
     }
+    /**
+ * Checks if a control supports any press-like event (Button, Link, Icon, ListItem, etc.)
+ */
+    isTableRowActionIconClick(ctrl) {
+      if (!ctrl) return false;
+      const type = ctrl.getMetadata?.().getName?.() || "";
+      return (
+        type.includes("Link") ||
+        type.includes("Icon")
+      );
+    }
+
+    getTableContextForControl(ctrl) {
+      if (!ctrl) return null;
+      let parent = ctrl;
+      let depth = 0;
+
+      while (parent && depth < 20) {
+        const ctx = parent.getBindingContext?.();
+        if (ctx && typeof ctx.getPath === "function") {
+          let table = parent;
+          while (table && !/\bTable\b/.test(table.getMetadata?.().getName?.() || "")) {
+            table = table.getParent?.();
+          }
+          return {
+            table,
+            tableName: table?.getMetadata?.().getName?.(),
+            rowContext: ctx,
+            rowPath: ctx.getPath(),
+            rowData: ctx.getObject?.(),
+          };
+        }
+        parent = parent.getParent?.();
+        depth++;
+      }
+      return null;
+    }
+
 
     getTableDetails(oTable) {
       return new Promise((resolve) => {
@@ -355,7 +455,7 @@
       });
     }
 
-   getControlFromEvent(e) {
+    getControlFromEvent(e) {
       let el = e?.target;
       while (el) {
         if (el.id) {
@@ -444,6 +544,10 @@
                   stepDetails.eventDetails.control.id = inputId1;
                   stepDetails.eventDetails.control.recordReplaySelector.id = inputId1;
                   stepDetails.eventDetails.control.recordReplaySelector.value = fieldValue;
+                  if (!stepDetails.eventDetails.control.recordReplaySelector.bindingPath) {
+                    stepDetails.eventDetails.control?.recordReplaySelector.bindingPath = ev?.ancestor?.bindingPath;
+                    stepDetails.eventDetails.control?.recordReplaySelector.controlType = ev?.ancestor?.controlType;
+                  }
                   stepDetails = this.setRecordStepDetails(stepDetails);
                   resolve(stepDetails);
                 }
@@ -712,10 +816,13 @@
           .then((t) => {
             // our code
             e.control.recordReplaySelector = t;
+            const tableCtx = this.getTableContextForControl(n);
+            const isTableLabelCell = typeof n.getText === "function" && typeof n.getValue !== "function"
+            const isNavigation = this.isTableRowActionIconClick(n);
             // all click events including click on an input field comes here.We want to record only if the click is on a button
             // navigation or similar fields, also for value help. 
 
-            // ********************** Fire Press/ Fire Title Press Block  Start*************//
+            // ********************** Fire Press/ Fire Title Press Block  Start*************//            
             if (typeof n.firePress === "function" || typeof n.fireTitlePress === "function") {
               let stepDetails = { shouldStepBeRecorded: false, eventDetails: e };
 
@@ -738,19 +845,35 @@
               }
               // ******************Value Help Block End **********************************//
 
-              // ********Button/Links/Navigation/Icons and controls apart from Value Help field Block Start ********//
+              // ******************Capture Icon/Button/Navigation/Links click in table Block Start *************************//
+              if (tableCtx && isNavigation) {
+                console.log("✅ Icon inside table row detected:", tableCtx);
+
+                e.control.recordReplaySelector.bindingPath = {
+                  path: tableCtx.rowPath,
+                  propertyPath: Object.keys(n.mBindingInfos || {})[0] || null
+                };
+
+                e.control.recordReplaySelector.tableId = tableCtx.table.getId(); // full UI5 ID
+                e.control.recordReplaySelector.value = tableCtx.rowData;
+                e.control.recordReplaySelector.id = n.getId();
+
+                stepDetails.shouldStepBeRecorded = true;
+                this.recordStepForInteractiveElements(stepDetails, s);
+                return;
+              }
+              //*****************Capture Icon Icon/Button/Navigation/Links in table Block End ************/
+
+              // ****************Button/Links/Navigation/Icons and controls apart from Value Help/Table field Block Start ********//
               this.recordStepForInteractiveElements(stepDetails, s);
-
-              // ********Button/Links/Navigation/Icons and controls apart from Value Help field Block End ********//
+              // ****************Button/Links/Navigation/Icons and controls apart from Value Help/Table field Block End ********//
             }
-
             // ********************** Fire Press/ Fire Title Press Block  End*************//
 
             //**********************Not Fire Press nor Fire Title Press Block Start************************//
             else {
               let stepDetails = { shouldStepBeRecorded: false, eventDetails: e };
               let oTable = sap.ui.getCore().byId(e.control.id);
-              let isRequiredToLogDetails = this.checkTableCellClick(origEvent);
               if (oTable) {
                 this.getTableDetails(oTable).then((tableRecordDetails) => {
 
@@ -783,7 +906,6 @@
                   else {
 
                     let stepDetails = { shouldStepBeRecorded: false, eventDetails: e };
-
 
                     // ************Checkbox/Radio Block Start if the control is a checkbox/radio**************//
 
@@ -836,11 +958,14 @@
                     // ************Checkbox/Radio Block End if the control is a checkbox/radio**************//
 
                     // ************Capture property path/path for individual click on table cell  Block Start**************/
-                    else if (isRequiredToLogDetails) {
-                      this.recordStepForInteractiveElements(stepDetails, s);               
+                    // else if (isRequiredToLogDetails) {
+                    else if (tableCtx && isTableLabelCell) {
+                      e.control.recordReplaySelector.tableId = tableCtx.table?.getId?.();
+                      this.recordStepForInteractiveElements(stepDetails, s);
                     }
+                    //}
                     // ************Capture property path/path for individual click on table cell clicks Block End**************/
-                    
+
                     else {
                       // if other than table rowselection,checkbox,radio //
                       this.toastDisplayBasedOnControl('failure');
